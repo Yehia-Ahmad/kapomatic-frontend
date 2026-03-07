@@ -130,6 +130,11 @@ export class ProductEditComponent {
     }
   }
 
+  isOutOfStock(inventoryCount: unknown): boolean {
+    const parsedValue = Number(inventoryCount);
+    return Number.isFinite(parsedValue) && parsedValue === 0;
+  }
+
   private toNumber(value: unknown): number {
     const parsedValue = Number(value);
     return Number.isFinite(parsedValue) ? parsedValue : 0;

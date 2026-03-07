@@ -89,3 +89,8 @@
     grid-template-columns: 1fr;
   }
 }
+
+.out-of-stock-name {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}

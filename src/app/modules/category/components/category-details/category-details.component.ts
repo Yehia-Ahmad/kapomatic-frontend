@@ -216,6 +216,11 @@ export class CategoryDetailsComponent {
     return Number.isFinite(parsedValue) && parsedValue <= 10;
   }
 
+  isOutOfStock(inventoryCount: unknown): boolean {
+    const parsedValue = Number(inventoryCount);
+    return Number.isFinite(parsedValue) && parsedValue === 0;
+  }
+
   onBasicUploadAuto(event: any) {
     const file = event.target.files[0];
     if (file) {

@@ -38,7 +38,10 @@
                 'bg-light_card_bg text-orange': !(isDarkMode$ | async)
             }">
             <img [src]="product.image" alt="product" class="w-full h-48 object-contain" />
-            <div class="text-center break-words" [ngClass]="{ 'text-red': isLowInventory(product?.inventoryCount) }">
+            <div class="text-center break-words" [ngClass]="{
+                'text-red': isLowInventory(product?.inventoryCount),
+                'out-of-stock-name': isOutOfStock(product?.inventoryCount)
+            }">
                 <span>{{ product?.name }}</span>
                 @if(product?.code) {
                     <span> - ( {{ product?.code }} )</span>

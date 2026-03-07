@@ -12,13 +12,28 @@
                     'text-light_orange': isDarkMode$ | async,
                     'text-orange': !(isDarkMode$ | async)
                 }">{{ 'category.editProduct.productName' | translate }}</h4>
-                <h1 class="text-2xl font-bold font-azonix text-orange">{{ product?.name }}</h1>
+                <h1 class="text-2xl font-bold font-azonix text-orange" [class.out-of-stock-name]="isOutOfStock(product?.inventoryCount)">{{ product?.name }}</h1>
             </div>
             <div class="edit-fields-card w-full flex flex-col items-start py-8 rounded-lg" [ngClass]="{
                 'bg-gray_dark': isDarkMode$ | async,
                 'bg-light_card_bg': !(isDarkMode$ | async)
             }">
                 <div class="product-fields-grid w-full py-4">
+                    <label class="text-lg capitalize font-medium font-roboto text-orange" for="name">
+                        {{ 'category.editProduct.productName' | translate }}
+                    </label>
+                    <div class="field-wrapper w-full px-4 py-1 rounded-md" [ngClass]="{
+                              'border border-orange bg-light_bg text-orange': !(isDarkMode$ | async),
+                              'border border-gray bg-gray_dark': (isDarkMode$ | async)
+                            }">
+                            <input id="name" type="text"
+                                class="w-full rounded-md p-2 bg-transparent border border-none focus:outline-none"
+                                [(ngModel)]="product.name" [ngModelOptions]="{standalone: true}" [ngClass]="{
+                                    'text-orange': !(isDarkMode$ | async),
+                                    'text-light_orange ': (isDarkMode$ | async)
+                                }" />
+                    </div>
+
                     <label class="text-lg capitalize font-medium font-roboto text-orange" for="code">
                         {{ 'category.editProduct.code' | translate }}
                     </label>
