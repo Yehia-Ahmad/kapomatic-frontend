@@ -1,0 +1,119 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.selling-form-shell {
+  background: #3b3b3f;
+  border: 1px solid #4a4a4f;
+  border-radius: 14px;
+}
+
+.selling-label {
+  color: #f3dec6;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.55rem;
+  font-weight: 600;
+}
+
+.selling-control-input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.72rem 1rem;
+  border: 1px solid #6a6a6f;
+  border-radius: 8px;
+  background: transparent;
+  color: #f3dec6;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.selling-control-input::placeholder {
+  color: #b8b8bd;
+}
+
+.selling-control-input:focus {
+  border-color: #909096;
+  box-shadow: none;
+}
+
+:host ::ng-deep .selling-control.p-select,
+:host ::ng-deep .selling-control.p-datepicker,
+:host ::ng-deep .selling-control.p-inputnumber {
+  width: 100%;
+}
+
+.native-autocomplete {
+  position: relative;
+}
+
+.native-autocomplete-loading {
+  margin-top: 0.35rem;
+  color: #b8b8bd;
+}
+
+.native-autocomplete-panel {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  max-height: 16rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  border: 1px solid #6a6a6f;
+  border-radius: 8px;
+  background: #343439;
+  z-index: 30;
+}
+
+.native-autocomplete-item {
+  padding: 0.65rem 0.75rem;
+  border-radius: 6px;
+  color: #f3dec6;
+  cursor: pointer;
+  font-family: 'Roboto', sans-serif;
+}
+
+.native-autocomplete-item:hover {
+  background: #4b4b52;
+}
+
+:host ::ng-deep .selling-control.p-select {
+  min-height: 3rem;
+  border: 1px solid #6a6a6f;
+  border-radius: 8px;
+  background: transparent;
+}
+
+:host ::ng-deep .selling-control.p-select .p-select-label {
+  color: #f3dec6;
+  padding: 0.72rem 1rem;
+}
+
+:host ::ng-deep .selling-control.p-select .p-select-dropdown {
+  color: #f3dec6;
+}
+
+:host ::ng-deep .selling-control.p-inputnumber input,
+:host ::ng-deep .selling-control.p-datepicker input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.72rem 1rem;
+  border: 1px solid #6a6a6f;
+  border-radius: 8px;
+  background: transparent;
+  color: #f3dec6;
+  outline: none;
+  box-shadow: none;
+}
+
+:host ::ng-deep .selling-control.p-datepicker .p-datepicker-dropdown {
+  color: #f3dec6;
+}
+
+:host ::ng-deep .selling-control.p-inputnumber input::placeholder,
+:host ::ng-deep .selling-control.p-datepicker input::placeholder {
+  color: #b8b8bd;
+}

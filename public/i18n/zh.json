@@ -1,0 +1,105 @@
+{
+  "ProductTitle": "产品列表",
+  "searchPlaceholder": "搜索 ...",
+  "sidebarTitles": {
+    "mainitems": "主要项目",
+    "admins": "管理员",
+    "addAdmins": "添加管理员",
+    "showAdmins": "查看管理员",
+    "products": "产品",
+    "addProducts": "添加产品",
+    "showProducts": "查看产品",
+    "warranties": "保修"
+  },
+  "addProduct": "添加产品",
+  "tableHeaders": {
+    "name": "名称",
+    "type": "类型",
+    "description": "描述",
+    "warranty": "保修",
+    "expiryDate": "到期日期",
+    "actions": "操作"
+  },
+  "showQR": "显示二维码",
+  "delete": "删除",
+  "qrCodesForProduct": "产品二维码",
+  "printQRCode": "🖨️ 打印二维码",
+  "copies": "份数",
+  "errors": {
+    "invalidProductId": "收到无效的产品ID",
+    "uniqueNameRequired": "您应输入唯一名称",
+    "errorMsgToShowProducts": "加载产品失败",
+    "genericError": "出了些问题",
+    "fetchError": "获取管理员列表出错",
+    "notFound": "管理员未找到",
+    "deleteError": "删除管理员出错"
+  },
+  "product": {
+    "product": "产品",
+    "noDescription": "无可用描述",
+    "newProduct": "新产品",
+    "createNewProduct": "创建新产品",
+    "form": {
+      "name": "产品名称",
+      "type": "产品类型",
+      "warranty": "保修期",
+      "description": "产品描述"
+    },
+    "actions": {
+      "creationSuccess": "产品创建成功！",
+      "backToList": "返回列表",
+      "saving": "保存中...",
+      "saveButton": "保存产品"
+    }
+  },
+  "admin": {
+    "createNewAdmin": "创建新管理员",
+    "form": {
+      "username": "用户名",
+      "phone": "电话号码",
+      "email": "电子邮件",
+      "password": "密码",
+      "role": "角色"
+    },
+    "roles": {
+      "admin": "管理员",
+      "moderator": "版主"
+    },
+    "actions": {
+      "creating": "创建中...",
+      "createAdmin": "创建管理员",
+      "deleteSuccess": "管理员删除成功"
+    },
+    "list_Title": "管理员列表",
+    "add_Button": "添加管理员"
+  },
+  "validationForm": {
+    "name": "姓名",
+    "phone": "电话",
+    "shopName": "商店名称",
+    "shopNumber": "商店编号",
+    "purchaseDate": "购买日期",
+    "invoicePhoto": "发票照片",
+    "userInfo": "用户信息",
+    "invoiceInfo": "发票信息",
+    "browsePhoto": "浏览照片"
+  },
+  "warrant": {
+    "oklandWarranty": "奥克兰公司保修",
+    "expiresOn": "保修到期日",
+    "activate": "激活保修",
+    "success": "保修激活成功！",
+    "failure": "保修激活失败",
+    "validation": "必须上传显示日期的发票照片才能激活保修"
+  },
+  "upload": {
+    "uploading": "上传中...",
+    "complete": "上传完成"
+  },
+  "showWarranty": "显示保修信息",
+  "viewAllWarranties": "查看全部保修",
+"warranty": {
+    "invoicePhoto": "发票照片"
+  },
+  "logout": "退出登录"
+}

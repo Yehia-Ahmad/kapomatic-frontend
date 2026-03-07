@@ -1,0 +1,352 @@
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
+import { SideNavComponent } from '../../../layout/components/side-nav/side-nav.component';
+import { ThemeService } from '../../../shared/services/theme.service';
+import { HOME_VIEW_STORAGE_KEY } from '../../../layout/constants/home-view.constants';
+import { ProductsService } from '../../services/products.service';
+import { TableModule } from 'primeng/table';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { DatePickerModule } from 'primeng/datepicker';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { SelectModule } from 'primeng/select';
+import { CateoryService } from '../../../category/services/cateory.service';
+import { WarnComponent } from "../../../assets/warn/warn.component";
+
+type InvoiceHistoryRow = {
+  id: string;
+  productId: string;
+  productName: string;
+  categoryName: string;
+  customerName: string;
+  customerPhone: string;
+  sellingDate: string | null;
+  quantity: number | null;
+  unitPrice: number | null;
+  totalPrice: number | null;
+};
+
+type SelectOption = {
+  label: string;
+  value: string;
+};
+
+@Component({
+  selector: 'app-invoice-history',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    SideNavComponent,
+    TranslatePipe,
+    TableModule,
+    InputTextModule,
+    DatePickerModule,
+    ButtonModule,
+    DialogModule,
+    SelectModule,
+    WarnComponent
+],
+  templateUrl: './invoice-history.component.html',
+  styleUrl: './invoice-history.component.scss'
+})
+export class InvoiceHistoryComponent implements OnInit {
+  isDarkMode$;
+  private isBrowser: boolean;
+  isLoading = false;
+  loadError = '';
+  sellings: InvoiceHistoryRow[] = [];
+  isCategoriesLoading = false;
+  isProductsLoading = false;
+  categoryOptions: SelectOption[] = [];
+  productOptions: SelectOption[] = [];
+  filterCategoryId = '';
+  filterProductId = '';
+  filterCustomerName = '';
+  filterCustomerPhone = '';
+  filterSellingDate: Date | null = null;
+  deletingSellingId = '';
+  deleteDialogVisible = false;
+  selectedSellingToDelete: InvoiceHistoryRow | null = null;
+
+  constructor(
+    private _themeService: ThemeService,
+    private _router: Router,
+    private _productsService: ProductsService,
+    private _categoryService: CateoryService,
+    private _translate: TranslateService,
+    private _cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isDarkMode$ = this._themeService.isDarkMode$;
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
+
+  ngOnInit(): void {
+    if (!this.isBrowser) return;
+    localStorage.setItem(HOME_VIEW_STORAGE_KEY, 'products');
+    this.loadCategories();
+    this.loadSellings();
+  }
+
+  backToProducts(): void {
+    if (this.isBrowser) {
+      localStorage.setItem(HOME_VIEW_STORAGE_KEY, 'products');
+    }
+    this._router.navigate(['/home']);
+  }
+
+  applyFilters(): void {
+    this.loadSellings();
+  }
+
+  resetFilters(): void {
+    this.filterCategoryId = '';
+    this.filterProductId = '';
+    this.productOptions = [];
+    this.filterCustomerName = '';
+    this.filterCustomerPhone = '';
+    this.filterSellingDate = null;
+    this.loadSellings();
+  }
+
+  onCategoryFilterChange(categoryId: string): void {
+    this.filterCategoryId = String(categoryId || '');
+    this.filterProductId = '';
+    this.productOptions = [];
+
+    if (!this.filterCategoryId) {
+      return;
+    }
+
+    this.loadProductsByCategory(this.filterCategoryId);
+  }
+
+  private loadSellings(): void {
+    this.isLoading = true;
+    this.loadError = '';
+
+    this._productsService.getSellings(this.buildFilterParams()).subscribe({
+      next: (response: any) => {
+        this.sellings = this.extractSellings(response);
+        this.isLoading = false;
+        this._cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.sellings = [];
+        this.isLoading = false;
+        this.loadError = err?.error?.message || 'Failed to load sellings.';
+        this._cdr.detectChanges();
+      }
+    });
+  }
+
+  private buildFilterParams(): {
+    categoryId?: string;
+    productId?: string;
+    customerName?: string;
+    customerPhone?: string;
+    sellingDate?: string;
+  } {
+    const categoryId = this.filterCategoryId.trim();
+    const productId = this.filterProductId.trim();
+    const customerName = this.filterCustomerName.trim();
+    const customerPhone = this.filterCustomerPhone.trim();
+    const sellingDate = this.formatDateParam(this.filterSellingDate);
+
+    return {
+      ...(categoryId ? { categoryId } : {}),
+      ...(productId ? { productId } : {}),
+      ...(customerName ? { customerName } : {}),
+      ...(customerPhone ? { customerPhone } : {}),
+      ...(sellingDate ? { sellingDate } : {})
+    };
+  }
+
+  private formatDateParam(value: Date | null): string | undefined {
+    if (!value) return undefined;
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return undefined;
+    return date.toISOString().split('T')[0];
+  }
+
+  private loadCategories(): void {
+    this.isCategoriesLoading = true;
+
+    this._categoryService.getCategories().subscribe({
+      next: (response: any) => {
+        const categories = this.extractCollection(response);
+        this.categoryOptions = categories.map((item: any) => ({
+          label: String(item?.name || ''),
+          value: String(item?._id || item?.id || '')
+        })).filter((item: SelectOption) => Boolean(item.value));
+
+        this.isCategoriesLoading = false;
+        this._cdr.detectChanges();
+      },
+      error: () => {
+        this.categoryOptions = [];
+        this.isCategoriesLoading = false;
+        this._cdr.detectChanges();
+      }
+    });
+  }
+
+  private loadProductsByCategory(categoryId: string): void {
+    this.isProductsLoading = true;
+    const params = { categoryId };
+
+    this._categoryService.getProducts(categoryId, params).subscribe({
+      next: (response: any) => {
+        const products = this.extractCollection(response);
+        this.productOptions = products.map((item: any) => ({
+          label: String(item?.name || item?.productName || ''),
+          value: String(item?._id || item?.id || '')
+        })).filter((item: SelectOption) => Boolean(item.value));
+
+        this.isProductsLoading = false;
+        this._cdr.detectChanges();
+      },
+      error: () => {
+        this.productOptions = [];
+        this.isProductsLoading = false;
+        this._cdr.detectChanges();
+      }
+    });
+  }
+
+  private extractSellings(response: any): any[] {
+    let list: any[] = [];
+
+    if (Array.isArray(response)) {
+      list = response;
+    } else if (Array.isArray(response?.data)) {
+      list = response.data;
+    } else if (Array.isArray(response?.sellings)) {
+      list = response.sellings;
+    } else if (response?.data && typeof response.data === 'object') {
+      list = [response.data];
+    } else if (response && typeof response === 'object') {
+      list = [response];
+    }
+
+    return list
+      .map((item) => this.mapSelling(item))
+      .filter((item): item is InvoiceHistoryRow => item !== null);
+  }
+
+  private extractCollection(response: any): any[] {
+    if (Array.isArray(response)) return response;
+    if (Array.isArray(response?.data)) return response.data;
+    if (Array.isArray(response?.products)) return response.products;
+    if (Array.isArray(response?.categories)) return response.categories;
+    if (response?.data && typeof response.data === 'object') return [response.data];
+    if (response && typeof response === 'object') return [response];
+    return [];
+  }
+
+  private mapSelling(item: any): InvoiceHistoryRow | null {
+    if (!item) return null;
+
+    const id = item._id || item.id;
+    if (!id) return null;
+
+    return {
+      id: String(id),
+      productId: String(item.productId || ''),
+      productName: String(item.productName || item.product?.name || ''),
+      categoryName: String(item.categoryName || item.category?.name || ''),
+      customerName: String(item.customerName || ''),
+      customerPhone: String(item.customerPhone || item.customer?.phone || item.customer?.phoneNumber || ''),
+      sellingDate: item.sellingDate ? String(item.sellingDate) : null,
+      quantity: this.toNumber(item.productQuantity ?? item.productQuentity ?? item.quantity),
+      unitPrice: this.toNumber(item.productPricePerEach ?? item.price),
+      totalPrice: this.toNumber(item.totalPrice ?? item.total)
+    };
+  }
+
+  openWhatsAppChat(phone: string): void {
+    const normalizedPhone = this.normalizePhoneForWhatsApp(phone);
+    if (!normalizedPhone || !this.isBrowser) return;
+    window.open(`https://wa.me/${normalizedPhone}`, '_blank');
+  }
+
+  canOpenWhatsApp(phone: string): boolean {
+    return Boolean(this.normalizePhoneForWhatsApp(phone));
+  }
+
+  openDeleteDialog(selling: InvoiceHistoryRow): void {
+    if (!selling?.id) {
+      return;
+    }
+
+    this.selectedSellingToDelete = selling;
+    this.deleteDialogVisible = true;
+  }
+
+  closeDeleteDialog(): void {
+    if (this.isDeletingSelectedSelling) {
+      return;
+    }
+
+    this.deleteDialogVisible = false;
+    this.selectedSellingToDelete = null;
+  }
+
+  deleteSelling(): void {
+    const selling = this.selectedSellingToDelete;
+    if (!selling?.id) {
+      return;
+    }
+
+    this.deletingSellingId = selling.id;
+    this.loadError = '';
+
+    this._productsService.deleteSelling(selling.id).subscribe({
+      next: () => {
+        this.sellings = this.sellings.filter((item) => item.id !== selling.id);
+        this.deletingSellingId = '';
+        this.deleteDialogVisible = false;
+        this.selectedSellingToDelete = null;
+        this._cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.deletingSellingId = '';
+        this.deleteDialogVisible = false;
+        this.selectedSellingToDelete = null;
+        this.loadError = err?.error?.message || this.translateKey('invoiceHistoryPage.messages.deleteFailed');
+        this._cdr.detectChanges();
+      }
+    });
+  }
+
+  isDeletingSelling(sellingId: string): boolean {
+    return this.deletingSellingId === sellingId;
+  }
+
+  get isDeletingSelectedSelling(): boolean {
+    return this.isDeletingSelling(this.selectedSellingToDelete?.id || '');
+  }
+
+  private normalizePhoneForWhatsApp(phone: string): string {
+    const rawPhone = String(phone || '').trim();
+    if (!rawPhone) return '';
+
+    const digitsOnly = rawPhone.replace(/\D/g, '');
+    if (!digitsOnly) return '';
+
+    return digitsOnly.startsWith('00') ? digitsOnly.slice(2) : digitsOnly;
+  }
+
+  private toNumber(value: any): number | null {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  private translateKey(key: string): string {
+    return this._translate.instant(key);
+  }
+}
