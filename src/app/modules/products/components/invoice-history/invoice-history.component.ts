@@ -332,13 +332,29 @@ export class InvoiceHistoryComponent implements OnInit {
   }
 
   private normalizePhoneForWhatsApp(phone: string): string {
+    return this.normalizeEgyptPhone(phone);
+  }
+
+  private normalizeEgyptPhone(phone: string): string {
     const rawPhone = String(phone || '').trim();
     if (!rawPhone) return '';
 
     const digitsOnly = rawPhone.replace(/\D/g, '');
     if (!digitsOnly) return '';
 
-    return digitsOnly.startsWith('00') ? digitsOnly.slice(2) : digitsOnly;
+    if (digitsOnly.startsWith('0020')) {
+      return digitsOnly.slice(2);
+    }
+
+    if (digitsOnly.startsWith('+20')) {
+      return digitsOnly;
+    }
+
+    if (digitsOnly.startsWith('0')) {
+      return `+20${digitsOnly.slice(1)}`;
+    }
+
+    return `+20${digitsOnly}`;
   }
 
   private toNumber(value: any): number | null {
