@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, computed, EventEmitter, Output, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { MenuOpen } from "../../../assets/menu-open/menu-open";
@@ -33,7 +33,7 @@ export class HeaderComponent {
   ];
   currentLang: string;
 
-  constructor(private _languageService: LanguageService, private _themeService: ThemeService) {
+  constructor(private _languageService: LanguageService, private _themeService: ThemeService, private _location: Location) {
     this.currentLang = _languageService.selectedLanguage();
     this.isDarkMode$ = this._themeService.isDarkMode$
 
@@ -55,6 +55,14 @@ export class HeaderComponent {
 
   toggleDarkMode() {
     this._themeService.toggleTheme();
+  }
+
+  goBack() {
+    this._location.back();
+  }
+
+  get backButtonLabel() {
+    return this.currentLang === 'ar' ? 'رجوع' : 'Back';
   }
 
 }

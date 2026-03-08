@@ -108,6 +108,42 @@
             />
           </div>
 
+          <div class="w-full flex flex-col gap-2 md:col-span-2">
+            <label class="selling-label" [ngClass]="{
+              'text-right': direction === 'rtl',
+              'text-left': direction !== 'rtl'
+            }">{{ 'sellingPage.fields.searchCustomer' | translate }}</label>
+            <div class="native-autocomplete">
+              <input
+                type="text"
+                [value]="customerSearchInputValue"
+                [placeholder]="'sellingPage.placeholders.searchCustomer' | translate"
+                class="selling-control-input"
+                (input)="onCustomerSearchInputChange($event)"
+                (focus)="onCustomerSearchInputFocus()"
+                (blur)="onCustomerSearchInputBlur()"
+              />
+
+              @if (isSearchingCustomers) {
+                <div class="native-autocomplete-loading text-sm font-roboto">{{ 'sellingPage.actions.searching' | translate }}</div>
+              }
+
+              @if (showCustomerSuggestionPanel && customerOptions.length > 0) {
+                <ul class="native-autocomplete-panel">
+                  @for (customer of customerOptions; track customer.id) {
+                    <li class="native-autocomplete-item" (mousedown)="onCustomerOptionSelect(customer)">
+                      {{ customer.displayLabel }}
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+
+            @if (customerSearchError) {
+              <p class="text-sm font-roboto text-red">{{ customerSearchError }}</p>
+            }
+          </div>
+
           <div class="flex flex-col gap-2">
             <label class="selling-label" [ngClass]="{
               'text-right': direction === 'rtl',

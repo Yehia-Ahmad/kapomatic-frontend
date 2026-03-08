@@ -7,6 +7,7 @@
     "addAdmins": "إضافة مشرفين",
     "showAdmins": "عرض المشرفين",
     "products": "المنتجات",
+    "customers": "العملاء",
     "selling": "البيع",
     "invoice_history": "سجل الفواتير",
     "addProducts": "إضافة منتجات",
@@ -252,6 +253,10 @@
         "title": "المنتجات",
         "description": "الانتقال إلى صفحات البيع وسجل الفواتير."
       },
+      "customers": {
+        "title": "العملاء",
+        "description": "إنشاء وإدارة بيانات العملاء."
+      },
       "selling": {
         "title": "البيع",
         "description": "فتح صفحة البيع."
@@ -274,6 +279,7 @@
   "sellingPage": {
     "fields": {
       "searchProduct": "بحث عن كود المنتج",
+      "searchCustomer": "بحث عن العميل",
       "selectProduct": "اختيار المنتج",
       "productName": "اسم المنتج",
       "categoryName": "اسم الفئة",
@@ -292,6 +298,7 @@
     },
     "placeholders": {
       "searchProduct": "أدخل كود المنتج (مثل WM-001)",
+      "searchCustomer": "ابحث باسم العميل أو رقم الهاتف",
       "selectProduct": "اختر المنتج من النتائج",
       "selectPriceType": "اختر نوع السعر"
     },
@@ -303,7 +310,9 @@
     },
     "messages": {
       "noProductFound": "لم يتم العثور على منتج بهذا الكود.",
+      "noCustomerFound": "لم يتم العثور على عميل بهذه البيانات.",
       "searchFailed": "فشل البحث عن المنتج.",
+      "customerSearchFailed": "فشل البحث عن العميل.",
       "createdSuccess": "تم إنشاء عملية البيع بنجاح.",
       "createFailed": "فشل إنشاء عملية البيع."
     }
@@ -341,6 +350,42 @@
     "messages": {
       "deleteConfirm": "هل تريد حذف سجل البيع هذا؟",
       "deleteFailed": "فشل حذف سجل البيع."
+    }
+  },
+  "customerPage": {
+    "title": "العملاء",
+    "subtitle": "حفظ وإدارة أسماء العملاء وأرقام هواتفهم.",
+    "searchPlaceholder": "ابحث باسم العميل أو رقم الهاتف",
+    "listTitle": "قائمة العملاء",
+    "count": "عميل",
+    "loading": "جارٍ تحميل العملاء...",
+    "empty": "لا يوجد عملاء.",
+    "form": {
+      "addTitle": "إضافة عميل",
+      "editTitle": "تعديل العميل",
+      "name": "اسم العميل",
+      "phone": "رقم الهاتف",
+      "placeholders": {
+        "name": "أدخل اسم العميل",
+        "phone": "أدخل رقم هاتف العميل"
+      },
+      "validation": {
+        "name": "اسم العميل مطلوب.",
+        "phone": "رقم هاتف العميل مطلوب."
+      }
+    },
+    "actions": {
+      "search": "بحث",
+      "reset": "إعادة تعيين",
+      "create": "حفظ العميل",
+      "update": "تحديث العميل",
+      "cancelEdit": "إلغاء التعديل",
+      "edit": "تغيير",
+      "delete": "حذف"
+    },
+    "messages": {
+      "deleteTitle": "حذف العميل",
+      "deleteConfirm": "هل تريد حذف هذا العميل؟"
     }
   },
   "logout": {

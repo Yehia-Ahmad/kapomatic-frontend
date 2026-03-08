@@ -108,6 +108,17 @@ export class CustomSidenavComponent implements OnInit {
 
     this.menuItems.set([
       {
+        label: 'sidebarTitles.customers',
+        icon: this.sanitize(`
+        <span class="block w-8 h-8">
+            <svg width="100%" height="100%" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+              <path d="M320 312C400.1 312 464 248.1 464 168C464 87.9 400.1 24 320 24C239.9 24 176 87.9 176 168C176 248.1 239.9 312 320 312zM229.3 360C123.6 360 38 445.6 38 551.3C38 584.8 65.2 612 98.7 612L541.3 612C574.8 612 602 584.8 602 551.3C602 445.6 516.4 360 410.7 360L229.3 360z" style="fill:#2f2f2f;fill-rule:nonzero;" />
+            </svg>
+        </span>
+        `),
+        route: '/customers'
+      },
+      {
         label: 'sidebarTitles.categories',
         icon: this.sanitize(`
         <span class="block w-8 h-8">

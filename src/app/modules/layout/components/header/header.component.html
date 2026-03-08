@@ -12,6 +12,23 @@
             <app-moon></app-moon>
             }
         </button>
+        <button
+            type="button"
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-current bg-transparent transition-colors duration-200"
+            [ngClass]="{
+              'text-orange hover:bg-orange/10': !(isDarkMode$ | async),
+              'text-light_orange hover:bg-white/10': (isDarkMode$ | async)
+            }"
+            [attr.aria-label]="backButtonLabel"
+            [attr.title]="backButtonLabel"
+            (click)="goBack()">
+            <span class="sr-only">{{ backButtonLabel }}</span>
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                [style.transform]="direction() === 'rtl' ? 'scaleX(-1)' : 'none'">
+                <path d="M15.75 19.5L8.25 12L15.75 4.5" stroke="currentColor" stroke-width="2.25"
+                    stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </button>
         <p-select [options]="i18n" [(ngModel)]="currentLang" (ngModelChange)="onLanguageChange($event)" appendTo="body"
             optionLabel="name" optionValue="id" placeholder="Select Language" class="custom-select w-32" [ngClass]="{
                   'light-mode-select': !(isDarkMode$ | async),
@@ -76,6 +93,23 @@
             } @else {
                 <app-moon></app-moon>
             }
+        </button>
+        <button
+            type="button"
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-current bg-transparent transition-colors duration-200"
+            [ngClass]="{
+              'text-orange hover:bg-orange/10': !(isDarkMode$ | async),
+              'text-light_orange hover:bg-white/10': (isDarkMode$ | async)
+            }"
+            [attr.aria-label]="backButtonLabel"
+            [attr.title]="backButtonLabel"
+            (click)="goBack()">
+            <span class="sr-only">{{ backButtonLabel }}</span>
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                [style.transform]="direction() === 'rtl' ? 'scaleX(-1)' : 'none'">
+                <path d="M15.75 19.5L8.25 12L15.75 4.5" stroke="currentColor" stroke-width="2.25"
+                    stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
         </button>
     </div>
 </div>
