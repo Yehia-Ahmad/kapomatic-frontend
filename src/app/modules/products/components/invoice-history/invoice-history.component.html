@@ -122,7 +122,7 @@
           [loading]="isLoading"
           [scrollable]="true"
           scrollHeight="450px"
-          [tableStyle]="{ 'min-width': '1220px' }"
+          [tableStyle]="{ 'min-width': '1360px' }"
           styleClass="invoice-history-table"
         >
           <ng-template pTemplate="header">
@@ -159,7 +159,7 @@
                   <button
                     type="button"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366] text-white transition-opacity duration-200 hover:opacity-85 disabled:cursor-not-allowed disabled:bg-[#8a8a8a]"
-                    [disabled]="!canOpenWhatsApp(selling.customerPhone) || isDeletingSelling(selling.id)"
+                    [disabled]="!canOpenWhatsApp(selling.customerPhone) || isDeletingSelling(selling.id) || isDownloadingInvoice(selling.id)"
                     (click)="openWhatsAppChat(selling.customerPhone)"
                     aria-label="Open WhatsApp chat"
                   >
@@ -171,8 +171,22 @@
                   </button>
                   <button
                     type="button"
+                    class="inline-flex items-center justify-center gap-2 rounded-md bg-[#0d6efd] px-3 py-2 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-85 disabled:cursor-not-allowed disabled:bg-[#8a8a8a]"
+                    [disabled]="isDeletingSelling(selling.id) || isDownloadingInvoice(selling.id)"
+                    (click)="downloadInvoice(selling)"
+                    [attr.aria-label]="'invoiceHistoryPage.actions.downloadInvoice' | translate"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4 fill-current">
+                      <path d="M12 16.5a1 1 0 0 1-.71-.29l-4-4a1 1 0 1 1 1.42-1.42L11 13.09V4a1 1 0 1 1 2 0v9.09l2.29-2.3a1 1 0 0 1 1.42 1.42l-4 4A1 1 0 0 1 12 16.5Zm6 3.5H6a3 3 0 0 1-3-3v-1a1 1 0 1 1 2 0v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1a1 1 0 1 1 2 0v1a3 3 0 0 1-3 3Z" />
+                    </svg>
+                    <span>
+                      {{ isDownloadingInvoice(selling.id) ? ('actions.loading' | translate) : ('invoiceHistoryPage.actions.downloadInvoice' | translate) }}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
                     class="inline-flex items-center justify-center rounded-md bg-red px-3 py-2 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-85 disabled:cursor-not-allowed disabled:bg-[#8a8a8a]"
-                    [disabled]="isDeletingSelling(selling.id)"
+                    [disabled]="isDeletingSelling(selling.id) || isDownloadingInvoice(selling.id)"
                     (click)="openDeleteDialog(selling)"
                   >
                     {{ isDeletingSelling(selling.id) ? ('actions.loading' | translate) : ('delete' | translate) }}

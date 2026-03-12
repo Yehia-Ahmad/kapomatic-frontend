@@ -11,6 +11,7 @@
     "build:desktop": "ng build --base-href ./",
     "electron:start": "npm run build:desktop && electron .",
     "electron:build:dir": "npm run build:desktop && electron-builder --dir",
+    "electron:build:win:dir": "npm run build:desktop && electron-builder --win --dir",
     "electron:build:win": "npm run build:desktop && electron-builder --win nsis",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -44,6 +45,7 @@
     "asar": true,
     "icon": "src/assets/img/Kapo.jpeg",
     "win": {
+      "signAndEditExecutable": false,
       "target": [
         {
           "target": "nsis",

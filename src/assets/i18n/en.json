@@ -275,6 +275,10 @@
     },
     "sellingPage": {
         "fields": {
+            "invoiceDetails": "Invoice Details",
+            "customerInformation": "Customer Information",
+            "invoiceProducts": "Invoice Products",
+            "invoiceProduct": "Product Line",
             "searchProduct": "Search Product Code",
             "searchCustomer": "Search Customer",
             "selectProduct": "Select Product",
@@ -282,10 +286,14 @@
             "categoryName": "Category Name",
             "priceType": "Price Type",
             "price": "Price",
+            "lineTotal": "Line Total",
             "customerName": "Customer Name",
             "customerPhone": "Customer Phone",
             "sellingDate": "Selling Date",
             "productQuantity": "Product Quantity",
+            "productsCount": "Products Count",
+            "totalQuantity": "Total Quantity",
+            "invoiceSummary": "Invoice Summary",
             "totalInvoicePrice": "Total Invoice Price"
         },
         "priceTypeOptions": {
@@ -302,16 +310,19 @@
         "actions": {
             "search": "Search",
             "searching": "Searching...",
-            "createSelling": "Create Selling",
-            "saving": "Saving..."
+            "addProduct": "Add Product",
+            "removeProduct": "Remove",
+            "clearProduct": "Clear",
+            "createSelling": "Save Invoice",
+            "saving": "Saving Invoice..."
         },
         "messages": {
             "noProductFound": "No product found for this code.",
             "noCustomerFound": "No customer found for this search.",
             "searchFailed": "Failed to search product.",
             "customerSearchFailed": "Failed to search customer.",
-            "createdSuccess": "Selling created successfully.",
-            "createFailed": "Failed to create selling."
+            "createdSuccess": "Invoice saved successfully.",
+            "createFailed": "Failed to save invoice."
         }
     },
     "invoiceHistoryPage": {
@@ -332,7 +343,7 @@
                 "reset": "Reset"
             }
         },
-        "tableHeaders": {
+    "tableHeaders": {
             "index": "#",
             "product": "Product",
             "category": "Category",
@@ -344,9 +355,14 @@
             "totalPrice": "Total Price",
             "action": "Action"
         },
+        "actions": {
+            "downloadInvoice": "Download Invoice"
+        },
         "messages": {
             "deleteConfirm": "Do you want to delete this selling record?",
-            "deleteFailed": "Failed to delete selling."
+            "deleteFailed": "Failed to delete selling.",
+            "invoiceWindowBlocked": "Allow pop-ups to open and save the invoice.",
+            "invoiceDownloadFailed": "Failed to open the invoice."
         }
     },
     "customerPage": {

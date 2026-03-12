@@ -1,4 +1,4 @@
-# OklandWarrantySystemV2
+# Kapomatic Inventory System
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.5.
 
@@ -51,11 +51,19 @@ npm run electron:start
 # Build unpacked desktop output (for testing)
 npm run electron:build:dir
 
+# Build Windows unpacked app folder (works on Linux without Wine)
+npm run electron:build:win:dir
+
 # Build Windows installer (.exe via NSIS)
 npm run electron:build:win
 ```
 
 Build artifacts are generated in the `release/` directory.
+
+Notes:
+
+- `npm run electron:build:win:dir` generates `release/win-unpacked/`, which already contains `Kapomatic Inventory System.exe`.
+- `npm run electron:build:win` generates an NSIS installer, but on Linux it requires `wine` to be installed.
 
 ## Running unit tests
 

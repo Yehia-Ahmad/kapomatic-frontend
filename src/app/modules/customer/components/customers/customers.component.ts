@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
@@ -35,7 +35,8 @@ export class CustomersComponent implements OnInit {
     private _themeService: ThemeService,
     private _formBuilder: FormBuilder,
     private _customersService: CustomersService,
-    private _languageService: LanguageService
+    private _languageService: LanguageService,
+    private _cdr: ChangeDetectorRef
   ) {
     this.isDarkMode$ = this._themeService.isDarkMode$;
     this.customerForm = this._formBuilder.group({
@@ -62,6 +63,7 @@ export class CustomersComponent implements OnInit {
       next: (response: any) => {
         this.customers = this.extractCustomers(response);
         this.isFetching = false;
+        this._cdr.markForCheck();
       },
       error: (error: any) => {
         this.isFetching = false;

@@ -17,11 +17,14 @@ export class ProductsService {
   }
 
   createSelling(payload: {
-    productId: string;
     customerName: string;
+    customerPhone?: string;
     sellingDate: string;
-    quantity: number;
-    price: number;
+    items: Array<{
+      productId: string;
+      quantity: number;
+      price: number;
+    }>;
   }) {
     return this._http.post(`${this._baseUrl}sellings`, payload);
   }

@@ -1,17 +1,32 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID
+} from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { SideNavComponent } from '../../../layout/components/side-nav/side-nav.component';
 import { ThemeService } from '../../../shared/services/theme.service';
 import { HOME_VIEW_STORAGE_KEY } from '../../../layout/constants/home-view.constants';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
+import { Subscription } from 'rxjs';
 import { ProductsService } from '../../services/products.service';
 import { format as formatDate } from 'date-fns';
 import { CustomersService } from '../../../customer/services/customers.service';
@@ -35,6 +50,19 @@ type CustomerSearchResult = {
   displayLabel: string;
 };
 
+type InvoiceItemState = {
+  id: string;
+  searchInputValue: string;
+  showSuggestionPanel: boolean;
+  productOptions: ProductSearchResult[];
+  isSearching: boolean;
+  searchError: string;
+  latestRequestedQuery: string;
+  selectedProductOption: ProductSearchResult | null;
+  selectedProduct: ProductSearchResult | null;
+  searchBlurTimer: ReturnType<typeof setTimeout> | null;
+};
+
 @Component({
   selector: 'app-selling',
   standalone: true,
@@ -54,33 +82,26 @@ type CustomerSearchResult = {
   templateUrl: './selling.component.html',
   styleUrl: './selling.component.scss'
 })
-export class SellingComponent implements OnInit {
+export class SellingComponent implements OnInit, OnDestroy {
   isDarkMode$;
   direction: 'rtl' | 'ltr' = 'ltr';
   private isBrowser: boolean;
-  private latestRequestedQuery = '';
-  private latestRequestedCustomerQuery = '';
-  private searchBlurTimer: ReturnType<typeof setTimeout> | null = null;
   private customerSearchBlurTimer: ReturnType<typeof setTimeout> | null = null;
-  searchInputValue = '';
+  private invoiceItemSubscriptions = new Map<FormGroup, Subscription[]>();
+  private invoiceItemSequence = 0;
   customerSearchInputValue = '';
-  showSuggestionPanel = false;
   showCustomerSuggestionPanel = false;
-  productOptions: ProductSearchResult[] = [];
   customerOptions: CustomerSearchResult[] = [];
-  selectedProductOption: ProductSearchResult | null = null;
   selectedCustomerOption: CustomerSearchResult | null = null;
   sellingForm: FormGroup;
-  isSearching = false;
+  invoiceItemStates: InvoiceItemState[] = [];
   isSearchingCustomers = false;
   isSaving = false;
   successDialogVisible = false;
   errorDialogVisible = false;
-  searchError = '';
   customerSearchError = '';
   saveError = '';
-  saveSuccess = '';
-  selectedProduct: ProductSearchResult | null = null;
+  private latestRequestedCustomerQuery = '';
 
   priceTypeOptions = [
     { label: '', value: 'wholesalePrice' },
@@ -101,6 +122,7 @@ export class SellingComponent implements OnInit {
     this.isDarkMode$ = this._themeService.isDarkMode$;
     this.isBrowser = isPlatformBrowser(platformId);
     this.sellingForm = this.initializeForm();
+    this.addInvoiceItem(false);
   }
 
   ngOnInit(): void {
@@ -113,13 +135,40 @@ export class SellingComponent implements OnInit {
 
     if (!this.isBrowser) return;
     localStorage.setItem(HOME_VIEW_STORAGE_KEY, 'products');
+  }
 
-    this.sellingForm.get('priceType')?.valueChanges.subscribe((value) => {
-      this.applyPriceType(value as PriceType);
+  ngOnDestroy(): void {
+    if (this.customerSearchBlurTimer) {
+      clearTimeout(this.customerSearchBlurTimer);
+      this.customerSearchBlurTimer = null;
+    }
+
+    this.invoiceItemStates.forEach((state) => {
+      if (state.searchBlurTimer) {
+        clearTimeout(state.searchBlurTimer);
+        state.searchBlurTimer = null;
+      }
     });
 
-    this.sellingForm.get('price')?.valueChanges.subscribe(() => this.updateTotalInvoicePrice());
-    this.sellingForm.get('quantity')?.valueChanges.subscribe(() => this.updateTotalInvoicePrice());
+    this.invoiceItemSubscriptions.forEach((subscriptions) => {
+      subscriptions.forEach((subscription) => subscription.unsubscribe());
+    });
+    this.invoiceItemSubscriptions.clear();
+  }
+
+  get invoiceItems(): FormArray {
+    return this.sellingForm.get('items') as FormArray;
+  }
+
+  get invoiceGrandTotal(): number {
+    return Number(this.sellingForm.get('totalInvoicePrice')?.value || 0);
+  }
+
+  get invoiceQuantityTotal(): number {
+    return this.invoiceItems.controls.reduce((total, control) => {
+      const quantity = Number((control as FormGroup).get('quantity')?.value || 0);
+      return total + (Number.isFinite(quantity) ? quantity : 0);
+    }, 0);
   }
 
   backToProducts(): void {
@@ -129,31 +178,111 @@ export class SellingComponent implements OnInit {
     this._router.navigate(['/home']);
   }
 
-  get isCustomPrice(): boolean {
-    return this.sellingForm.get('priceType')?.value === 'custom';
+  trackInvoiceItem(index: number): string {
+    return this.invoiceItemStates[index]?.id || String(index);
   }
 
-  onSearchInputChange(event: Event): void {
-    const query = String((event.target as HTMLInputElement)?.value || '').trim();
-    this.searchError = '';
-    this.searchInputValue = String((event.target as HTMLInputElement)?.value || '');
+  getInvoiceItem(index: number): FormGroup {
+    return this.invoiceItems.at(index) as FormGroup;
+  }
 
-    if (!query) {
-      this.productOptions = [];
-      this.isSearching = false;
-      this.latestRequestedQuery = '';
-      this.showSuggestionPanel = false;
-      this.selectedProductOption = null;
-      this.onProductSelectionChange(null);
+  getInvoiceItemState(index: number): InvoiceItemState {
+    return this.invoiceItemStates[index];
+  }
+
+  isCustomPrice(index: number): boolean {
+    return this.getInvoiceItem(index).get('priceType')?.value === 'custom';
+  }
+
+  addInvoiceItem(emitChanges = true): void {
+    const itemGroup = this.createInvoiceItemGroup();
+    this.invoiceItems.push(itemGroup);
+    this.invoiceItemStates.push(this.createInvoiceItemState());
+    this.registerInvoiceItemSubscriptions(itemGroup);
+    this.applyPriceTypeToItem(itemGroup, itemGroup.get('priceType')?.value as PriceType);
+    this.updateInvoiceTotals();
+
+    if (emitChanges) {
+      this._cdr.detectChanges();
+    }
+  }
+
+  removeInvoiceItem(index: number): void {
+    if (this.invoiceItems.length === 1) {
+      this.resetInvoiceItem(index);
       return;
     }
 
-    if (this.selectedProduct && query !== this.selectedProduct.displayLabel) {
-      this.selectedProductOption = null;
-      this.onProductSelectionChange(null);
+    const itemGroup = this.getInvoiceItem(index);
+    const itemState = this.getInvoiceItemState(index);
+    this.teardownInvoiceItem(itemGroup, itemState);
+    this.invoiceItems.removeAt(index);
+    this.invoiceItemStates.splice(index, 1);
+    this.updateInvoiceTotals();
+    this._cdr.detectChanges();
+  }
+
+  onSearchInputChange(index: number, event: Event): void {
+    const itemGroup = this.getInvoiceItem(index);
+    const itemState = this.getInvoiceItemState(index);
+    const value = String((event.target as HTMLInputElement)?.value || '');
+    const query = value.trim();
+
+    itemState.searchError = '';
+    itemState.searchInputValue = value;
+
+    if (!query) {
+      itemState.productOptions = [];
+      itemState.isSearching = false;
+      itemState.latestRequestedQuery = '';
+      itemState.showSuggestionPanel = false;
+      itemState.selectedProductOption = null;
+      this.onProductSelectionChange(itemGroup, itemState, null);
+      return;
     }
 
-    this.fetchProductOptions(query);
+    if (itemState.selectedProduct && query !== itemState.selectedProduct.displayLabel) {
+      itemState.selectedProductOption = null;
+      this.onProductSelectionChange(itemGroup, itemState, null);
+    }
+
+    this.fetchProductOptions(itemGroup, itemState, query);
+  }
+
+  onSearchInputFocus(index: number): void {
+    const itemState = this.getInvoiceItemState(index);
+
+    if (itemState.searchBlurTimer) {
+      clearTimeout(itemState.searchBlurTimer);
+      itemState.searchBlurTimer = null;
+    }
+
+    if (itemState.productOptions.length > 0 || itemState.isSearching) {
+      itemState.showSuggestionPanel = true;
+    }
+  }
+
+  onSearchInputBlur(index: number): void {
+    const itemState = this.getInvoiceItemState(index);
+    itemState.searchBlurTimer = setTimeout(() => {
+      itemState.showSuggestionPanel = false;
+      this._cdr.detectChanges();
+    }, 180);
+  }
+
+  onNativeOptionSelect(index: number, product: ProductSearchResult): void {
+    const itemGroup = this.getInvoiceItem(index);
+    const itemState = this.getInvoiceItemState(index);
+
+    if (itemState.searchBlurTimer) {
+      clearTimeout(itemState.searchBlurTimer);
+      itemState.searchBlurTimer = null;
+    }
+
+    itemState.selectedProductOption = product;
+    itemState.searchInputValue = product.displayLabel;
+    itemState.showSuggestionPanel = false;
+    this.onProductSelectionChange(itemGroup, itemState, product);
   }
 
   onCustomerSearchInputChange(event: Event): void {
@@ -179,17 +308,6 @@ export class SellingComponent implements OnInit {
     this.fetchCustomerOptions(query);
   }
 
-  onSearchInputFocus(): void {
-    if (this.searchBlurTimer) {
-      clearTimeout(this.searchBlurTimer);
-      this.searchBlurTimer = null;
-    }
-
-    if (this.productOptions.length > 0 || this.isSearching) {
-      this.showSuggestionPanel = true;
-    }
-  }
-
   onCustomerSearchInputFocus(): void {
     if (this.customerSearchBlurTimer) {
       clearTimeout(this.customerSearchBlurTimer);
@@ -201,30 +319,11 @@ export class SellingComponent implements OnInit {
     }
   }
 
-  onSearchInputBlur(): void {
-    this.searchBlurTimer = setTimeout(() => {
-      this.showSuggestionPanel = false;
-      this._cdr.detectChanges();
-    }, 180);
-  }
-
   onCustomerSearchInputBlur(): void {
     this.customerSearchBlurTimer = setTimeout(() => {
       this.showCustomerSuggestionPanel = false;
       this._cdr.detectChanges();
     }, 180);
-  }
-
-  onNativeOptionSelect(product: ProductSearchResult): void {
-    if (this.searchBlurTimer) {
-      clearTimeout(this.searchBlurTimer);
-      this.searchBlurTimer = null;
-    }
-
-    this.selectedProductOption = product;
-    this.searchInputValue = product.displayLabel;
-    this.showSuggestionPanel = false;
-    this.onProductSelectionChange(product);
   }
 
   onCustomerOptionSelect(customer: CustomerSearchResult): void {
@@ -243,131 +342,45 @@ export class SellingComponent implements OnInit {
     });
   }
 
-  onProductSelectionChange(product: ProductSearchResult | null): void {
-    this.searchError = '';
-
-    if (!product) {
-      this.selectedProduct = null;
-      this.clearProductData();
-      return;
-    }
-
-    this.selectedProduct = product;
-    this.sellingForm.patchValue({
-      productId: product.id,
-      productName: product.name,
-      categoryName: product.categoryName,
-    });
-
-    this.applyPriceType(this.sellingForm.get('priceType')?.value as PriceType);
-  }
-
-  private fetchProductOptions(query: string): void {
-    this.latestRequestedQuery = query;
-
-    this.isSearching = true;
-    this.searchError = '';
-    this.saveError = '';
-    this.saveSuccess = '';
-
-    this._productsService.searchProducts(query).subscribe({
-      next: (res: any) => {
-        if (query !== this.latestRequestedQuery) {
-          return;
-        }
-
-        this.isSearching = false;
-        this.productOptions = this.extractProducts(res);
-        this.showSuggestionPanel = this.productOptions.length > 0 && this.searchInputValue.trim().length > 0;
-
-        if (!this.productOptions.length) {
-          this.searchError = this.translateKey('sellingPage.messages.noProductFound');
-        }
-
-        if (this.selectedProduct) {
-          const stillAvailable = this.productOptions.some((item) => item.id === this.selectedProduct?.id);
-          if (!stillAvailable) {
-            this.selectedProductOption = null;
-            this.onProductSelectionChange(null);
-          }
-        }
-
-        this._cdr.detectChanges();
-      },
-      error: (err: any) => {
-        if (query !== this.latestRequestedQuery) {
-          return;
-        }
-
-        this.isSearching = false;
-        this.selectedProduct = null;
-        this.selectedProductOption = null;
-        this.productOptions = [];
-        this.showSuggestionPanel = false;
-        this.clearProductData();
-        this.searchError = err?.error?.message || this.translateKey('sellingPage.messages.searchFailed');
-        this._cdr.detectChanges();
-      }
-    });
-  }
-
-  private fetchCustomerOptions(query: string): void {
-    this.latestRequestedCustomerQuery = query;
-    this.isSearchingCustomers = true;
-    this.customerSearchError = '';
-
-    this._customersService.getCustomers({ search: query }).subscribe({
-      next: (res: any) => {
-        if (query !== this.latestRequestedCustomerQuery) {
-          return;
-        }
-
-        this.isSearchingCustomers = false;
-        this.customerOptions = this.extractCustomerOptions(res);
-        this.showCustomerSuggestionPanel = this.customerOptions.length > 0 && this.customerSearchInputValue.trim().length > 0;
-
-        if (!this.customerOptions.length) {
-          this.customerSearchError = this.translateKey('sellingPage.messages.noCustomerFound');
-        }
-
-        this._cdr.detectChanges();
-      },
-      error: (err: any) => {
-        if (query !== this.latestRequestedCustomerQuery) {
-          return;
-        }
-
-        this.isSearchingCustomers = false;
-        this.selectedCustomerOption = null;
-        this.customerOptions = [];
-        this.showCustomerSuggestionPanel = false;
-        this.customerSearchError = err?.error?.message || this.translateKey('sellingPage.messages.customerSearchFailed');
-        this._cdr.detectChanges();
-      }
-    });
-  }
-
   saveSelling(): void {
     this.errorDialogVisible = false;
     this.saveError = '';
-    this.saveSuccess = '';
 
-    if (this.sellingForm.invalid) {
+    if (this.sellingForm.invalid || !this.invoiceItems.length) {
       this.sellingForm.markAllAsTouched();
       return;
     }
 
     const raw = this.sellingForm.getRawValue();
-    const payload = {
-      productId: raw.productId,
-      customerName: raw.customerName?.trim(),
-      customerPhone: raw.customerPhone?.trim(),
-      sellingDate: this.formatSellingDate(raw.sellingDate),
-      quantity: Number(raw.quantity),
-      price: Number(raw.price),
+    const sellingDate = this.formatSellingDate(raw.sellingDate);
+    const items = Array.isArray(raw.items) ? raw.items : [];
+
+    if (!items.length) {
+      return;
+    }
+
+    const payload: {
+      customerName: string;
+      customerPhone?: string;
+      sellingDate: string;
+      items: Array<{
+        productId: string;
+        quantity: number;
+        price: number;
+      }>;
+    } = {
+      customerName: String(raw.customerName || '').trim(),
+      customerPhone: String(raw.customerPhone || '').trim(),
+      sellingDate,
+      items: items.map((item: any) => ({
+        productId: String(item.productId || ''),
+        quantity: Number(item.quantity),
+        price: Number(item.price)
+      }))
     };
 
     this.isSaving = true;
+
     this._productsService.createSelling(payload).subscribe({
       next: () => {
         this.isSaving = false;
@@ -390,6 +403,129 @@ export class SellingComponent implements OnInit {
 
   closeErrorPopup(): void {
     this.errorDialogVisible = false;
+  }
+
+  private fetchProductOptions(
+    itemGroup: FormGroup,
+    itemState: InvoiceItemState,
+    query: string
+  ): void {
+    itemState.latestRequestedQuery = query;
+    itemState.isSearching = true;
+    itemState.searchError = '';
+    this.saveError = '';
+
+    this._productsService.searchProducts(query).subscribe({
+      next: (response: any) => {
+        if (
+          query !== itemState.latestRequestedQuery ||
+          !this.invoiceItems.controls.includes(itemGroup)
+        ) {
+          return;
+        }
+
+        itemState.isSearching = false;
+        itemState.productOptions = this.extractProducts(response);
+        itemState.showSuggestionPanel =
+          itemState.productOptions.length > 0 && itemState.searchInputValue.trim().length > 0;
+
+        if (!itemState.productOptions.length) {
+          itemState.searchError = this.translateKey('sellingPage.messages.noProductFound');
+        }
+
+        if (itemState.selectedProduct) {
+          const stillAvailable = itemState.productOptions.some(
+            (product) => product.id === itemState.selectedProduct?.id
+          );
+
+          if (!stillAvailable) {
+            itemState.selectedProductOption = null;
+            this.onProductSelectionChange(itemGroup, itemState, null);
+          }
+        }
+
+        this._cdr.detectChanges();
+      },
+      error: (err: any) => {
+        if (
+          query !== itemState.latestRequestedQuery ||
+          !this.invoiceItems.controls.includes(itemGroup)
+        ) {
+          return;
+        }
+
+        itemState.isSearching = false;
+        itemState.selectedProduct = null;
+        itemState.selectedProductOption = null;
+        itemState.productOptions = [];
+        itemState.showSuggestionPanel = false;
+        this.clearProductDataForItem(itemGroup);
+        itemState.searchError =
+          err?.error?.message || this.translateKey('sellingPage.messages.searchFailed');
+        this._cdr.detectChanges();
+      }
+    });
+  }
+
+  private fetchCustomerOptions(query: string): void {
+    this.latestRequestedCustomerQuery = query;
+    this.isSearchingCustomers = true;
+    this.customerSearchError = '';
+
+    this._customersService.getCustomers({ search: query }).subscribe({
+      next: (response: any) => {
+        if (query !== this.latestRequestedCustomerQuery) {
+          return;
+        }
+
+        this.isSearchingCustomers = false;
+        this.customerOptions = this.extractCustomerOptions(response);
+        this.showCustomerSuggestionPanel =
+          this.customerOptions.length > 0 && this.customerSearchInputValue.trim().length > 0;
+
+        if (!this.customerOptions.length) {
+          this.customerSearchError = this.translateKey('sellingPage.messages.noCustomerFound');
+        }
+
+        this._cdr.detectChanges();
+      },
+      error: (err: any) => {
+        if (query !== this.latestRequestedCustomerQuery) {
+          return;
+        }
+
+        this.isSearchingCustomers = false;
+        this.selectedCustomerOption = null;
+        this.customerOptions = [];
+        this.showCustomerSuggestionPanel = false;
+        this.customerSearchError =
+          err?.error?.message || this.translateKey('sellingPage.messages.customerSearchFailed');
+        this._cdr.detectChanges();
+      }
+    });
+  }
+
+  private onProductSelectionChange(
+    itemGroup: FormGroup,
+    itemState: InvoiceItemState,
+    product: ProductSearchResult | null
+  ): void {
+    itemState.searchError = '';
+
+    if (!product) {
+      itemState.selectedProduct = null;
+      this.clearProductDataForItem(itemGroup);
+      return;
+    }
+
+    itemState.selectedProduct = product;
+    itemGroup.patchValue({
+      productId: product.id,
+      productName: product.name,
+      categoryName: product.categoryName
+    });
+
+    this.applyPriceTypeToItem(itemGroup, itemGroup.get('priceType')?.value as PriceType);
   }
 
   private setPriceTypeOptions(): void {
@@ -420,40 +556,106 @@ export class SellingComponent implements OnInit {
 
   private initializeForm(): FormGroup {
     return this._fb.group({
+      customerName: ['', Validators.required],
+      customerPhone: [''],
+      sellingDate: [this.getTodayDate(), Validators.required],
+      totalInvoicePrice: [{ value: 0, disabled: true }],
+      items: this._fb.array([])
+    });
+  }
+
+  private createInvoiceItemGroup(): FormGroup {
+    return this._fb.group({
       productId: [null, Validators.required],
       productName: [{ value: '', disabled: true }],
       categoryName: [{ value: '', disabled: true }],
       priceType: ['wholesalePrice', Validators.required],
       price: [{ value: null, disabled: true }, [Validators.required, Validators.min(0.01)]],
-      customerName: ['', Validators.required],
-      customerPhone: [''],
-      sellingDate: [this.getTodayDate(), Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
-      totalInvoicePrice: [{ value: 0, disabled: true }]
+      lineTotal: [{ value: 0, disabled: true }]
     });
   }
 
-  private applyPriceType(priceType: PriceType): void {
-    const priceControl = this.sellingForm.get('price');
+  private createInvoiceItemState(): InvoiceItemState {
+    this.invoiceItemSequence += 1;
+
+    return {
+      id: `invoice-item-${this.invoiceItemSequence}`,
+      searchInputValue: '',
+      showSuggestionPanel: false,
+      productOptions: [],
+      isSearching: false,
+      searchError: '',
+      latestRequestedQuery: '',
+      selectedProductOption: null,
+      selectedProduct: null,
+      searchBlurTimer: null
+    };
+  }
+
+  private registerInvoiceItemSubscriptions(itemGroup: FormGroup): void {
+    const subscriptions = [
+      itemGroup
+        .get('priceType')!
+        .valueChanges.subscribe((value) => this.applyPriceTypeToItem(itemGroup, value as PriceType)),
+      itemGroup.get('price')!.valueChanges.subscribe(() => this.updateInvoiceItemTotal(itemGroup)),
+      itemGroup
+        .get('quantity')!
+        .valueChanges.subscribe(() => this.updateInvoiceItemTotal(itemGroup))
+    ];
+
+    this.invoiceItemSubscriptions.set(itemGroup, subscriptions);
+  }
+
+  private teardownInvoiceItem(itemGroup: FormGroup, itemState: InvoiceItemState): void {
+    this.invoiceItemSubscriptions.get(itemGroup)?.forEach((subscription) => subscription.unsubscribe());
+    this.invoiceItemSubscriptions.delete(itemGroup);
+
+    if (itemState.searchBlurTimer) {
+      clearTimeout(itemState.searchBlurTimer);
+      itemState.searchBlurTimer = null;
+    }
+  }
+
+  private applyPriceTypeToItem(itemGroup: FormGroup, priceType: PriceType): void {
+    const priceControl = itemGroup.get('price');
     if (!priceControl) return;
+
+    const itemIndex = this.invoiceItems.controls.indexOf(itemGroup);
+    const selectedProduct =
+      itemIndex > -1 ? this.invoiceItemStates[itemIndex]?.selectedProduct ?? null : null;
 
     if (priceType === 'custom') {
       priceControl.enable({ emitEvent: false });
-      this.updateTotalInvoicePrice();
+      this.updateInvoiceItemTotal(itemGroup);
       return;
     }
 
-    const selectedPrice = this.selectedProduct?.[priceType] ?? null;
-    priceControl.setValue(selectedPrice);
+    const selectedPrice = selectedProduct?.[priceType] ?? null;
+    priceControl.setValue(selectedPrice, { emitEvent: false });
     priceControl.disable({ emitEvent: false });
-    this.updateTotalInvoicePrice();
+    this.updateInvoiceItemTotal(itemGroup);
   }
 
-  private updateTotalInvoicePrice(): void {
-    const raw = this.sellingForm.getRawValue();
+  private updateInvoiceItemTotal(itemGroup: FormGroup): void {
+    const raw = itemGroup.getRawValue();
     const price = Number(raw.price || 0);
     const quantity = Number(raw.quantity || 0);
     const total = Number.isFinite(price * quantity) ? price * quantity : 0;
+
+    itemGroup.get('lineTotal')?.setValue(total, { emitEvent: false });
+    this.updateInvoiceTotals();
+  }
+
+  private updateInvoiceTotals(): void {
+    const total = this.invoiceItems.controls.reduce((sum, control) => {
+      const raw = (control as FormGroup).getRawValue();
+      const price = Number(raw.price || 0);
+      const quantity = Number(raw.quantity || 0);
+      const lineTotal = Number.isFinite(price * quantity) ? price * quantity : 0;
+      return sum + lineTotal;
+    }, 0);
+
     this.sellingForm.get('totalInvoicePrice')?.setValue(total, { emitEvent: false });
   }
 
@@ -470,47 +672,74 @@ export class SellingComponent implements OnInit {
     return String(value);
   }
 
-  private clearProductData(): void {
-    this.sellingForm.patchValue({
+  private clearProductDataForItem(itemGroup: FormGroup): void {
+    itemGroup.patchValue({
       productId: null,
       productName: '',
       categoryName: '',
       price: null,
-      totalInvoicePrice: 0
+      lineTotal: 0
     });
   }
 
-  private resetSellingForm(): void {
-    this.searchInputValue = '';
-    this.customerSearchInputValue = '';
-    this.productOptions = [];
-    this.customerOptions = [];
-    this.selectedProductOption = null;
-    this.selectedCustomerOption = null;
-    this.selectedProduct = null;
-    this.showSuggestionPanel = false;
-    this.showCustomerSuggestionPanel = false;
-    this.latestRequestedQuery = '';
-    this.latestRequestedCustomerQuery = '';
-    this.searchError = '';
-    this.customerSearchError = '';
-    this.saveError = '';
-    this.saveSuccess = '';
+  private resetInvoiceItem(index: number): void {
+    const itemGroup = this.getInvoiceItem(index);
+    const itemState = this.getInvoiceItemState(index);
 
-    this.sellingForm.reset({
+    itemState.searchInputValue = '';
+    itemState.showSuggestionPanel = false;
+    itemState.productOptions = [];
+    itemState.isSearching = false;
+    itemState.searchError = '';
+    itemState.latestRequestedQuery = '';
+    itemState.selectedProductOption = null;
+    itemState.selectedProduct = null;
+
+    if (itemState.searchBlurTimer) {
+      clearTimeout(itemState.searchBlurTimer);
+      itemState.searchBlurTimer = null;
+    }
+
+    itemGroup.reset({
       productId: null,
       productName: '',
       categoryName: '',
       priceType: 'wholesalePrice',
       price: null,
+      quantity: 1,
+      lineTotal: 0
+    });
+
+    this.applyPriceTypeToItem(itemGroup, 'wholesalePrice');
+    this.updateInvoiceTotals();
+  }
+
+  private resetSellingForm(): void {
+    this.customerSearchInputValue = '';
+    this.customerOptions = [];
+    this.selectedCustomerOption = null;
+    this.showCustomerSuggestionPanel = false;
+    this.latestRequestedCustomerQuery = '';
+    this.customerSearchError = '';
+    this.saveError = '';
+
+    while (this.invoiceItems.length > 0) {
+      const itemGroup = this.getInvoiceItem(0);
+      const itemState = this.getInvoiceItemState(0);
+      this.teardownInvoiceItem(itemGroup, itemState);
+      this.invoiceItems.removeAt(0);
+      this.invoiceItemStates.splice(0, 1);
+    }
+
+    this.sellingForm.reset({
       customerName: '',
       customerPhone: '',
       sellingDate: this.getTodayDate(),
-      quantity: 1,
       totalInvoicePrice: 0
     });
 
-    this.applyPriceType('wholesalePrice');
+    this.addInvoiceItem(false);
+    this.updateInvoiceTotals();
   }
 
   private getTodayDate(): Date {
@@ -568,10 +797,7 @@ export class SellingComponent implements OnInit {
     const name = String(candidate.name || candidate.productName || '').trim();
     const code = String(candidate.code || candidate.productCode || '').trim();
     const categoryName = String(
-      candidate.category?.name ||
-      candidate.categoryName ||
-      candidate.categoryId?.name ||
-      ''
+      candidate.category?.name || candidate.categoryName || candidate.categoryId?.name || ''
     ).trim();
 
     const displayLabel = [name, code].filter(Boolean).join(' - ') || String(id);

@@ -278,6 +278,10 @@
   },
   "sellingPage": {
     "fields": {
+      "invoiceDetails": "تفاصيل الفاتورة",
+      "customerInformation": "بيانات العميل",
+      "invoiceProducts": "منتجات الفاتورة",
+      "invoiceProduct": "بند المنتج",
       "searchProduct": "بحث عن كود المنتج",
       "searchCustomer": "بحث عن العميل",
       "selectProduct": "اختيار المنتج",
@@ -285,10 +289,14 @@
       "categoryName": "اسم الفئة",
       "priceType": "نوع السعر",
       "price": "السعر",
+      "lineTotal": "إجمالي البند",
       "customerName": "اسم العميل",
       "customerPhone": "رقم هاتف العميل",
       "sellingDate": "تاريخ البيع",
       "productQuantity": "كمية المنتج",
+      "productsCount": "عدد المنتجات",
+      "totalQuantity": "إجمالي الكمية",
+      "invoiceSummary": "ملخص الفاتورة",
       "totalInvoicePrice": "إجمالي قيمة الفاتورة"
     },
     "priceTypeOptions": {
@@ -305,16 +313,19 @@
     "actions": {
       "search": "بحث",
       "searching": "جاري البحث...",
-      "createSelling": "إنشاء عملية بيع",
-      "saving": "جاري الحفظ..."
+      "addProduct": "إضافة منتج",
+      "removeProduct": "حذف",
+      "clearProduct": "مسح",
+      "createSelling": "حفظ الفاتورة",
+      "saving": "جارٍ حفظ الفاتورة..."
     },
     "messages": {
       "noProductFound": "لم يتم العثور على منتج بهذا الكود.",
       "noCustomerFound": "لم يتم العثور على عميل بهذه البيانات.",
       "searchFailed": "فشل البحث عن المنتج.",
       "customerSearchFailed": "فشل البحث عن العميل.",
-      "createdSuccess": "تم إنشاء عملية البيع بنجاح.",
-      "createFailed": "فشل إنشاء عملية البيع."
+      "createdSuccess": "تم حفظ الفاتورة بنجاح.",
+      "createFailed": "فشل حفظ الفاتورة."
     }
   },
   "invoiceHistoryPage": {
@@ -347,9 +358,14 @@
       "totalPrice": "إجمالي الفاتورة",
       "action": "إجراء"
     },
+    "actions": {
+      "downloadInvoice": "تنزيل الفاتورة"
+    },
     "messages": {
       "deleteConfirm": "هل تريد حذف سجل البيع هذا؟",
-      "deleteFailed": "فشل حذف سجل البيع."
+      "deleteFailed": "فشل حذف سجل البيع.",
+      "invoiceWindowBlocked": "يرجى السماح بالنوافذ المنبثقة لفتح الفاتورة وحفظها.",
+      "invoiceDownloadFailed": "فشل فتح الفاتورة."
     }
   },
   "customerPage": {

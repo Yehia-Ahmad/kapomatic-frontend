@@ -14,20 +14,13 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { CateoryService } from '../../../category/services/cateory.service';
-import { WarnComponent } from "../../../assets/warn/warn.component";
-
-type InvoiceHistoryRow = {
-  id: string;
-  productId: string;
-  productName: string;
-  categoryName: string;
-  customerName: string;
-  customerPhone: string;
-  sellingDate: string | null;
-  quantity: number | null;
-  unitPrice: number | null;
-  totalPrice: number | null;
-};
+import { WarnComponent } from '../../../assets/warn/warn.component';
+import {
+  buildFallbackInvoiceNumber,
+  buildInvoiceDocument,
+  InvoiceHistoryRow,
+  InvoicePrintLanguage
+} from './invoice-history-print.util';
 
 type SelectOption = {
   label: string;
@@ -69,6 +62,7 @@ export class InvoiceHistoryComponent implements OnInit {
   filterCustomerPhone = '';
   filterSellingDate: Date | null = null;
   deletingSellingId = '';
+  downloadingInvoiceId = '';
   deleteDialogVisible = false;
   selectedSellingToDelete: InvoiceHistoryRow | null = null;
 
@@ -253,14 +247,24 @@ export class InvoiceHistoryComponent implements OnInit {
 
     const id = item._id || item.id;
     if (!id) return null;
+    const normalizedId = String(id);
+    const invoiceNumber = String(
+      item.invoiceNumber ||
+      item.invoiceNo ||
+      item.number ||
+      buildFallbackInvoiceNumber(normalizedId)
+    );
 
     return {
-      id: String(id),
+      id: normalizedId,
+      invoiceNumber,
       productId: String(item.productId || ''),
+      productCode: String(item.productCode || item.product?.code || item.code || ''),
       productName: String(item.productName || item.product?.name || ''),
       categoryName: String(item.categoryName || item.category?.name || ''),
       customerName: String(item.customerName || ''),
       customerPhone: String(item.customerPhone || item.customer?.phone || item.customer?.phoneNumber || ''),
+      customerAddress: String(item.customerAddress || item.customer?.address || ''),
       sellingDate: item.sellingDate ? String(item.sellingDate) : null,
       quantity: this.toNumber(item.productQuantity ?? item.productQuentity ?? item.quantity),
       unitPrice: this.toNumber(item.productPricePerEach ?? item.price),
@@ -276,6 +280,45 @@ export class InvoiceHistoryComponent implements OnInit {
 
   canOpenWhatsApp(phone: string): boolean {
     return Boolean(this.normalizePhoneForWhatsApp(phone));
+  }
+
+  downloadInvoice(selling: InvoiceHistoryRow): void {
+    if (!this.isBrowser || !selling?.id) {
+      return;
+    }
+
+    this.downloadingInvoiceId = selling.id;
+    this.loadError = '';
+    this._cdr.detectChanges();
+
+    try {
+      const invoiceWindow = window.open('', '_blank', 'width=1180,height=860');
+
+      if (!invoiceWindow) {
+        this.loadError = this.translateKey('invoiceHistoryPage.messages.invoiceWindowBlocked');
+        return;
+      }
+
+      const language = this.getInvoiceLanguage();
+      invoiceWindow.document.open();
+      invoiceWindow.document.write(buildInvoiceDocument({
+        selling,
+        language,
+        logoUrl: this.resolveAssetUrl('assets/img/Kapo.jpeg'),
+        fontUrl: this.resolveAssetUrl('assets/fonts/Montserrat-VariableFont_wght.ttf')
+      }));
+      invoiceWindow.document.close();
+      invoiceWindow.focus();
+    } catch {
+      this.loadError = this.translateKey('invoiceHistoryPage.messages.invoiceDownloadFailed');
+    } finally {
+      this.downloadingInvoiceId = '';
+      this._cdr.detectChanges();
+    }
+  }
+
+  isDownloadingInvoice(sellingId: string): boolean {
+    return this.downloadingInvoiceId === sellingId;
   }
 
   openDeleteDialog(selling: InvoiceHistoryRow): void {
@@ -364,5 +407,23 @@ export class InvoiceHistoryComponent implements OnInit {
 
   private translateKey(key: string): string {
     return this._translate.instant(key);
+  }
+
+  private getInvoiceLanguage(): InvoicePrintLanguage {
+    const activeLanguage = (
+      this._translate.currentLang ||
+      this._translate.getDefaultLang() ||
+      'en'
+    ).toLowerCase();
+
+    return activeLanguage.startsWith('ar') ? 'ar' : 'en';
+  }
+
+  private resolveAssetUrl(assetPath: string): string {
+    if (!this.isBrowser) {
+      return assetPath;
+    }
+
+    return new URL(assetPath, document.baseURI).href;
   }
 }
