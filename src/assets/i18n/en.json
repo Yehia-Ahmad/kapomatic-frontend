@@ -345,12 +345,16 @@
         },
     "tableHeaders": {
             "index": "#",
+            "invoiceNumber": "Invoice Number",
             "product": "Product",
+            "items": "Items",
+            "itemCount": "Items Count",
             "category": "Category",
             "customer": "Customer",
             "customerPhone": "Customer Phone",
             "date": "Date",
             "quantity": "Quantity",
+            "totalQuantity": "Total Quantity",
             "unitPrice": "Unit Price",
             "totalPrice": "Total Price",
             "action": "Action"
@@ -359,8 +363,9 @@
             "downloadInvoice": "Download Invoice"
         },
         "messages": {
-            "deleteConfirm": "Do you want to delete this selling record?",
-            "deleteFailed": "Failed to delete selling.",
+            "deleteConfirm": "Do you want to delete this invoice?",
+            "deleteFailed": "Failed to delete invoice.",
+            "empty": "No invoices found.",
             "invoiceWindowBlocked": "Allow pop-ups to open and save the invoice.",
             "invoiceDownloadFailed": "Failed to open the invoice."
         }

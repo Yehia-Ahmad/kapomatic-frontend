@@ -110,7 +110,7 @@
       </div>
     </div>
 
-    <div class="w-full rounded-xl p-6 sm:p-8" [ngClass]="{
+    <div class="w-full rounded-xl p-6 sm:p-8 invoice-history-shell" [ngClass]="{
       'bg-gray_dark': (isDarkMode$ | async),
       'bg-light_card_bg': !(isDarkMode$ | async)
     }">
@@ -122,7 +122,7 @@
           [loading]="isLoading"
           [scrollable]="true"
           scrollHeight="450px"
-          [tableStyle]="{ 'min-width': '1360px' }"
+          [tableStyle]="{ 'min-width': '1500px' }"
           styleClass="invoice-history-table"
         >
           <ng-template pTemplate="header">
@@ -131,31 +131,65 @@
               'bg-[#e7e7e7]': !(isDarkMode$ | async)
             }">
               <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.index' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.product' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.category' | translate }}</th>
+              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.invoiceNumber' | translate }}</th>
               <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.customer' | translate }}</th>
               <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.customerPhone' | translate }}</th>
               <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.date' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.quantity' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.unitPrice' | translate }}</th>
+              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.items' | translate }}</th>
+              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.itemCount' | translate }}</th>
+              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.totalQuantity' | translate }}</th>
               <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.totalPrice' | translate }}</th>
               <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.action' | translate }}</th>
             </tr>
           </ng-template>
 
           <ng-template pTemplate="body" let-selling let-rowIndex="rowIndex">
-            <tr>
-              <td class="px-3 py-3 font-roboto">{{ rowIndex + 1 }}</td>
-              <td class="px-3 py-3 font-roboto">{{ selling.productName || '-' }}</td>
-              <td class="px-3 py-3 font-roboto">{{ selling.categoryName || '-' }}</td>
-              <td class="px-3 py-3 font-roboto">{{ selling.customerName || '-' }}</td>
-              <td class="px-3 py-3 font-roboto">{{ selling.customerPhone || '-' }}</td>
-              <td class="px-3 py-3 font-roboto">{{ selling.sellingDate ? (selling.sellingDate | date: 'yyyy-MM-dd') : '-' }}</td>
-              <td class="px-3 py-3 font-roboto">{{ selling.quantity ?? '-' }}</td>
-              <td class="px-3 py-3 font-roboto">{{ selling.unitPrice ?? '-' }}</td>
-              <td class="px-3 py-3 font-roboto">{{ selling.totalPrice ?? '-' }}</td>
-              <td class="px-3 py-3 font-roboto">
-                <div class="flex items-center gap-2">
+            <tr class="invoice-history-row">
+              <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ rowIndex + 1 }}</td>
+              <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ selling.invoiceNumber || '-' }}</td>
+              <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ selling.customerName || '-' }}</td>
+              <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ selling.customerPhone || '-' }}</td>
+              <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ selling.sellingDate ? (selling.sellingDate | date: 'yyyy-MM-dd') : '-' }}</td>
+              <td class="px-3 py-3 font-roboto invoice-history-cell invoice-items-column">
+                <div class="invoice-items-stack">
+                  @for (item of selling.items; track item.id) {
+                    <div class="invoice-item-card" [ngClass]="{
+                      'invoice-item-card--dark': (isDarkMode$ | async),
+                      'invoice-item-card--light': !(isDarkMode$ | async)
+                    }">
+                      <div class="invoice-item-card__top">
+                        <div class="invoice-item-card__identity">
+                          <span class="invoice-item-card__name">{{ item.productName || '-' }}</span>
+                          <span class="invoice-item-card__category">{{ item.categoryName || '-' }}</span>
+                        </div>
+                        <span class="invoice-item-card__code">
+                          {{ item.productCode || '-' }}
+                        </span>
+                      </div>
+
+                      <div class="invoice-item-card__metrics">
+                        <div class="invoice-item-card__metric">
+                          <span class="invoice-item-card__metric-label">{{ 'invoiceHistoryPage.tableHeaders.quantity' | translate }}</span>
+                          <span class="invoice-item-card__metric-value">{{ item.quantity ?? '-' }}</span>
+                        </div>
+                        <div class="invoice-item-card__metric">
+                          <span class="invoice-item-card__metric-label">{{ 'invoiceHistoryPage.tableHeaders.unitPrice' | translate }}</span>
+                          <span class="invoice-item-card__metric-value">{{ item.unitPrice ?? '-' }}</span>
+                        </div>
+                        <div class="invoice-item-card__metric">
+                          <span class="invoice-item-card__metric-label">{{ 'invoiceHistoryPage.tableHeaders.totalPrice' | translate }}</span>
+                          <span class="invoice-item-card__metric-value">{{ item.totalPrice ?? '-' }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </td>
+              <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ selling.itemCount ?? selling.items.length }}</td>
+              <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ selling.totalQuantity ?? '-' }}</td>
+              <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ selling.totalPrice ?? '-' }}</td>
+              <td class="px-3 py-3 font-roboto invoice-history-cell">
+                <div class="invoice-actions">
                   <button
                     type="button"
                     class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366] text-white transition-opacity duration-200 hover:opacity-85 disabled:cursor-not-allowed disabled:bg-[#8a8a8a]"
@@ -202,7 +236,7 @@
                 'text-light_orange': (isDarkMode$ | async),
                 'text-gray_dark': !(isDarkMode$ | async)
               }">
-                No invoices found.
+                {{ 'invoiceHistoryPage.messages.empty' | translate }}
               </td>
             </tr>
           </ng-template>

@@ -217,8 +217,12 @@ export class InvoiceHistoryComponent implements OnInit {
 
     if (Array.isArray(response)) {
       list = response;
+    } else if (Array.isArray(response?.data?.invoices)) {
+      list = response.data.invoices;
     } else if (Array.isArray(response?.data)) {
       list = response.data;
+    } else if (Array.isArray(response?.invoices)) {
+      list = response.invoices;
     } else if (Array.isArray(response?.sellings)) {
       list = response.sellings;
     } else if (response?.data && typeof response.data === 'object') {
@@ -245,9 +249,10 @@ export class InvoiceHistoryComponent implements OnInit {
   private mapSelling(item: any): InvoiceHistoryRow | null {
     if (!item) return null;
 
-    const id = item._id || item.id;
+    const id = item.invoiceId || item._id || item.id;
     if (!id) return null;
     const normalizedId = String(id);
+    const items = this.extractInvoiceItems(item, normalizedId);
     const invoiceNumber = String(
       item.invoiceNumber ||
       item.invoiceNo ||
@@ -257,15 +262,58 @@ export class InvoiceHistoryComponent implements OnInit {
 
     return {
       id: normalizedId,
+      invoiceId: normalizedId,
       invoiceNumber,
-      productId: String(item.productId || ''),
-      productCode: String(item.productCode || item.product?.code || item.code || ''),
-      productName: String(item.productName || item.product?.name || ''),
-      categoryName: String(item.categoryName || item.category?.name || ''),
       customerName: String(item.customerName || ''),
       customerPhone: String(item.customerPhone || item.customer?.phone || item.customer?.phoneNumber || ''),
       customerAddress: String(item.customerAddress || item.customer?.address || ''),
-      sellingDate: item.sellingDate ? String(item.sellingDate) : null,
+      sellingDate: item.sellingDate ? String(item.sellingDate) : (items[0]?.sellingDate || null),
+      itemCount: this.toNumber(item.itemCount) ?? items.length,
+      totalQuantity: this.toNumber(item.totalQuantity) ?? this.sumInvoiceMetric(items, 'quantity'),
+      totalPrice: this.toNumber(item.totalPrice ?? item.total) ?? this.sumInvoiceMetric(items, 'totalPrice'),
+      items
+    };
+  }
+
+  private extractInvoiceItems(source: any, invoiceId: string): InvoiceHistoryRow['items'] {
+    if (Array.isArray(source?.items)) {
+      return source.items
+        .map((item: any, index: number) => this.mapInvoiceItem(item, invoiceId, source, index))
+        .filter((item): item is InvoiceHistoryRow['items'][number] => item !== null);
+    }
+
+    const legacyItem = this.mapInvoiceItem(source, invoiceId, source, 0);
+    return legacyItem ? [legacyItem] : [];
+  }
+
+  private mapInvoiceItem(
+    item: any,
+    invoiceId: string,
+    parentInvoice: any,
+    index: number
+  ): InvoiceHistoryRow['items'][number] | null {
+    if (!item) return null;
+
+    const id = item._id || item.id || `${invoiceId}-${item.productId || item.productCode || index}`;
+
+    return {
+      id: String(id),
+      invoiceId,
+      productId: String(item.productId || ''),
+      productCode: String(item.productCode || item.product?.code || item.code || ''),
+      productName: String(item.productName || item.product?.name || item.name || ''),
+      categoryName: String(item.categoryName || item.category?.name || parentInvoice?.categoryName || ''),
+      customerName: String(item.customerName || parentInvoice?.customerName || ''),
+      customerPhone: String(
+        item.customerPhone ||
+        item.customer?.phone ||
+        item.customer?.phoneNumber ||
+        parentInvoice?.customerPhone ||
+        parentInvoice?.customer?.phone ||
+        parentInvoice?.customer?.phoneNumber ||
+        ''
+      ),
+      sellingDate: item.sellingDate ? String(item.sellingDate) : (parentInvoice?.sellingDate ? String(parentInvoice.sellingDate) : null),
       quantity: this.toNumber(item.productQuantity ?? item.productQuentity ?? item.quantity),
       unitPrice: this.toNumber(item.productPricePerEach ?? item.price),
       totalPrice: this.toNumber(item.totalPrice ?? item.total)
@@ -398,6 +446,13 @@ export class InvoiceHistoryComponent implements OnInit {
     }
 
     return `+20${digitsOnly}`;
+  }
+
+  private sumInvoiceMetric(
+    items: InvoiceHistoryRow['items'],
+    field: 'quantity' | 'totalPrice'
+  ): number {
+    return items.reduce((total, item) => total + Number(item[field] || 0), 0);
   }
 
   private toNumber(value: any): number | null {

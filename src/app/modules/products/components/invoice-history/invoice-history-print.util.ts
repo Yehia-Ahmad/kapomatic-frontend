@@ -1,17 +1,30 @@
-export type InvoiceHistoryRow = {
+export type InvoiceHistoryItem = {
   id: string;
-  invoiceNumber: string;
+  invoiceId: string;
   productId: string;
   productCode: string;
   productName: string;
   categoryName: string;
   customerName: string;
   customerPhone: string;
-  customerAddress: string;
   sellingDate: string | null;
   quantity: number | null;
   unitPrice: number | null;
   totalPrice: number | null;
+};
+
+export type InvoiceHistoryRow = {
+  id: string;
+  invoiceId: string;
+  invoiceNumber: string;
+  customerName: string;
+  customerPhone: string;
+  customerAddress: string;
+  sellingDate: string | null;
+  itemCount: number | null;
+  totalQuantity: number | null;
+  totalPrice: number | null;
+  items: InvoiceHistoryItem[];
 };
 
 export type InvoicePrintLanguage = 'ar' | 'en';
@@ -30,6 +43,8 @@ type InvoiceDocumentLabels = {
   invoiceNumber: string;
   invoiceDate: string;
   invoiceTime: string;
+  itemCount: string;
+  totalQuantity: string;
   invoiceTotal: string;
   tableIndex: string;
   tableCode: string;
@@ -54,21 +69,21 @@ export function buildInvoiceDocument(params: {
   const isArabic = language === 'ar';
   const direction = isArabic ? 'rtl' : 'ltr';
   const labels = getInvoiceLabels(language);
-  const invoiceNumber = escapeHtml(selling.invoiceNumber || buildFallbackInvoiceNumber(selling.id));
+  const invoiceNumber = escapeHtml(
+    selling.invoiceNumber || buildFallbackInvoiceNumber(selling.invoiceId || selling.id)
+  );
   const customerName = escapeHtml(selling.customerName || getInvoiceFallbackValue(language));
   const customerPhone = escapeHtml(selling.customerPhone || getInvoiceFallbackValue(language));
   const customerAddress = escapeHtml(selling.customerAddress || getInvoiceFallbackValue(language));
-  const productCode = escapeHtml(selling.productCode || getInvoiceFallbackValue(language));
-  const productName = escapeHtml(selling.productName || getInvoiceFallbackValue(language));
-  const categoryName = escapeHtml(selling.categoryName || getInvoiceFallbackValue(language));
   const invoiceDate = formatInvoiceDate(selling.sellingDate, language);
   const invoiceTime = formatInvoiceTime(selling.sellingDate, language);
-  const quantity = formatInvoiceMetric(selling.quantity, language);
-  const unitPrice = formatInvoiceMetric(selling.unitPrice, language);
+  const itemCount = formatInvoiceMetric(selling.itemCount, language);
+  const totalQuantity = formatInvoiceMetric(selling.totalQuantity, language);
   const totalPrice = formatInvoiceMetric(selling.totalPrice, language);
   const unitLabel = isArabic ? 'قطعة' : 'Piece';
   const title = isArabic ? `فاتورة ${invoiceNumber}` : `Invoice ${invoiceNumber}`;
   const escapedFontUrl = escapeCssString(fontUrl);
+  const tableRows = buildInvoiceTableRows(selling.items, language, unitLabel);
 
   return `<!DOCTYPE html>
 <html lang="${language}" dir="${direction}">
@@ -80,7 +95,7 @@ export function buildInvoiceDocument(params: {
       @font-face {
         font-family: 'Azonix';
         src: url("${escapedFontUrl}") format('opentype');
-        font-weight: normal;
+        font-weight: 100 900;
         font-style: normal;
         font-display: swap;
       }
@@ -188,7 +203,8 @@ export function buildInvoiceDocument(params: {
         color: var(--invoice-red);
         font-size: 44px;
         line-height: 1;
-        font-weight: 800;
+        font-weight: 900;
+        font-variation-settings: 'wght' 900;
       }
 
       .company-subtitle,
@@ -412,6 +428,14 @@ export function buildInvoiceDocument(params: {
                 <p class="summary-value">${invoiceTime}</p>
               </div>
               <div class="summary-item">
+                <p class="summary-label">${labels.itemCount}</p>
+                <p class="summary-value">${itemCount}</p>
+              </div>
+              <div class="summary-item">
+                <p class="summary-label">${labels.totalQuantity}</p>
+                <p class="summary-value">${totalQuantity}</p>
+              </div>
+              <div class="summary-item">
                 <p class="summary-label">${labels.invoiceTotal}</p>
                 <p class="summary-value">${totalPrice}</p>
               </div>
@@ -433,16 +457,7 @@ export function buildInvoiceDocument(params: {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>1</td>
-              <td>${productCode}</td>
-              <td>${productName}</td>
-              <td>${categoryName}</td>
-              <td>${unitLabel}</td>
-              <td>${quantity}</td>
-              <td>${unitPrice}</td>
-              <td>${totalPrice}</td>
-            </tr>
+            ${tableRows}
           </tbody>
         </table>
 
@@ -493,7 +508,7 @@ function getInvoiceLabels(language: InvoicePrintLanguage): InvoiceDocumentLabels
       toolbarPrint: 'طباعة / حفظ PDF',
       toolbarClose: 'إغلاق',
       companyName: 'كابوماتيك',
-      companySubtitle: 'لتجارة وتوزيع قطع غيار السيارات',
+      companySubtitle: 'لتجارة وتوزيع قطع غيار وزيوت الفتيس الاوتوماتيك لجميع انواع السيارات',
       companyMeta: 'سجل فاتورة مبيعات صادر من نظام Kapomatic',
       customerSection: 'بيانات العميل',
       customerName: 'الاسم',
@@ -503,6 +518,8 @@ function getInvoiceLabels(language: InvoicePrintLanguage): InvoiceDocumentLabels
       invoiceNumber: 'رقم الفاتورة',
       invoiceDate: 'التاريخ',
       invoiceTime: 'الوقت',
+      itemCount: 'عدد الأصناف',
+      totalQuantity: 'إجمالي الكمية',
       invoiceTotal: 'الإجمالي',
       tableIndex: 'م',
       tableCode: 'الكود',
@@ -532,6 +549,8 @@ function getInvoiceLabels(language: InvoicePrintLanguage): InvoiceDocumentLabels
     invoiceNumber: 'Invoice Number',
     invoiceDate: 'Date',
     invoiceTime: 'Time',
+    itemCount: 'Items Count',
+    totalQuantity: 'Total Quantity',
     invoiceTotal: 'Total',
     tableIndex: '#',
     tableCode: 'Code',
@@ -606,6 +625,49 @@ function formatInvoiceMetric(value: number | null, language: InvoicePrintLanguag
   }
 
   return formatInvoiceNumber(value);
+}
+
+function buildInvoiceTableRows(
+  items: InvoiceHistoryItem[],
+  language: InvoicePrintLanguage,
+  unitLabel: string
+): string {
+  const fallback = getInvoiceFallbackValue(language);
+
+  if (!items.length) {
+    return `<tr>
+      <td>1</td>
+      <td>${fallback}</td>
+      <td>${fallback}</td>
+      <td>${fallback}</td>
+      <td>${unitLabel}</td>
+      <td>${fallback}</td>
+      <td>${fallback}</td>
+      <td>${fallback}</td>
+    </tr>`;
+  }
+
+  return items
+    .map((item, index) => {
+      const productCode = escapeHtml(item.productCode || fallback);
+      const productName = escapeHtml(item.productName || fallback);
+      const categoryName = escapeHtml(item.categoryName || fallback);
+      const quantity = formatInvoiceMetric(item.quantity, language);
+      const unitPrice = formatInvoiceMetric(item.unitPrice, language);
+      const totalPrice = formatInvoiceMetric(item.totalPrice, language);
+
+      return `<tr>
+        <td>${index + 1}</td>
+        <td>${productCode}</td>
+        <td>${productName}</td>
+        <td>${categoryName}</td>
+        <td>${unitLabel}</td>
+        <td>${quantity}</td>
+        <td>${unitPrice}</td>
+        <td>${totalPrice}</td>
+      </tr>`;
+    })
+    .join('');
 }
 
 function escapeHtml(value: string): string {

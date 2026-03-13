@@ -348,12 +348,16 @@
     },
     "tableHeaders": {
       "index": "#",
+      "invoiceNumber": "رقم الفاتورة",
       "product": "اسم المنتج",
+      "items": "الأصناف",
+      "itemCount": "عدد الأصناف",
       "category": "اسم الفئة",
       "customer": "اسم العميل",
       "customerPhone": "رقم هاتف العميل",
       "date": "التاريخ",
       "quantity": "الكمية",
+      "totalQuantity": "إجمالي الكمية",
       "unitPrice": "سعر القطعة",
       "totalPrice": "إجمالي الفاتورة",
       "action": "إجراء"
@@ -362,8 +366,9 @@
       "downloadInvoice": "تنزيل الفاتورة"
     },
     "messages": {
-      "deleteConfirm": "هل تريد حذف سجل البيع هذا؟",
-      "deleteFailed": "فشل حذف سجل البيع.",
+      "deleteConfirm": "هل تريد حذف هذه الفاتورة؟",
+      "deleteFailed": "فشل حذف الفاتورة.",
+      "empty": "لا توجد فواتير.",
       "invoiceWindowBlocked": "يرجى السماح بالنوافذ المنبثقة لفتح الفاتورة وحفظها.",
       "invoiceDownloadFailed": "فشل فتح الفاتورة."
     }
