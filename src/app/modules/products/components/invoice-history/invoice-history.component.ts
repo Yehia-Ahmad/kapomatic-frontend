@@ -266,7 +266,6 @@ export class InvoiceHistoryComponent implements OnInit {
       invoiceNumber,
       customerName: String(item.customerName || ''),
       customerPhone: String(item.customerPhone || item.customer?.phone || item.customer?.phoneNumber || ''),
-      customerAddress: String(item.customerAddress || item.customer?.address || ''),
       sellingDate: item.sellingDate ? String(item.sellingDate) : (items[0]?.sellingDate || null),
       itemCount: this.toNumber(item.itemCount) ?? items.length,
       totalQuantity: this.toNumber(item.totalQuantity) ?? this.sumInvoiceMetric(items, 'quantity'),

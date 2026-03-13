@@ -19,7 +19,7 @@ export type InvoiceHistoryRow = {
   invoiceNumber: string;
   customerName: string;
   customerPhone: string;
-  customerAddress: string;
+  // customerAddress: string;
   sellingDate: string | null;
   itemCount: number | null;
   totalQuantity: number | null;
@@ -38,7 +38,6 @@ type InvoiceDocumentLabels = {
   customerSection: string;
   customerName: string;
   customerPhone: string;
-  customerAddress: string;
   invoiceSection: string;
   invoiceNumber: string;
   invoiceDate: string;
@@ -74,7 +73,6 @@ export function buildInvoiceDocument(params: {
   );
   const customerName = escapeHtml(selling.customerName || getInvoiceFallbackValue(language));
   const customerPhone = escapeHtml(selling.customerPhone || getInvoiceFallbackValue(language));
-  const customerAddress = escapeHtml(selling.customerAddress || getInvoiceFallbackValue(language));
   const invoiceDate = formatInvoiceDate(selling.sellingDate, language);
   const invoiceTime = formatInvoiceTime(selling.sellingDate, language);
   const itemCount = formatInvoiceMetric(selling.itemCount, language);
@@ -220,24 +218,26 @@ export function buildInvoiceDocument(params: {
 
       .info-layout {
         display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-        gap: 18px;
-        margin-top: 22px;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 1.08fr);
+        gap: 10px;
+        margin-top: 12px;
+        align-items: start;
       }
 
       .info-card {
         border: 1px solid var(--invoice-border);
-        border-radius: 18px;
+        border-radius: 14px;
         overflow: hidden;
         background: #fff;
       }
 
       .info-card h2 {
         margin: 0;
-        padding: 14px 18px;
+        padding: 6px 10px;
         background: linear-gradient(135deg, #0d6efd, #2b7cff);
         color: #fff;
-        font-size: 18px;
+        font-size: 13px;
+        line-height: 1.2;
         font-weight: 800;
       }
 
@@ -246,10 +246,16 @@ export function buildInvoiceDocument(params: {
         grid-template-columns: 190px 1fr;
       }
 
+      .info-card--customer .info-grid {
+        grid-template-columns: 96px 1fr;
+      }
+
       .info-label,
       .info-value {
-        padding: 13px 18px;
+        padding: 6px 10px;
         border-top: 1px solid var(--invoice-border);
+        font-size: 12px;
+        line-height: 1.15;
       }
 
       .info-label {
@@ -258,41 +264,53 @@ export function buildInvoiceDocument(params: {
         font-weight: 700;
       }
 
-      .summary-grid {
+      .info-card--invoice .summary-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
       .summary-item {
-        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        align-items: ${isArabic ? 'flex-end' : 'flex-start'};
+        justify-content: center;
+        gap: 3px;
+        padding: 8px 10px;
         border-top: 1px solid var(--invoice-border);
         border-inline-start: 1px solid var(--invoice-border);
+        min-height: 50px;
       }
 
-      .summary-item:nth-child(odd) {
+      .summary-item:nth-child(3n + 1) {
         border-inline-start: 0;
       }
 
       .summary-label {
-        margin: 0 0 8px;
+        margin: 0;
         color: var(--invoice-muted);
-        font-size: 13px;
+        font-size: 10px;
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        line-height: 1.1;
+        width: 100%;
+        text-align: ${isArabic ? 'right' : 'left'};
       }
 
       .summary-value {
         margin: 0;
         color: #10233f;
-        font-size: 22px;
+        font-size: 13px;
+        line-height: 1.15;
         font-weight: 800;
+        width: 100%;
+        text-align: ${isArabic ? 'right' : 'left'};
+        white-space: normal;
+        overflow-wrap: anywhere;
       }
 
       table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 22px;
+        margin-top: 16px;
       }
 
       th,
@@ -400,19 +418,17 @@ export function buildInvoiceDocument(params: {
         </header>
 
         <section class="info-layout">
-          <article class="info-card">
+          <article class="info-card info-card--customer">
             <h2>${labels.customerSection}</h2>
             <div class="info-grid">
               <div class="info-label">${labels.customerName}</div>
               <div class="info-value">${customerName}</div>
               <div class="info-label">${labels.customerPhone}</div>
               <div class="info-value">${customerPhone}</div>
-              <div class="info-label">${labels.customerAddress}</div>
-              <div class="info-value">${customerAddress}</div>
             </div>
           </article>
 
-          <article class="info-card">
+          <article class="info-card info-card--invoice">
             <h2>${labels.invoiceSection}</h2>
             <div class="summary-grid">
               <div class="summary-item">
@@ -513,7 +529,6 @@ function getInvoiceLabels(language: InvoicePrintLanguage): InvoiceDocumentLabels
       customerSection: 'بيانات العميل',
       customerName: 'الاسم',
       customerPhone: 'التليفون',
-      customerAddress: 'العنوان',
       invoiceSection: 'الفاتورة',
       invoiceNumber: 'رقم الفاتورة',
       invoiceDate: 'التاريخ',
@@ -544,7 +559,6 @@ function getInvoiceLabels(language: InvoicePrintLanguage): InvoiceDocumentLabels
     customerSection: 'Customer Details',
     customerName: 'Name',
     customerPhone: 'Phone',
-    customerAddress: 'Address',
     invoiceSection: 'Invoice',
     invoiceNumber: 'Invoice Number',
     invoiceDate: 'Date',
