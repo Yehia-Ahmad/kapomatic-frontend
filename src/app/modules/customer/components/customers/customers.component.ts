@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
+import { Router } from '@angular/router';
 import { SideNavComponent } from '../../../layout/components/side-nav/side-nav.component';
 import { ThemeService } from '../../../shared/services/theme.service';
 import { ErrorIconComponent } from '../../../assets/error/error-icon.component';
@@ -36,6 +37,7 @@ export class CustomersComponent implements OnInit {
     private _formBuilder: FormBuilder,
     private _customersService: CustomersService,
     private _languageService: LanguageService,
+    private _router: Router,
     private _cdr: ChangeDetectorRef
   ) {
     this.isDarkMode$ = this._themeService.isDarkMode$;
@@ -136,6 +138,14 @@ export class CustomersComponent implements OnInit {
 
     this.customerToDelete = customer;
     this.deleteVisible = true;
+  }
+
+  openCustomerDetails(customer: Customer): void {
+    if (!customer?._id) {
+      return;
+    }
+
+    this._router.navigate(['/customers', customer._id]);
   }
 
   closeDeleteDialog(): void {

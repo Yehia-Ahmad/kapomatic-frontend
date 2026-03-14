@@ -214,7 +214,18 @@
                       {{ customer.phone }}
                     </td>
                     <td class="px-4 py-4">
-                      <div class="flex items-center justify-center gap-3">
+                      <div class="flex flex-wrap items-center justify-center gap-3">
+                        <button
+                          type="button"
+                          (click)="openCustomerDetails(customer)"
+                          class="rounded-md px-4 py-2 font-roboto text-sm font-semibold transition-opacity duration-200 hover:opacity-90"
+                          [ngClass]="{
+                            'bg-[#3f3f3f] text-light_orange': isDarkMode$ | async,
+                            'bg-[#ececec] text-gray_dark': !(isDarkMode$ | async)
+                          }"
+                        >
+                          {{ 'customerPage.actions.viewDetails' | translate }}
+                        </button>
                         <button
                           type="button"
                           (click)="editCustomer(customer)"

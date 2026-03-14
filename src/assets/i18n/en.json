@@ -9,6 +9,7 @@
         "products": "Products",
         "customers": "Customers",
         "selling": "Selling",
+        "credit_sales": "Credit Sales",
         "invoice_history": "Invoice History",
         "addProducts": "Add Products",
         "showProducts": "Show Products",
@@ -258,6 +259,10 @@
                 "title": "Selling",
                 "description": "Open the selling page."
             },
+            "creditSales": {
+                "title": "Credit Sales",
+                "description": "Open the sale on credit workspace."
+            },
             "invoiceHistory": {
                 "title": "Invoice History",
                 "description": "Open invoice history page."
@@ -323,6 +328,105 @@
             "customerSearchFailed": "Failed to search customer.",
             "createdSuccess": "Invoice saved successfully.",
             "createFailed": "Failed to save invoice."
+        }
+    },
+    "creditSalePage": {
+        "title": "Sale On Credit",
+        "subtitle": "Prepare a customer credit invoice, add items, and record the upfront payment before saving.",
+        "fields": {
+            "accountProfile": "Account Profile",
+            "customerInformation": "Customer Information",
+            "searchCustomer": "Search Customer",
+            "customerName": "Customer Name",
+            "customerPhone": "Customer Phone",
+            "customerAddress": "Customer Address",
+            "nationalId": "National ID",
+            "saleDate": "Sale Date",
+            "guarantorName": "Guarantor Name",
+            "guarantorPhone": "Guarantor Phone",
+            "notes": "Internal Notes",
+            "termsEyebrow": "Credit Terms",
+            "creditTerms": "Repayment Terms",
+            "repaymentPlan": "Repayment Plan",
+            "installmentsCount": "Installments Count",
+            "firstInstallmentDate": "First Installment Date",
+            "downPayment": "Down Payment",
+            "markupRate": "Markup Rate",
+            "creditLimit": "Credit Limit",
+            "approvalStatus": "Approval Status",
+            "basketEyebrow": "Credit Basket",
+            "creditItems": "Credit Sale Items",
+            "basketItem": "Item",
+            "searchProduct": "Search Product",
+            "productName": "Product Name",
+            "itemName": "Item Name",
+            "itemCode": "Item Code",
+            "categoryName": "Category",
+            "unitPrice": "Unit Price",
+            "quantity": "Quantity",
+            "lineTotal": "Line Total",
+            "snapshotEyebrow": "Repayment Snapshot",
+            "repaymentSnapshot": "Credit Snapshot",
+            "productsCount": "Products Count",
+            "totalQuantity": "Total Quantity",
+            "subtotal": "Subtotal",
+            "financedAmount": "Remaining Amount",
+            "markupValue": "Markup Value",
+            "totalReceivable": "Total Receivable",
+            "installmentAmount": "Installment Amount",
+            "remainingLimit": "Remaining Limit",
+            "schedulePreview": "Installment Schedule",
+            "perInstallment": "Per installment:",
+            "installment": "Installment",
+            "dueDate": "Final Due Date"
+        },
+        "planOptions": {
+            "weekly": "Weekly",
+            "biweekly": "Every 2 Weeks",
+            "monthly": "Monthly"
+        },
+        "approvalStatusOptions": {
+            "pending": "Pending Approval",
+            "review": "Under Review",
+            "approved": "Approved"
+        },
+        "placeholders": {
+            "searchCustomer": "Search customer by name or phone",
+            "customerAddress": "Write the customer address and delivery notes",
+            "nationalId": "Enter national ID or tax number",
+            "guarantorName": "Enter guarantor full name",
+            "guarantorPhone": "Enter guarantor phone number",
+            "notes": "Add collection notes, collateral details, or approval comments",
+            "searchProduct": "Search by product code or name",
+            "itemName": "Enter product or bundle name",
+            "itemCode": "SKU / internal code"
+        },
+        "actions": {
+            "searching": "Searching...",
+            "addItem": "Add Item",
+            "removeItem": "Remove Item",
+            "clearItem": "Clear Item",
+            "createCreditSale": "Save Credit Sale",
+            "savingCreditSale": "Saving Credit Sale...",
+            "reviewCreditSale": "Review Credit Sale",
+            "resetDraft": "Reset Draft"
+        },
+        "messages": {
+            "limitExceeded": "This agreement exceeds the defined credit limit and needs manual approval.",
+            "completeRequired": "Complete the required customer and item details before reviewing the credit sale.",
+            "downPaymentExceeded": "Down payment cannot be greater than the total receivable amount.",
+            "noProductFound": "No product found for this search.",
+            "noCustomerFound": "No customer found for this search.",
+            "searchFailed": "Failed to search product.",
+            "customerSearchFailed": "Failed to search customer.",
+            "createdSuccess": "Credit sale saved successfully.",
+            "createFailed": "Failed to save credit sale."
+        },
+        "dialog": {
+            "eyebrow": "Review",
+            "title": "Credit File Ready",
+            "subtitle": "Use this snapshot to confirm the customer, sale date, and remaining balance before saving.",
+            "close": "Close Review"
         }
     },
     "invoiceHistoryPage": {
@@ -398,12 +502,119 @@
             "create": "Save Customer",
             "update": "Update Customer",
             "cancelEdit": "Cancel Edit",
+            "viewDetails": "View Details",
             "edit": "Change",
             "delete": "Delete"
         },
         "messages": {
             "deleteTitle": "Delete Customer",
             "deleteConfirm": "Do you want to delete this customer?"
+        }
+    },
+    "customerDetailsPage": {
+        "title": "Customer Details",
+        "subtitle": "Review customer profile and all credit-sale invoices.",
+        "labels": {
+            "profile": "Customer Profile",
+            "customerId": "Customer ID",
+            "createdAt": "Created At",
+            "updatedAt": "Updated At",
+            "lastCashSaleDate": "Last Cash Sale",
+            "lastCreditSaleDate": "Last Credit Sale",
+            "lastCreditSalePaymentDate": "Last Credit Payment",
+            "statusBreakdown": "Credit Status Breakdown",
+            "notAvailable": "N/A",
+            "overdue": "Overdue"
+        },
+        "summary": {
+            "totalInvoices": "Total Invoices",
+            "openInvoices": "Open Invoices",
+            "totalCredit": "Total Credit",
+            "paidAmount": "Paid Amount",
+            "remainingAmount": "Remaining Amount",
+            "pendingInvoices": "Pending Invoices",
+            "partiallyPaidInvoices": "Partially Paid",
+            "paidInvoices": "Paid Invoices",
+            "overdueInvoices": "Overdue Invoices",
+            "dueSoonInvoices": "Due Soon"
+        },
+        "history": {
+            "title": "Credit History",
+            "subtitle": "All credit-sale invoices linked to this customer.",
+            "count": "invoices",
+            "empty": "No credit-sale invoices found for this customer.",
+            "sellingDate": "Selling Date",
+            "dueDate": "Due Date",
+            "items": "Items / Qty",
+            "products": "Products",
+            "payments": "Payments",
+            "paymentsCount": "Payments",
+            "paymentDate": "Payment Date",
+            "quantity": "Quantity",
+            "unitPrice": "Unit Price",
+            "totalPrice": "Total Price",
+            "paidAmount": "Paid",
+            "remainingAmount": "Remaining",
+            "notes": "Notes"
+        },
+        "status": {
+            "pending": "Pending",
+            "partially_paid": "Partially Paid",
+            "paid": "Paid",
+            "reactionary": "Reactionary",
+            "unknown": "Unknown"
+        },
+        "actions": {
+            "addPayment": "Add Payment",
+            "addRefund": "Add Refund",
+            "printInvoice": "Print Invoice"
+        },
+        "print": {
+            "status": "Status",
+            "footerNote": "This credit invoice was generated electronically from the Kapomatic system."
+        },
+        "paymentDialog": {
+            "eyebrow": "Payment",
+            "title": "Record Payment",
+            "subtitle": "Add a new payment for this credit invoice and refresh the customer balance.",
+            "invoiceTarget": "Apply Payment To",
+            "firstInvoice": "First Invoice",
+            "lastInvoice": "Last Invoice",
+            "targetRequired": "Select either the first invoice or the last invoice.",
+            "amount": "Payment Amount",
+            "amountRequired": "Enter a payment amount greater than zero.",
+            "amountExceeded": "Payment amount cannot be greater than the remaining amount.",
+            "paymentDate": "Payment Date",
+            "note": "Note",
+            "notePlaceholder": "Add an optional payment note",
+            "cancel": "Cancel",
+            "save": "Save Payment",
+            "saving": "Saving..."
+        },
+        "refundDialog": {
+            "eyebrow": "Refund",
+            "title": "Record Refund",
+            "subtitle": "Return all items in this invoice or enter partial quantities for the products being refunded.",
+            "refundDate": "Refund Date",
+            "note": "Refund Note",
+            "notePlaceholder": "Add a refund note",
+            "itemsTitle": "Refund Items",
+            "availableQuantity": "Available Quantity",
+            "returnQuantity": "Return Quantity",
+            "selectionRequired": "Choose at least one item quantity to refund.",
+            "quantityExceeded": "Return quantity cannot be greater than the available quantity.",
+            "returnAll": "Return All",
+            "clear": "Clear",
+            "cancel": "Cancel",
+            "save": "Save Refund",
+            "saving": "Saving..."
+        },
+        "messages": {
+            "loading": "Loading customer details...",
+            "loadFailed": "Failed to load customer details.",
+            "notFound": "Customer details were not found.",
+            "paymentFailed": "Failed to record payment.",
+            "refundFailed": "Failed to record refund."
         }
     },
     "logout": {

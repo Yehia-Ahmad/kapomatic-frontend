@@ -9,6 +9,7 @@
     "products": "المنتجات",
     "customers": "العملاء",
     "selling": "البيع",
+    "credit_sales": "البيع الآجل",
     "invoice_history": "سجل الفواتير",
     "addProducts": "إضافة منتجات",
     "showProducts": "عرض المنتجات",
@@ -261,6 +262,10 @@
         "title": "البيع",
         "description": "فتح صفحة البيع."
       },
+      "creditSales": {
+        "title": "البيع الآجل",
+        "description": "فتح مساحة عمل البيع بالتقسيط."
+      },
       "invoiceHistory": {
         "title": "سجل الفواتير",
         "description": "فتح صفحة سجل الفواتير."
@@ -326,6 +331,105 @@
       "customerSearchFailed": "فشل البحث عن العميل.",
       "createdSuccess": "تم حفظ الفاتورة بنجاح.",
       "createFailed": "فشل حفظ الفاتورة."
+    }
+  },
+  "creditSalePage": {
+    "title": "البيع الآجل",
+    "subtitle": "جهز فاتورة البيع الآجل للعميل وأضف الأصناف وسجل الدفعة المقدمة قبل الحفظ.",
+    "fields": {
+      "accountProfile": "ملف الحساب",
+      "customerInformation": "بيانات العميل",
+      "searchCustomer": "بحث عن العميل",
+      "customerName": "اسم العميل",
+      "customerPhone": "رقم هاتف العميل",
+      "customerAddress": "عنوان العميل",
+      "nationalId": "الرقم القومي",
+      "saleDate": "تاريخ البيع",
+      "guarantorName": "اسم الضامن",
+      "guarantorPhone": "هاتف الضامن",
+      "notes": "ملاحظات داخلية",
+      "termsEyebrow": "شروط الائتمان",
+      "creditTerms": "شروط السداد",
+      "repaymentPlan": "خطة السداد",
+      "installmentsCount": "عدد الأقساط",
+      "firstInstallmentDate": "تاريخ أول قسط",
+      "downPayment": "الدفعة المقدمة",
+      "markupRate": "نسبة الزيادة",
+      "creditLimit": "حد الائتمان",
+      "approvalStatus": "حالة الاعتماد",
+      "basketEyebrow": "سلة الائتمان",
+      "creditItems": "أصناف البيع الآجل",
+      "basketItem": "بند",
+      "searchProduct": "بحث عن المنتج",
+      "productName": "اسم المنتج",
+      "itemName": "اسم الصنف",
+      "itemCode": "كود الصنف",
+      "categoryName": "الفئة",
+      "unitPrice": "سعر الوحدة",
+      "quantity": "الكمية",
+      "lineTotal": "إجمالي البند",
+      "snapshotEyebrow": "ملخص السداد",
+      "repaymentSnapshot": "ملخص العملية",
+      "productsCount": "عدد الأصناف",
+      "totalQuantity": "إجمالي الكمية",
+      "subtotal": "الإجمالي الفرعي",
+      "financedAmount": "المبلغ المتبقي",
+      "markupValue": "قيمة الزيادة",
+      "totalReceivable": "إجمالي المستحق",
+      "installmentAmount": "قيمة القسط",
+      "remainingLimit": "المتبقي من الحد",
+      "schedulePreview": "جدول الأقساط",
+      "perInstallment": "لكل قسط:",
+      "installment": "القسط",
+      "dueDate": "تاريخ آخر استحقاق"
+    },
+    "planOptions": {
+      "weekly": "أسبوعي",
+      "biweekly": "كل أسبوعين",
+      "monthly": "شهري"
+    },
+    "approvalStatusOptions": {
+      "pending": "بانتظار الاعتماد",
+      "review": "قيد المراجعة",
+      "approved": "معتمد"
+    },
+    "placeholders": {
+      "searchCustomer": "ابحث باسم العميل أو رقم الهاتف",
+      "customerAddress": "اكتب عنوان العميل وملاحظات التسليم",
+      "nationalId": "أدخل الرقم القومي أو الرقم الضريبي",
+      "guarantorName": "أدخل الاسم الكامل للضامن",
+      "guarantorPhone": "أدخل رقم هاتف الضامن",
+      "notes": "أضف ملاحظات التحصيل أو الضمانات أو تعليقات الاعتماد",
+      "searchProduct": "ابحث بكود المنتج أو الاسم",
+      "itemName": "أدخل اسم المنتج أو الباقة",
+      "itemCode": "كود داخلي / SKU"
+    },
+    "actions": {
+      "searching": "جاري البحث...",
+      "addItem": "إضافة بند",
+      "removeItem": "حذف البند",
+      "clearItem": "مسح البند",
+      "createCreditSale": "حفظ البيع الآجل",
+      "savingCreditSale": "جارٍ حفظ البيع الآجل...",
+      "reviewCreditSale": "مراجعة العملية",
+      "resetDraft": "إعادة تعيين"
+    },
+    "messages": {
+      "limitExceeded": "هذه العملية تتجاوز حد الائتمان المحدد وتحتاج إلى اعتماد يدوي.",
+      "completeRequired": "أكمل بيانات العميل والأصناف المطلوبة قبل مراجعة عملية البيع الآجل.",
+      "downPaymentExceeded": "لا يمكن أن تكون الدفعة المقدمة أكبر من إجمالي المستحق.",
+      "noProductFound": "لم يتم العثور على منتج لهذا البحث.",
+      "noCustomerFound": "لم يتم العثور على عميل لهذا البحث.",
+      "searchFailed": "فشل البحث عن المنتج.",
+      "customerSearchFailed": "فشل البحث عن العميل.",
+      "createdSuccess": "تم حفظ عملية البيع الآجل بنجاح.",
+      "createFailed": "فشل حفظ عملية البيع الآجل."
+    },
+    "dialog": {
+      "eyebrow": "مراجعة",
+      "title": "ملف الائتمان جاهز",
+      "subtitle": "استخدم هذا الملخص لتأكيد بيانات العميل وتاريخ البيع والمبلغ المتبقي قبل الحفظ.",
+      "close": "إغلاق المراجعة"
     }
   },
   "invoiceHistoryPage": {
@@ -401,12 +505,119 @@
       "create": "حفظ العميل",
       "update": "تحديث العميل",
       "cancelEdit": "إلغاء التعديل",
+      "viewDetails": "التفاصيل",
       "edit": "تغيير",
       "delete": "حذف"
     },
     "messages": {
       "deleteTitle": "حذف العميل",
       "deleteConfirm": "هل تريد حذف هذا العميل؟"
+    }
+  },
+  "customerDetailsPage": {
+    "title": "تفاصيل العميل",
+    "subtitle": "مراجعة بيانات العميل وجميع فواتير البيع الآجل الخاصة به.",
+    "labels": {
+      "profile": "بيانات العميل",
+      "customerId": "معرّف العميل",
+      "createdAt": "تاريخ الإنشاء",
+      "updatedAt": "تاريخ التحديث",
+      "lastCashSaleDate": "آخر بيع نقدي",
+      "lastCreditSaleDate": "آخر بيع آجل",
+      "lastCreditSalePaymentDate": "آخر دفعة بيع آجل",
+      "statusBreakdown": "ملخص حالات المديونية",
+      "notAvailable": "غير متوفر",
+      "overdue": "متأخر"
+    },
+    "summary": {
+      "totalInvoices": "إجمالي الفواتير",
+      "openInvoices": "الفواتير المفتوحة",
+      "totalCredit": "إجمالي المديونية",
+      "paidAmount": "المبلغ المدفوع",
+      "remainingAmount": "المبلغ المتبقي",
+      "pendingInvoices": "فواتير معلقة",
+      "partiallyPaidInvoices": "مدفوع جزئياً",
+      "paidInvoices": "فواتير مسددة",
+      "overdueInvoices": "فواتير متأخرة",
+      "dueSoonInvoices": "مستحقة قريباً"
+    },
+    "history": {
+      "title": "سجل البيع الآجل",
+      "subtitle": "جميع فواتير البيع الآجل المرتبطة بهذا العميل.",
+      "count": "فاتورة",
+      "empty": "لا توجد فواتير بيع آجل لهذا العميل.",
+      "sellingDate": "تاريخ البيع",
+      "dueDate": "تاريخ الاستحقاق",
+      "items": "الأصناف / الكمية",
+      "products": "الأصناف",
+      "payments": "الدفعات",
+      "paymentsCount": "عدد الدفعات",
+      "paymentDate": "تاريخ الدفع",
+      "quantity": "الكمية",
+      "unitPrice": "سعر الوحدة",
+      "totalPrice": "إجمالي الفاتورة",
+      "paidAmount": "المدفوع",
+      "remainingAmount": "المتبقي",
+      "notes": "ملاحظات"
+    },
+    "status": {
+      "pending": "معلق",
+      "partially_paid": "مدفوع جزئياً",
+      "paid": "مسدد",
+      "reactionary": "مرتجع",
+      "unknown": "غير معروف"
+    },
+    "actions": {
+      "addPayment": "إضافة دفعة",
+      "addRefund": "إضافة مرتجع",
+      "printInvoice": "طباعة الفاتورة"
+    },
+    "print": {
+      "status": "الحالة",
+      "footerNote": "تم إنشاء فاتورة البيع الآجل هذه إلكترونيًا من نظام كابوماتيك."
+    },
+    "paymentDialog": {
+      "eyebrow": "دفعة",
+      "title": "تسجيل دفعة",
+      "subtitle": "أضف دفعة جديدة لهذه الفاتورة وسيتم تحديث رصيد العميل بعد الحفظ.",
+      "invoiceTarget": "تطبيق الدفعة على",
+      "firstInvoice": "أول فاتورة",
+      "lastInvoice": "آخر فاتورة",
+      "targetRequired": "اختر أول فاتورة أو آخر فاتورة قبل الحفظ.",
+      "amount": "قيمة الدفعة",
+      "amountRequired": "أدخل قيمة دفعة أكبر من صفر.",
+      "amountExceeded": "لا يمكن أن تكون قيمة الدفعة أكبر من المبلغ المتبقي.",
+      "paymentDate": "تاريخ الدفع",
+      "note": "ملاحظة",
+      "notePlaceholder": "أضف ملاحظة اختيارية للدفعة",
+      "cancel": "إلغاء",
+      "save": "حفظ الدفعة",
+      "saving": "جارٍ الحفظ..."
+    },
+    "refundDialog": {
+      "eyebrow": "مرتجع",
+      "title": "تسجيل مرتجع",
+      "subtitle": "يمكنك إرجاع جميع أصناف الفاتورة أو تحديد كميات جزئية للأصناف المطلوب إرجاعها.",
+      "refundDate": "تاريخ المرتجع",
+      "note": "ملاحظة المرتجع",
+      "notePlaceholder": "أضف ملاحظة للمرتجع",
+      "itemsTitle": "أصناف المرتجع",
+      "availableQuantity": "الكمية المتاحة",
+      "returnQuantity": "الكمية المرتجعة",
+      "selectionRequired": "اختر كمية مرتجعة لصنف واحد على الأقل.",
+      "quantityExceeded": "لا يمكن أن تكون الكمية المرتجعة أكبر من الكمية المتاحة.",
+      "returnAll": "إرجاع الكل",
+      "clear": "مسح",
+      "cancel": "إلغاء",
+      "save": "حفظ المرتجع",
+      "saving": "جارٍ الحفظ..."
+    },
+    "messages": {
+      "loading": "جارٍ تحميل تفاصيل العميل...",
+      "loadFailed": "فشل تحميل تفاصيل العميل.",
+      "notFound": "لم يتم العثور على بيانات العميل.",
+      "paymentFailed": "فشل تسجيل الدفعة.",
+      "refundFailed": "فشل تسجيل المرتجع."
     }
   },
   "logout": {

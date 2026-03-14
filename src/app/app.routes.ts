@@ -20,9 +20,19 @@ export const routes: Routes = [
         loadComponent: () => import('./modules/customer/components/customers/customers.component').then(m => m.CustomersComponent)
     },
     {
+        path: 'customers/:id',
+        // canActivate: [authGuard],
+        loadComponent: () => import('./modules/customer/components/customer-details/customer-details.component').then(m => m.CustomerDetailsComponent)
+    },
+    {
         path: 'selling',
         // canActivate: [authGuard],
         loadComponent: () => import('./modules/products/components/selling/selling.component').then(m => m.SellingComponent)
+    },
+    {
+        path: 'credit-sales',
+        // canActivate: [authGuard],
+        loadComponent: () => import('./modules/products/components/credit-sales/credit-sales.component').then(m => m.CreditSalesComponent)
     },
     {
         path: 'invoice-history',

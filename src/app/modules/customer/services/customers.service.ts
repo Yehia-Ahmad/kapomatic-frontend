@@ -9,6 +9,68 @@ export interface Customer {
   phone: string;
   createdAt?: string;
   updatedAt?: string;
+  lastCashSaleDate?: string | null;
+  lastCreditSaleDate?: string | null;
+  lastCreditSalePaymentDate?: string | null;
+}
+
+export interface CustomerCreditSummary {
+  totalInvoices: number;
+  openInvoices: number;
+  totalCredit: number;
+  paidAmount: number;
+  remainingAmount: number;
+  pendingInvoices: number;
+  partiallyPaidInvoices: number;
+  paidInvoices: number;
+  overdueInvoices: number;
+  dueSoonInvoices: number;
+}
+
+export interface CustomerCreditPayment {
+  _id?: string;
+  amount?: number;
+  paymentDate?: string;
+  note?: string | null;
+}
+
+export interface CustomerCreditHistoryItem {
+  _id?: string;
+  invoiceId?: string;
+  productId?: string;
+  productName?: string;
+  categoryName?: string;
+  productQuantity?: number;
+  productQuentity?: number;
+  productPricePerEach?: number;
+  totalPrice?: number;
+  productCode?: string;
+}
+
+export interface CustomerCreditHistoryEntry {
+  _id?: string;
+  invoiceId?: string;
+  customerId?: string;
+  customerName?: string;
+  customerPhone?: string;
+  sellingDate?: string;
+  dueDate?: string | null;
+  status?: 'pending' | 'partially_paid' | 'paid' | string;
+  totalPrice?: number;
+  paidAmount?: number;
+  remainingAmount?: number;
+  itemCount?: number;
+  totalQuantity?: number;
+  notes?: string | null;
+  payments?: CustomerCreditPayment[];
+  items?: CustomerCreditHistoryItem[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CustomerDetails extends Customer {
+  creditSummary?: Partial<CustomerCreditSummary>;
+  creditHistory?: CustomerCreditHistoryEntry[];
 }
 
 export interface CustomerQueryParams {

@@ -137,7 +137,9 @@ export class CustomSidenavComponent implements OnInit {
   }
 
   private isProductsContext(): boolean {
-    const isProductsRoute = this._router.url.includes('/selling') || this._router.url.includes('/invoice-history');
+    const isProductsRoute = this._router.url.includes('/selling')
+      || this._router.url.includes('/credit-sales')
+      || this._router.url.includes('/invoice-history');
     if (!this.isBrowser) return isProductsRoute;
 
     const currentView = localStorage.getItem(HOME_VIEW_STORAGE_KEY);
@@ -157,6 +159,17 @@ export class CustomSidenavComponent implements OnInit {
         </span>
         `),
         route: '/selling'
+      },
+      {
+        label: 'sidebarTitles.credit_sales',
+        icon: this.sanitize(`
+        <span class="block w-8 h-8">
+            <svg width="100%" height="100%" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+              <path d="M160 96C124.7 96 96 124.7 96 160L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 160C544 124.7 515.3 96 480 96L160 96zM320 184C355.3 184 384 212.7 384 248L384 264L432 264C445.3 264 456 274.7 456 288C456 301.3 445.3 312 432 312L384 312L384 336L432 336C445.3 336 456 346.7 456 360C456 373.3 445.3 384 432 384L384 384L384 408C384 443.3 355.3 472 320 472C289.6 472 264.1 450.8 257.4 422.4C254.3 409.4 262.4 396.4 275.3 393.3C288.2 390.2 301.3 398.3 304.4 411.2C306 417.8 312 424 320 424C328.8 424 336 416.8 336 408L336 384L232 384C218.7 384 208 373.3 208 360C208 346.7 218.7 336 232 336L336 336L336 312L272 312C228.9 312 194 277.1 194 234C194 190.9 228.9 156 272 156L408 156C421.3 156 432 166.7 432 180C432 193.3 421.3 204 408 204L272 204C255.4 204 242 217.4 242 234C242 250.6 255.4 264 272 264L336 264L336 248C336 239.2 328.8 232 320 232C312 232 306 238.2 304.4 244.8C301.3 257.7 288.2 265.8 275.3 262.7C262.4 259.6 254.3 246.6 257.4 233.6C264.1 205.2 289.6 184 320 184z" style="fill:#2f2f2f;fill-rule:nonzero;" />
+            </svg>
+        </span>
+        `),
+        route: '/credit-sales'
       },
       {
         label: 'sidebarTitles.invoice_history',
