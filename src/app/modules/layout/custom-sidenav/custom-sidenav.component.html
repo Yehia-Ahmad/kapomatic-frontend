@@ -1,5 +1,5 @@
-<mat-nav-list class="flex flex-col h-full justify-between" [attr.dir]="direction()">
-  <div class="relative">
+<mat-nav-list class="sidenav-list" [attr.dir]="direction()">
+  <div class="sidenav-scroll">
     @if(isSidenavCollapsed) {
       @for(item of menuItems(); track $index) {
         <a
@@ -133,7 +133,7 @@
   </div>
 
   <!-- Reset View Button -->
-  <div class="mt-auto w-full flex justify-center mb-4 absolute bottom-4">
+  <div class="sidenav-footer">
     <button
       mat-button
       (click)="resetHomeView()"
