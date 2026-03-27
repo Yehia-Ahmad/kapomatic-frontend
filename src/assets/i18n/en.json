@@ -298,6 +298,10 @@
             "productQuantity": "Product Quantity",
             "productsCount": "Products Count",
             "totalQuantity": "Total Quantity",
+            "subtotal": "Subtotal",
+            "discountPercentage": "Discount Percentage",
+            "discountAmount": "Discount Amount",
+            "shippingFees": "Shipping Fees",
             "invoiceSummary": "Invoice Summary",
             "totalInvoicePrice": "Total Invoice Price"
         },
@@ -370,6 +374,9 @@
             "productsCount": "Products Count",
             "totalQuantity": "Total Quantity",
             "subtotal": "Subtotal",
+            "discountPercentage": "Discount Percentage",
+            "discountAmount": "Discount Amount",
+            "shippingFees": "Shipping Fees",
             "financedAmount": "Remaining Amount",
             "markupValue": "Markup Value",
             "totalReceivable": "Total Receivable",
@@ -459,6 +466,8 @@
             "date": "Date",
             "quantity": "Quantity",
             "totalQuantity": "Total Quantity",
+            "discountPercentage": "Discount %",
+            "shippingFees": "Shipping Fees",
             "unitPrice": "Unit Price",
             "totalPrice": "Total Price",
             "action": "Action"
@@ -553,6 +562,8 @@
             "quantity": "Quantity",
             "unitPrice": "Unit Price",
             "totalPrice": "Total Price",
+            "discountPercentage": "Discount %",
+            "shippingFees": "Shipping Fees",
             "paidAmount": "Paid",
             "remainingAmount": "Remaining",
             "notes": "Notes"

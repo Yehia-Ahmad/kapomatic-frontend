@@ -21,6 +21,9 @@ export type CreditInvoicePrintData = {
   statusLabel: string;
   itemCount: number;
   totalQuantity: number;
+  subtotal: number;
+  discountPercentage: number;
+  shippingFees: number;
   totalPrice: number;
   paidAmount: number;
   remainingAmount: number;
@@ -44,6 +47,9 @@ type CreditInvoiceDocumentLabels = {
   status: string;
   itemCount: string;
   totalQuantity: string;
+  subtotal: string;
+  discountPercentage: string;
+  shippingFees: string;
   invoiceTotal: string;
   paidAmount: string;
   remainingAmount: string;
@@ -79,6 +85,9 @@ export function buildCreditInvoiceDocument(params: {
   const statusLabel = escapeHtml(invoice.statusLabel || getCreditInvoiceFallbackValue(language));
   const itemCount = formatCreditInvoiceMetric(invoice.itemCount, language);
   const totalQuantity = formatCreditInvoiceMetric(invoice.totalQuantity, language);
+  const subtotal = formatCreditInvoiceMetric(invoice.subtotal, language);
+  const discountPercentage = formatCreditInvoicePercentage(invoice.discountPercentage);
+  const shippingFees = formatCreditInvoiceMetric(invoice.shippingFees, language);
   const totalPrice = formatCreditInvoiceMetric(invoice.totalPrice, language);
   const paidAmount = formatCreditInvoiceMetric(invoice.paidAmount, language);
   const remainingAmount = formatCreditInvoiceMetric(invoice.remainingAmount, language);
@@ -464,6 +473,18 @@ export function buildCreditInvoiceDocument(params: {
                 <p class="summary-value">${totalQuantity}</p>
               </div>
               <div class="summary-item">
+                <p class="summary-label">${labels.subtotal}</p>
+                <p class="summary-value">${subtotal}</p>
+              </div>
+              <div class="summary-item">
+                <p class="summary-label">${labels.discountPercentage}</p>
+                <p class="summary-value">${discountPercentage}</p>
+              </div>
+              <div class="summary-item">
+                <p class="summary-label">${labels.shippingFees}</p>
+                <p class="summary-value">${shippingFees}</p>
+              </div>
+              <div class="summary-item">
                 <p class="summary-label">${labels.paidAmount}</p>
                 <p class="summary-value">${paidAmount}</p>
               </div>
@@ -495,6 +516,18 @@ export function buildCreditInvoiceDocument(params: {
 
         <div class="total-row">
           <div class="total-box">
+            <div>
+              <span>${labels.subtotal}</span>
+              <strong>${subtotal}</strong>
+            </div>
+            <div>
+              <span>${labels.discountPercentage}</span>
+              <strong>${discountPercentage}</strong>
+            </div>
+            <div>
+              <span>${labels.shippingFees}</span>
+              <strong>${shippingFees}</strong>
+            </div>
             <div>
               <span>${labels.invoiceTotal}</span>
               <strong>${totalPrice}</strong>
@@ -543,6 +576,9 @@ function getCreditInvoiceLabels(language: CreditInvoicePrintLanguage): CreditInv
       status: 'الحالة',
       itemCount: 'عدد الأصناف',
       totalQuantity: 'إجمالي الكمية',
+      subtotal: 'الإجمالي الفرعي',
+      discountPercentage: 'نسبة الخصم',
+      shippingFees: 'رسوم الشحن',
       invoiceTotal: 'إجمالي الفاتورة',
       paidAmount: 'المدفوع',
       remainingAmount: 'المتبقي',
@@ -574,6 +610,9 @@ function getCreditInvoiceLabels(language: CreditInvoicePrintLanguage): CreditInv
     status: 'Status',
     itemCount: 'Items Count',
     totalQuantity: 'Total Quantity',
+    subtotal: 'Subtotal',
+    discountPercentage: 'Discount %',
+    shippingFees: 'Shipping Fees',
     invoiceTotal: 'Invoice Total',
     paidAmount: 'Paid Amount',
     remainingAmount: 'Remaining Amount',
@@ -657,6 +696,14 @@ function formatCreditInvoiceMetric(value: number, language: CreditInvoicePrintLa
   }
 
   return formatCreditInvoiceNumber(value);
+}
+
+function formatCreditInvoicePercentage(value: number): string {
+  if (!Number.isFinite(value)) {
+    return '0%';
+  }
+
+  return `${formatCreditInvoiceNumber(value)}%`;
 }
 
 function buildCreditInvoiceTableRows(

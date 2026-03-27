@@ -56,6 +56,8 @@ export interface CustomerCreditHistoryEntry {
   sellingDate?: string;
   dueDate?: string | null;
   status?: 'pending' | 'partially_paid' | 'paid' | string;
+  discountPercentage?: number;
+  shippingFees?: number;
   totalPrice?: number;
   paidAmount?: number;
   remainingAmount?: number;

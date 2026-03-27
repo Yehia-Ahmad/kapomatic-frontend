@@ -29,6 +29,9 @@ type CustomerHistoryView = {
   sellingDate: string | null;
   dueDate: string | null;
   status: 'pending' | 'partially_paid' | 'paid' | 'reactionary' | 'unknown';
+  subtotal: number;
+  discountPercentage: number;
+  shippingFees: number;
   totalPrice: number;
   paidAmount: number;
   remainingAmount: number;
@@ -456,6 +459,13 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
     }).format(value || 0);
   }
 
+  formatPercentage(value: number): string {
+    return `${new Intl.NumberFormat(this.direction === 'rtl' ? 'ar-EG' : 'en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    }).format(value || 0)}%`;
+  }
+
   formatDate(value: string | null | undefined): string {
     if (!value) {
       return this.translate.instant('customerDetailsPage.labels.notAvailable');
@@ -585,7 +595,13 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
       return null;
     }
 
-    const totalPrice = this.toNumber(source.totalPrice);
+    const items = this.normalizeHistoryItems(source.items);
+    const subtotal = this.toNumber(source.subtotal ?? this.sumHistoryItemTotals(items));
+    const discountPercentage = this.toBoundedPercentage(source.discountPercentage);
+    const shippingFees = this.toNonNegativeNumber(source.shippingFees);
+    const totalPrice = this.toNumber(
+      source.totalPrice ?? Math.max(subtotal - ((subtotal * discountPercentage) / 100) + shippingFees, 0)
+    );
     const paidAmount = this.toNumber(source.paidAmount);
     const remainingAmount = this.toNumber(
       source.remainingAmount ?? Math.max(totalPrice - paidAmount, 0)
@@ -593,7 +609,6 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
     const itemCount = this.toInteger(source.itemCount ?? source.items?.length);
     const totalQuantity = this.toInteger(source.totalQuantity);
     const normalizedStatus = this.normalizeStatus(source.status);
-    const items = this.normalizeHistoryItems(source.items);
     const payments = this.normalizePayments(source.payments);
     const paymentsCount = payments.length;
 
@@ -603,6 +618,9 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
       sellingDate: source.sellingDate ? String(source.sellingDate) : null,
       dueDate: source.dueDate ? String(source.dueDate) : null,
       status: normalizedStatus,
+      subtotal,
+      discountPercentage,
+      shippingFees,
       totalPrice,
       paidAmount,
       remainingAmount,
@@ -811,6 +829,9 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
       statusLabel: this.getStatusLabel(entry.status),
       itemCount: entry.itemCount,
       totalQuantity: entry.totalQuantity,
+      subtotal: entry.subtotal,
+      discountPercentage: entry.discountPercentage,
+      shippingFees: entry.shippingFees,
       totalPrice: entry.totalPrice,
       paidAmount: entry.paidAmount,
       remainingAmount: entry.remainingAmount,
@@ -931,6 +952,18 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
   private toNumber(value: unknown): number {
     const normalized = Number(value);
     return Number.isFinite(normalized) ? normalized : 0;
+  }
+
+  private toNonNegativeNumber(value: unknown): number {
+    return Math.max(0, this.toNumber(value));
+  }
+
+  private toBoundedPercentage(value: unknown): number {
+    return Math.min(100, this.toNonNegativeNumber(value));
+  }
+
+  private sumHistoryItemTotals(items: CustomerHistoryView['items']): number {
+    return items.reduce((sum, item) => sum + this.toNumber(item.totalPrice), 0);
   }
 
   private toInteger(value: unknown): number {

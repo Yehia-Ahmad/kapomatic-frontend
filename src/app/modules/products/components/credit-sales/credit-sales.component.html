@@ -124,6 +124,31 @@
                     inputStyleClass="credit-control-input"
                   />
                 </div>
+
+                <div class="flex flex-col gap-2">
+                  <label class="credit-label">{{ 'creditSalePage.fields.discountPercentage' | translate }}</label>
+                  <p-inputNumber
+                    formControlName="discountPercentage"
+                    [min]="0"
+                    [max]="100"
+                    [mode]="'decimal'"
+                    [useGrouping]="false"
+                    styleClass="credit-control"
+                    inputStyleClass="credit-control-input"
+                  />
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label class="credit-label">{{ 'creditSalePage.fields.shippingFees' | translate }}</label>
+                  <p-inputNumber
+                    formControlName="shippingFees"
+                    [min]="0"
+                    [mode]="'decimal'"
+                    [useGrouping]="false"
+                    styleClass="credit-control"
+                    inputStyleClass="credit-control-input"
+                  />
+                </div>
               </div>
             </section>
 
@@ -304,6 +329,18 @@
                 <strong>{{ formatMoney(itemsSubtotal) }}</strong>
               </div>
               <div class="credit-totals-row">
+                <span>{{ 'creditSalePage.fields.discountAmount' | translate }}</span>
+                <strong>-{{ formatMoney(discountAmount) }}</strong>
+              </div>
+              <div class="credit-totals-row">
+                <span>{{ 'creditSalePage.fields.shippingFees' | translate }}</span>
+                <strong>{{ formatMoney(shippingFees) }}</strong>
+              </div>
+              <div class="credit-totals-row">
+                <span>{{ 'creditSalePage.fields.totalReceivable' | translate }}</span>
+                <strong>{{ formatMoney(totalReceivable) }}</strong>
+              </div>
+              <div class="credit-totals-row">
                 <span>{{ 'creditSalePage.fields.downPayment' | translate }}</span>
                 <strong>{{ formatMoney(creditSaleForm.get('downPayment')?.value || 0) }}</strong>
               </div>
@@ -366,6 +403,18 @@
           <div class="credit-review-stat">
             <span>{{ 'creditSalePage.fields.subtotal' | translate }}</span>
             <strong>{{ formatMoney(itemsSubtotal) }}</strong>
+          </div>
+          <div class="credit-review-stat">
+            <span>{{ 'creditSalePage.fields.discountPercentage' | translate }}</span>
+            <strong>{{ discountPercentage | number:'1.0-2' }}%</strong>
+          </div>
+          <div class="credit-review-stat">
+            <span>{{ 'creditSalePage.fields.shippingFees' | translate }}</span>
+            <strong>{{ formatMoney(shippingFees) }}</strong>
+          </div>
+          <div class="credit-review-stat">
+            <span>{{ 'creditSalePage.fields.totalReceivable' | translate }}</span>
+            <strong>{{ formatMoney(totalReceivable) }}</strong>
           </div>
           <div class="credit-review-stat">
             <span>{{ 'creditSalePage.fields.downPayment' | translate }}</span>

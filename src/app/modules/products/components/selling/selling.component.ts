@@ -86,6 +86,7 @@ export class SellingComponent implements OnInit, OnDestroy {
   isDarkMode$;
   direction: 'rtl' | 'ltr' = 'ltr';
   private isBrowser: boolean;
+  private readonly subscriptions = new Subscription();
   private customerSearchBlurTimer: ReturnType<typeof setTimeout> | null = null;
   private invoiceItemSubscriptions = new Map<FormGroup, Subscription[]>();
   private invoiceItemSequence = 0;
@@ -128,16 +129,26 @@ export class SellingComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.updateDirection();
     this.setPriceTypeOptions();
-    this._translate.onLangChange.subscribe(() => {
-      this.updateDirection();
-      this.setPriceTypeOptions();
-    });
+    this.subscriptions.add(
+      this._translate.onLangChange.subscribe(() => {
+        this.updateDirection();
+        this.setPriceTypeOptions();
+      })
+    );
+    this.subscriptions.add(
+      this.sellingForm.get('discountPercentage')!.valueChanges.subscribe(() => this.updateInvoiceTotals())
+    );
+    this.subscriptions.add(
+      this.sellingForm.get('shippingFees')!.valueChanges.subscribe(() => this.updateInvoiceTotals())
+    );
 
     if (!this.isBrowser) return;
     localStorage.setItem(HOME_VIEW_STORAGE_KEY, 'products');
   }
 
   ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+
     if (this.customerSearchBlurTimer) {
       clearTimeout(this.customerSearchBlurTimer);
       this.customerSearchBlurTimer = null;
@@ -162,6 +173,22 @@ export class SellingComponent implements OnInit, OnDestroy {
 
   get invoiceGrandTotal(): number {
     return Number(this.sellingForm.get('totalInvoicePrice')?.value || 0);
+  }
+
+  get invoiceSubtotal(): number {
+    return this.calculateItemsSubtotal();
+  }
+
+  get invoiceDiscountAmount(): number {
+    return this.calculateDiscountAmount(this.invoiceSubtotal, this.discountPercentageValue);
+  }
+
+  get discountPercentageValue(): number {
+    return this.toBoundedPercentage(this.sellingForm.get('discountPercentage')?.value);
+  }
+
+  get shippingFeesValue(): number {
+    return this.toNonNegativeNumber(this.sellingForm.get('shippingFees')?.value);
   }
 
   get invoiceQuantityTotal(): number {
@@ -363,6 +390,8 @@ export class SellingComponent implements OnInit, OnDestroy {
       customerName: string;
       customerPhone?: string;
       sellingDate: string;
+      discountPercentage: number;
+      shippingFees: number;
       items: Array<{
         productId: string;
         quantity: number;
@@ -372,6 +401,8 @@ export class SellingComponent implements OnInit, OnDestroy {
       customerName: String(raw.customerName || '').trim(),
       customerPhone: String(raw.customerPhone || '').trim(),
       sellingDate,
+      discountPercentage: this.toBoundedPercentage(raw.discountPercentage),
+      shippingFees: this.toNonNegativeNumber(raw.shippingFees),
       items: items.map((item: any) => ({
         productId: String(item.productId || ''),
         quantity: Number(item.quantity),
@@ -559,6 +590,8 @@ export class SellingComponent implements OnInit, OnDestroy {
       customerName: ['', Validators.required],
       customerPhone: [''],
       sellingDate: [this.getTodayDate(), Validators.required],
+      discountPercentage: [0, [Validators.min(0), Validators.max(100)]],
+      shippingFees: [0, [Validators.min(0)]],
       totalInvoicePrice: [{ value: 0, disabled: true }],
       items: this._fb.array([])
     });
@@ -648,14 +681,10 @@ export class SellingComponent implements OnInit, OnDestroy {
   }
 
   private updateInvoiceTotals(): void {
-    const total = this.invoiceItems.controls.reduce((sum, control) => {
-      const raw = (control as FormGroup).getRawValue();
-      const price = Number(raw.price || 0);
-      const quantity = Number(raw.quantity || 0);
-      const lineTotal = Number.isFinite(price * quantity) ? price * quantity : 0;
-      return sum + lineTotal;
-    }, 0);
-
+    const subtotal = this.calculateItemsSubtotal();
+    const discountAmount = this.calculateDiscountAmount(subtotal, this.discountPercentageValue);
+    const shippingFees = this.shippingFeesValue;
+    const total = this.roundCurrency(Math.max(subtotal - discountAmount + shippingFees, 0));
     this.sellingForm.get('totalInvoicePrice')?.setValue(total, { emitEvent: false });
   }
 
@@ -735,6 +764,8 @@ export class SellingComponent implements OnInit, OnDestroy {
       customerName: '',
       customerPhone: '',
       sellingDate: this.getTodayDate(),
+      discountPercentage: 0,
+      shippingFees: 0,
       totalInvoicePrice: 0
     });
 
@@ -834,5 +865,36 @@ export class SellingComponent implements OnInit, OnDestroy {
   private toNumber(value: any): number | null {
     const num = Number(value);
     return Number.isFinite(num) ? num : null;
+  }
+
+  private calculateItemsSubtotal(): number {
+    return this.roundCurrency(this.invoiceItems.controls.reduce((sum, control) => {
+      const raw = (control as FormGroup).getRawValue();
+      const price = Number(raw.price || 0);
+      const quantity = Number(raw.quantity || 0);
+      const lineTotal = Number.isFinite(price * quantity) ? price * quantity : 0;
+      return sum + lineTotal;
+    }, 0));
+  }
+
+  private calculateDiscountAmount(subtotal: number, discountPercentage: number): number {
+    return this.roundCurrency((subtotal * discountPercentage) / 100);
+  }
+
+  private toNonNegativeNumber(value: unknown): number {
+    const normalized = Number(value);
+    if (!Number.isFinite(normalized) || normalized < 0) {
+      return 0;
+    }
+
+    return normalized;
+  }
+
+  private toBoundedPercentage(value: unknown): number {
+    return Math.min(100, this.toNonNegativeNumber(value));
+  }
+
+  private roundCurrency(value: number): number {
+    return Number((value || 0).toFixed(2));
   }
 }

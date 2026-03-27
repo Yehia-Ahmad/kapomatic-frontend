@@ -86,6 +86,9 @@ export class CreditSalesComponent implements OnInit, OnDestroy {
   productsCount = 1;
   totalQuantity = 0;
   itemsSubtotal = 0;
+  discountAmount = 0;
+  discountPercentage = 0;
+  shippingFees = 0;
   financedAmount = 0;
   totalReceivable = 0;
   customerSearchInputValue = '';
@@ -223,6 +226,8 @@ export class CreditSalesComponent implements OnInit, OnDestroy {
       customerName: '',
       customerPhone: '',
       sellingDate: new Date(),
+      discountPercentage: 0,
+      shippingFees: 0,
       downPayment: 0
     });
 
@@ -482,6 +487,8 @@ export class CreditSalesComponent implements OnInit, OnDestroy {
       customerName: ['', Validators.required],
       customerPhone: ['', Validators.required],
       sellingDate: [new Date(), Validators.required],
+      discountPercentage: [0, [Validators.min(0), Validators.max(100)]],
+      shippingFees: [0, [Validators.min(0)]],
       downPayment: [0, [Validators.min(0)]],
       items: this.formBuilder.array([])
     });
@@ -559,14 +566,25 @@ export class CreditSalesComponent implements OnInit, OnDestroy {
     this.totalQuantity = this.lineItemControls.reduce((sum, control) => {
       return sum + this.toPositiveNumber(control.get('quantity')?.value);
     }, 0);
-    this.itemsSubtotal = this.lineItemControls.reduce((sum, control, index) => {
+    this.itemsSubtotal = this.roundCurrency(this.lineItemControls.reduce((sum, control, index) => {
       const lineTotal = this.getLineTotal(index);
       control.get('lineTotal')?.setValue(lineTotal, { emitEvent: false });
       return sum + lineTotal;
-    }, 0);
+    }, 0));
 
+    this.discountPercentage = this.toBoundedPercentage(
+      this.creditSaleForm.get('discountPercentage')?.value
+    );
+    this.shippingFees = this.roundCurrency(
+      this.toPositiveNumber(this.creditSaleForm.get('shippingFees')?.value)
+    );
+    this.discountAmount = this.roundCurrency(
+      (this.itemsSubtotal * this.discountPercentage) / 100
+    );
     const downPayment = this.toPositiveNumber(this.creditSaleForm.get('downPayment')?.value);
-    this.totalReceivable = this.roundCurrency(this.itemsSubtotal);
+    this.totalReceivable = this.roundCurrency(
+      Math.max(this.itemsSubtotal - this.discountAmount + this.shippingFees, 0)
+    );
     this.financedAmount = this.roundCurrency(Math.max(this.totalReceivable - downPayment, 0));
   }
 
@@ -580,6 +598,8 @@ export class CreditSalesComponent implements OnInit, OnDestroy {
 
     const payload: CreateCreditSalePayload = {
       sellingDate: this.formatRequestDate(raw.sellingDate),
+      discountPercentage: this.toBoundedPercentage(raw.discountPercentage),
+      shippingFees: this.roundCurrency(this.toPositiveNumber(raw.shippingFees)),
       initialPaidAmount: downPayment > 0 ? downPayment : undefined,
       items: adjustedItems
     };
@@ -859,6 +879,10 @@ export class CreditSalesComponent implements OnInit, OnDestroy {
     }
 
     return normalized;
+  }
+
+  private toBoundedPercentage(value: unknown): number {
+    return Math.min(100, this.toPositiveNumber(value));
   }
 
   private toNumber(value: unknown): number | null {

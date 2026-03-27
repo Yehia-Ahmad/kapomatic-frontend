@@ -27,6 +27,8 @@ export interface CreateCreditSalePayload {
   sellingDate: string;
   dueDate?: string;
   notes?: string;
+  discountPercentage?: number;
+  shippingFees?: number;
   initialPaidAmount?: number;
   items: CreditSaleItemPayload[];
 }

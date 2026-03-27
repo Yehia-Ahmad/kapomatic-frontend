@@ -301,6 +301,10 @@
       "productQuantity": "كمية المنتج",
       "productsCount": "عدد المنتجات",
       "totalQuantity": "إجمالي الكمية",
+      "subtotal": "الإجمالي الفرعي",
+      "discountPercentage": "نسبة الخصم",
+      "discountAmount": "قيمة الخصم",
+      "shippingFees": "رسوم الشحن",
       "invoiceSummary": "ملخص الفاتورة",
       "totalInvoicePrice": "إجمالي قيمة الفاتورة"
     },
@@ -373,6 +377,9 @@
       "productsCount": "عدد الأصناف",
       "totalQuantity": "إجمالي الكمية",
       "subtotal": "الإجمالي الفرعي",
+      "discountPercentage": "نسبة الخصم",
+      "discountAmount": "قيمة الخصم",
+      "shippingFees": "رسوم الشحن",
       "financedAmount": "المبلغ المتبقي",
       "markupValue": "قيمة الزيادة",
       "totalReceivable": "إجمالي المستحق",
@@ -462,6 +469,8 @@
       "date": "التاريخ",
       "quantity": "الكمية",
       "totalQuantity": "إجمالي الكمية",
+      "discountPercentage": "نسبة الخصم",
+      "shippingFees": "رسوم الشحن",
       "unitPrice": "سعر القطعة",
       "totalPrice": "إجمالي الفاتورة",
       "action": "إجراء"
@@ -556,6 +565,8 @@
       "quantity": "الكمية",
       "unitPrice": "سعر الوحدة",
       "totalPrice": "إجمالي الفاتورة",
+      "discountPercentage": "نسبة الخصم",
+      "shippingFees": "رسوم الشحن",
       "paidAmount": "المدفوع",
       "remainingAmount": "المتبقي",
       "notes": "ملاحظات"

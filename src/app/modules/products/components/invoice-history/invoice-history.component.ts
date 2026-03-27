@@ -269,7 +269,10 @@ export class InvoiceHistoryComponent implements OnInit {
       sellingDate: item.sellingDate ? String(item.sellingDate) : (items[0]?.sellingDate || null),
       itemCount: this.toNumber(item.itemCount) ?? items.length,
       totalQuantity: this.toNumber(item.totalQuantity) ?? this.sumInvoiceMetric(items, 'quantity'),
-      totalPrice: this.toNumber(item.totalPrice ?? item.total) ?? this.sumInvoiceMetric(items, 'totalPrice'),
+      subtotal: this.toNumber(item.subtotal) ?? this.sumInvoiceMetric(items, 'totalPrice'),
+      discountPercentage: this.toNumber(item.discountPercentage) ?? 0,
+      shippingFees: this.toNumber(item.shippingFees) ?? 0,
+      totalPrice: this.resolveInvoiceTotal(item, items),
       items
     };
   }
@@ -452,6 +455,20 @@ export class InvoiceHistoryComponent implements OnInit {
     field: 'quantity' | 'totalPrice'
   ): number {
     return items.reduce((total, item) => total + Number(item[field] || 0), 0);
+  }
+
+  private resolveInvoiceTotal(item: any, items: InvoiceHistoryRow['items']): number | null {
+    const explicitTotal = this.toNumber(item.totalPrice ?? item.total);
+    if (explicitTotal !== null) {
+      return explicitTotal;
+    }
+
+    const subtotal = this.toNumber(item.subtotal) ?? this.sumInvoiceMetric(items, 'totalPrice');
+    const discountPercentage = this.toNumber(item.discountPercentage) ?? 0;
+    const shippingFees = this.toNumber(item.shippingFees) ?? 0;
+    const discountAmount = (subtotal * discountPercentage) / 100;
+
+    return Number((Math.max(subtotal - discountAmount + shippingFees, 0)).toFixed(2));
   }
 
   private toNumber(value: any): number | null {

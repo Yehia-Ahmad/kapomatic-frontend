@@ -444,6 +444,35 @@
                           </div>
                         </div>
 
+                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <div class="rounded-lg px-4 py-3" [ngClass]="{
+                            'bg-[#2e3240]': isDarkMode$ | async,
+                            'bg-[#eef3ff]': !(isDarkMode$ | async)
+                          }">
+                            <p class="font-roboto text-xs uppercase tracking-[0.16em] text-[#5b8def]">
+                              {{ 'customerDetailsPage.history.discountPercentage' | translate }}
+                            </p>
+                            <strong class="mt-2 block font-azonix text-base text-[#5b8def]">
+                              {{ formatPercentage(entry.discountPercentage) }}
+                            </strong>
+                          </div>
+
+                          <div class="rounded-lg px-4 py-3" [ngClass]="{
+                            'bg-[#2f3138]': isDarkMode$ | async,
+                            'bg-[#f3f4f6]': !(isDarkMode$ | async)
+                          }">
+                            <p class="font-roboto text-xs uppercase tracking-[0.16em] text-gray">
+                              {{ 'customerDetailsPage.history.shippingFees' | translate }}
+                            </p>
+                            <strong class="mt-2 block font-azonix text-base" [ngClass]="{
+                              'text-gray_light': isDarkMode$ | async,
+                              'text-gray_dark': !(isDarkMode$ | async)
+                            }">
+                              {{ formatMoney(entry.shippingFees) }}
+                            </strong>
+                          </div>
+                        </div>
+
                         <div class="flex flex-wrap gap-3">
                           <button
                             type="button"

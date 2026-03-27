@@ -293,6 +293,69 @@
               </div>
             </div>
 
+            <div class="grid grid-cols-1 gap-4">
+              <div class="flex flex-col gap-2">
+                <label class="selling-label" [ngClass]="{
+                  'text-right': direction === 'rtl',
+                  'text-left': direction !== 'rtl'
+                }">{{ 'sellingPage.fields.discountPercentage' | translate }}</label>
+                <p-inputNumber
+                  formControlName="discountPercentage"
+                  [mode]="'decimal'"
+                  [min]="0"
+                  [max]="100"
+                  [useGrouping]="false"
+                  styleClass="selling-control"
+                  inputStyleClass="selling-control-input"
+                />
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <label class="selling-label" [ngClass]="{
+                  'text-right': direction === 'rtl',
+                  'text-left': direction !== 'rtl'
+                }">{{ 'sellingPage.fields.shippingFees' | translate }}</label>
+                <p-inputNumber
+                  formControlName="shippingFees"
+                  [mode]="'decimal'"
+                  [min]="0"
+                  [useGrouping]="false"
+                  styleClass="selling-control"
+                  inputStyleClass="selling-control-input"
+                />
+              </div>
+            </div>
+
+            <div
+              class="flex flex-col gap-3 rounded-[1.1rem] border px-4 py-4"
+              [ngClass]="{
+                'border-[#4b4b4f] bg-[#303036]': (isDarkMode$ | async),
+                'border-[#ece2a5] bg-[#fff9d9]': !(isDarkMode$ | async)
+              }"
+            >
+              <div class="flex items-center justify-between gap-3 font-roboto text-sm" [ngClass]="{
+                'text-gray_light': (isDarkMode$ | async),
+                'text-gray_dark': !(isDarkMode$ | async)
+              }">
+                <span>{{ 'sellingPage.fields.subtotal' | translate }}</span>
+                <strong>{{ invoiceSubtotal | number:'1.2-2' }}</strong>
+              </div>
+              <div class="flex items-center justify-between gap-3 font-roboto text-sm" [ngClass]="{
+                'text-gray_light': (isDarkMode$ | async),
+                'text-gray_dark': !(isDarkMode$ | async)
+              }">
+                <span>{{ 'sellingPage.fields.discountAmount' | translate }}</span>
+                <strong>-{{ invoiceDiscountAmount | number:'1.2-2' }}</strong>
+              </div>
+              <div class="flex items-center justify-between gap-3 font-roboto text-sm" [ngClass]="{
+                'text-gray_light': (isDarkMode$ | async),
+                'text-gray_dark': !(isDarkMode$ | async)
+              }">
+                <span>{{ 'sellingPage.fields.shippingFees' | translate }}</span>
+                <strong>{{ shippingFeesValue | number:'1.2-2' }}</strong>
+              </div>
+            </div>
+
             <div class="invoice-total-panel">
               <span class="invoice-total-panel__label">{{ 'sellingPage.fields.totalInvoicePrice' | translate }}</span>
               <strong class="invoice-total-panel__value">{{ invoiceGrandTotal | number:'1.2-2' }}</strong>

@@ -23,6 +23,9 @@ export type InvoiceHistoryRow = {
   sellingDate: string | null;
   itemCount: number | null;
   totalQuantity: number | null;
+  subtotal: number | null;
+  discountPercentage: number | null;
+  shippingFees: number | null;
   totalPrice: number | null;
   items: InvoiceHistoryItem[];
 };
@@ -44,6 +47,9 @@ type InvoiceDocumentLabels = {
   invoiceTime: string;
   itemCount: string;
   totalQuantity: string;
+  subtotal: string;
+  discountPercentage: string;
+  shippingFees: string;
   invoiceTotal: string;
   tableIndex: string;
   tableCode: string;
@@ -53,8 +59,6 @@ type InvoiceDocumentLabels = {
   tableQuantity: string;
   tableUnitPrice: string;
   tableTotal: string;
-  subtotal: string;
-  discount: string;
   invoiceNote: string;
 };
 
@@ -77,6 +81,9 @@ export function buildInvoiceDocument(params: {
   const invoiceTime = formatInvoiceTime(selling.sellingDate, language);
   const itemCount = formatInvoiceMetric(selling.itemCount, language);
   const totalQuantity = formatInvoiceMetric(selling.totalQuantity, language);
+  const subtotal = formatInvoiceMetric(selling.subtotal ?? selling.totalPrice, language);
+  const discountPercentage = formatInvoicePercentage(selling.discountPercentage);
+  const shippingFees = formatInvoiceMetric(selling.shippingFees, language);
   const totalPrice = formatInvoiceMetric(selling.totalPrice, language);
   const unitLabel = isArabic ? 'قطعة' : 'Piece';
   const title = isArabic ? `فاتورة ${invoiceNumber}` : `Invoice ${invoiceNumber}`;
@@ -452,6 +459,14 @@ export function buildInvoiceDocument(params: {
                 <p class="summary-value">${totalQuantity}</p>
               </div>
               <div class="summary-item">
+                <p class="summary-label">${labels.discountPercentage}</p>
+                <p class="summary-value">${discountPercentage}</p>
+              </div>
+              <div class="summary-item">
+                <p class="summary-label">${labels.shippingFees}</p>
+                <p class="summary-value">${shippingFees}</p>
+              </div>
+              <div class="summary-item">
                 <p class="summary-label">${labels.invoiceTotal}</p>
                 <p class="summary-value">${totalPrice}</p>
               </div>
@@ -481,11 +496,15 @@ export function buildInvoiceDocument(params: {
           <div class="total-box">
             <div>
               <span>${labels.subtotal}</span>
-              <strong>${totalPrice}</strong>
+              <strong>${subtotal}</strong>
             </div>
             <div>
-              <span>${labels.discount}</span>
-              <strong>0.00</strong>
+              <span>${labels.discountPercentage}</span>
+              <strong>${discountPercentage}</strong>
+            </div>
+            <div>
+              <span>${labels.shippingFees}</span>
+              <strong>${shippingFees}</strong>
             </div>
             <div class="grand-total">
               <span>${labels.invoiceTotal}</span>
@@ -535,6 +554,9 @@ function getInvoiceLabels(language: InvoicePrintLanguage): InvoiceDocumentLabels
       invoiceTime: 'الوقت',
       itemCount: 'عدد الأصناف',
       totalQuantity: 'إجمالي الكمية',
+      subtotal: 'الإجمالي الفرعي',
+      discountPercentage: 'نسبة الخصم',
+      shippingFees: 'رسوم الشحن',
       invoiceTotal: 'الإجمالي',
       tableIndex: 'م',
       tableCode: 'الكود',
@@ -544,8 +566,6 @@ function getInvoiceLabels(language: InvoicePrintLanguage): InvoiceDocumentLabels
       tableQuantity: 'الكمية',
       tableUnitPrice: 'السعر',
       tableTotal: 'الإجمالي',
-      subtotal: 'الإجمالي الفرعي',
-      discount: 'الخصم',
       invoiceNote: 'هذه الفاتورة تم إنشاؤها إلكترونيًا من نظام كابوماتيك.'
     };
   }
@@ -565,6 +585,9 @@ function getInvoiceLabels(language: InvoicePrintLanguage): InvoiceDocumentLabels
     invoiceTime: 'Time',
     itemCount: 'Items Count',
     totalQuantity: 'Total Quantity',
+    subtotal: 'Subtotal',
+    discountPercentage: 'Discount %',
+    shippingFees: 'Shipping Fees',
     invoiceTotal: 'Total',
     tableIndex: '#',
     tableCode: 'Code',
@@ -574,8 +597,6 @@ function getInvoiceLabels(language: InvoicePrintLanguage): InvoiceDocumentLabels
     tableQuantity: 'Qty',
     tableUnitPrice: 'Unit Price',
     tableTotal: 'Total',
-    subtotal: 'Subtotal',
-    discount: 'Discount',
     invoiceNote: 'This invoice was generated electronically from the Kapomatic system.'
   };
 }
@@ -639,6 +660,14 @@ function formatInvoiceMetric(value: number | null, language: InvoicePrintLanguag
   }
 
   return formatInvoiceNumber(value);
+}
+
+function formatInvoicePercentage(value: number | null): string {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return '0%';
+  }
+
+  return `${formatInvoiceNumber(value)}%`;
 }
 
 function buildInvoiceTableRows(
