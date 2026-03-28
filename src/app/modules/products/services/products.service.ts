@@ -20,6 +20,7 @@ export class ProductsService {
     customerName: string;
     customerPhone?: string;
     sellingDate: string;
+    discountAmount?: number;
     discountPercentage?: number;
     shippingFees?: number;
     items: Array<{

@@ -136,7 +136,7 @@ export class SellingComponent implements OnInit, OnDestroy {
       })
     );
     this.subscriptions.add(
-      this.sellingForm.get('discountPercentage')!.valueChanges.subscribe(() => this.updateInvoiceTotals())
+      this.sellingForm.get('discountAmount')!.valueChanges.subscribe(() => this.updateInvoiceTotals())
     );
     this.subscriptions.add(
       this.sellingForm.get('shippingFees')!.valueChanges.subscribe(() => this.updateInvoiceTotals())
@@ -180,11 +180,11 @@ export class SellingComponent implements OnInit, OnDestroy {
   }
 
   get invoiceDiscountAmount(): number {
-    return this.calculateDiscountAmount(this.invoiceSubtotal, this.discountPercentageValue);
+    return this.toDiscountAmount(this.sellingForm.get('discountAmount')?.value, this.invoiceSubtotal);
   }
 
-  get discountPercentageValue(): number {
-    return this.toBoundedPercentage(this.sellingForm.get('discountPercentage')?.value);
+  get discountPercentageInfo(): number {
+    return this.calculateDiscountPercentage(this.invoiceSubtotal, this.invoiceDiscountAmount);
   }
 
   get shippingFeesValue(): number {
@@ -386,10 +386,12 @@ export class SellingComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const discountAmount = this.invoiceDiscountAmount;
     const payload: {
       customerName: string;
       customerPhone?: string;
       sellingDate: string;
+      discountAmount: number;
       discountPercentage: number;
       shippingFees: number;
       items: Array<{
@@ -401,7 +403,8 @@ export class SellingComponent implements OnInit, OnDestroy {
       customerName: String(raw.customerName || '').trim(),
       customerPhone: String(raw.customerPhone || '').trim(),
       sellingDate,
-      discountPercentage: this.toBoundedPercentage(raw.discountPercentage),
+      discountAmount,
+      discountPercentage: this.discountPercentageInfo,
       shippingFees: this.toNonNegativeNumber(raw.shippingFees),
       items: items.map((item: any) => ({
         productId: String(item.productId || ''),
@@ -590,7 +593,7 @@ export class SellingComponent implements OnInit, OnDestroy {
       customerName: ['', Validators.required],
       customerPhone: [''],
       sellingDate: [this.getTodayDate(), Validators.required],
-      discountPercentage: [0, [Validators.min(0), Validators.max(100)]],
+      discountAmount: [0, [Validators.min(0)]],
       shippingFees: [0, [Validators.min(0)]],
       totalInvoicePrice: [{ value: 0, disabled: true }],
       items: this._fb.array([])
@@ -682,7 +685,7 @@ export class SellingComponent implements OnInit, OnDestroy {
 
   private updateInvoiceTotals(): void {
     const subtotal = this.calculateItemsSubtotal();
-    const discountAmount = this.calculateDiscountAmount(subtotal, this.discountPercentageValue);
+    const discountAmount = this.normalizeDiscountAmountControl(subtotal);
     const shippingFees = this.shippingFeesValue;
     const total = this.roundCurrency(Math.max(subtotal - discountAmount + shippingFees, 0));
     this.sellingForm.get('totalInvoicePrice')?.setValue(total, { emitEvent: false });
@@ -764,7 +767,7 @@ export class SellingComponent implements OnInit, OnDestroy {
       customerName: '',
       customerPhone: '',
       sellingDate: this.getTodayDate(),
-      discountPercentage: 0,
+      discountAmount: 0,
       shippingFees: 0,
       totalInvoicePrice: 0
     });
@@ -879,6 +882,29 @@ export class SellingComponent implements OnInit, OnDestroy {
 
   private calculateDiscountAmount(subtotal: number, discountPercentage: number): number {
     return this.roundCurrency((subtotal * discountPercentage) / 100);
+  }
+
+  private calculateDiscountPercentage(subtotal: number, discountAmount: number): number {
+    if (subtotal <= 0 || discountAmount <= 0) {
+      return 0;
+    }
+
+    return this.roundCurrency(Math.min((discountAmount / subtotal) * 100, 100));
+  }
+
+  private toDiscountAmount(value: unknown, subtotal: number): number {
+    return this.roundCurrency(Math.min(this.toNonNegativeNumber(value), Math.max(subtotal, 0)));
+  }
+
+  private normalizeDiscountAmountControl(subtotal: number): number {
+    const discountAmountControl = this.sellingForm.get('discountAmount');
+    const boundedValue = this.toDiscountAmount(discountAmountControl?.value, subtotal);
+
+    if (discountAmountControl && discountAmountControl.value !== boundedValue) {
+      discountAmountControl.setValue(boundedValue, { emitEvent: false });
+    }
+
+    return boundedValue;
   }
 
   private toNonNegativeNumber(value: unknown): number {

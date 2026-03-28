@@ -122,7 +122,7 @@
           [loading]="isLoading"
           [scrollable]="true"
           scrollHeight="450px"
-          [tableStyle]="{ 'min-width': '1700px' }"
+          [tableStyle]="{ 'min-width': '1820px' }"
           styleClass="invoice-history-table"
         >
           <ng-template pTemplate="header">
@@ -138,6 +138,7 @@
               <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.items' | translate }}</th>
               <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.itemCount' | translate }}</th>
               <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.totalQuantity' | translate }}</th>
+              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.discountAmount' | translate }}</th>
               <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.discountPercentage' | translate }}</th>
               <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.shippingFees' | translate }}</th>
               <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.totalPrice' | translate }}</th>
@@ -189,6 +190,7 @@
               </td>
               <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ selling.itemCount ?? selling.items.length }}</td>
               <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ selling.totalQuantity ?? '-' }}</td>
+              <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ (selling.discountAmount ?? 0) | number:'1.2-2' }}</td>
               <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ (selling.discountPercentage ?? 0) | number:'1.0-2' }}%</td>
               <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ (selling.shippingFees ?? 0) | number:'1.2-2' }}</td>
               <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">{{ (selling.totalPrice ?? 0) | number:'1.2-2' }}</td>

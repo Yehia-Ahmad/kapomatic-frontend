@@ -298,16 +298,22 @@
                 <label class="selling-label" [ngClass]="{
                   'text-right': direction === 'rtl',
                   'text-left': direction !== 'rtl'
-                }">{{ 'sellingPage.fields.discountPercentage' | translate }}</label>
+                }">{{ 'sellingPage.fields.discountAmount' | translate }}</label>
                 <p-inputNumber
-                  formControlName="discountPercentage"
+                  formControlName="discountAmount"
                   [mode]="'decimal'"
                   [min]="0"
-                  [max]="100"
                   [useGrouping]="false"
                   styleClass="selling-control"
                   inputStyleClass="selling-control-input"
                 />
+                <p class="font-roboto text-xs" [ngClass]="{
+                  'text-gray_light': (isDarkMode$ | async),
+                  'text-gray': !(isDarkMode$ | async)
+                }">
+                  {{ 'sellingPage.fields.discountPercentage' | translate }}:
+                  {{ discountPercentageInfo | number:'1.0-2' }}%
+                </p>
               </div>
 
               <div class="flex flex-col gap-2">

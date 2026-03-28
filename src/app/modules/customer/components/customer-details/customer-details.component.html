@@ -444,7 +444,19 @@
                           </div>
                         </div>
 
-                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                          <div class="rounded-lg px-4 py-3" [ngClass]="{
+                            'bg-[#35303f]': isDarkMode$ | async,
+                            'bg-[#f8eefc]': !(isDarkMode$ | async)
+                          }">
+                            <p class="font-roboto text-xs uppercase tracking-[0.16em] text-[#b56de3]">
+                              {{ 'customerDetailsPage.history.discountAmount' | translate }}
+                            </p>
+                            <strong class="mt-2 block font-azonix text-base text-[#b56de3]">
+                              {{ formatMoney(entry.discountAmount) }}
+                            </strong>
+                          </div>
+
                           <div class="rounded-lg px-4 py-3" [ngClass]="{
                             'bg-[#2e3240]': isDarkMode$ | async,
                             'bg-[#eef3ff]': !(isDarkMode$ | async)

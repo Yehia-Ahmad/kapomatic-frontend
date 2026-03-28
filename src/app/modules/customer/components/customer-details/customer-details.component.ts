@@ -30,8 +30,9 @@ type CustomerHistoryView = {
   dueDate: string | null;
   status: 'pending' | 'partially_paid' | 'paid' | 'reactionary' | 'unknown';
   subtotal: number;
-  discountPercentage: number;
-  shippingFees: number;
+  discountAmount: number | null;
+  discountPercentage: number | null;
+  shippingFees: number | null;
   totalPrice: number;
   paidAmount: number;
   remainingAmount: number;
@@ -452,18 +453,18 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  formatMoney(value: number): string {
+  formatMoney(value: number | null | undefined): string {
     return new Intl.NumberFormat(this.direction === 'rtl' ? 'ar-EG' : 'en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
-    }).format(value || 0);
+    }).format(value ?? 0);
   }
 
-  formatPercentage(value: number): string {
+  formatPercentage(value: number | null | undefined): string {
     return `${new Intl.NumberFormat(this.direction === 'rtl' ? 'ar-EG' : 'en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
-    }).format(value || 0)}%`;
+    }).format(value ?? 0)}%`;
   }
 
   formatDate(value: string | null | undefined): string {
@@ -597,10 +598,16 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
 
     const items = this.normalizeHistoryItems(source.items);
     const subtotal = this.toNumber(source.subtotal ?? this.sumHistoryItemTotals(items));
-    const discountPercentage = this.toBoundedPercentage(source.discountPercentage);
-    const shippingFees = this.toNonNegativeNumber(source.shippingFees);
+    const discountAmountValue = this.toOptionalNonNegativeNumber(source.discountAmount);
+    const discountPercentageValue =
+      this.toOptionalBoundedPercentage(source.discountPercentage) ??
+      this.calculateDiscountPercentageFromAmount(subtotal, discountAmountValue);
+    const shippingFeesValue = this.toOptionalNonNegativeNumber(source.shippingFees);
+    const discountPercentage = discountPercentageValue ?? 0;
+    const discountAmount = discountAmountValue ?? this.roundCurrency((subtotal * discountPercentage) / 100);
+    const shippingFees = shippingFeesValue ?? 0;
     const totalPrice = this.toNumber(
-      source.totalPrice ?? Math.max(subtotal - ((subtotal * discountPercentage) / 100) + shippingFees, 0)
+      source.totalPrice ?? Math.max(subtotal - discountAmount + shippingFees, 0)
     );
     const paidAmount = this.toNumber(source.paidAmount);
     const remainingAmount = this.toNumber(
@@ -619,8 +626,9 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
       dueDate: source.dueDate ? String(source.dueDate) : null,
       status: normalizedStatus,
       subtotal,
-      discountPercentage,
-      shippingFees,
+      discountAmount: discountAmountValue ?? discountAmount,
+      discountPercentage: discountPercentageValue,
+      shippingFees: shippingFeesValue,
       totalPrice,
       paidAmount,
       remainingAmount,
@@ -954,12 +962,42 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
     return Number.isFinite(normalized) ? normalized : 0;
   }
 
+  private toNumberOrNull(value: unknown): number | null {
+    const normalized = Number(value);
+    return Number.isFinite(normalized) ? normalized : null;
+  }
+
   private toNonNegativeNumber(value: unknown): number {
     return Math.max(0, this.toNumber(value));
   }
 
   private toBoundedPercentage(value: unknown): number {
     return Math.min(100, this.toNonNegativeNumber(value));
+  }
+
+  private toOptionalNonNegativeNumber(value: unknown): number | null {
+    const normalized = this.toNumberOrNull(value);
+    return normalized === null ? null : Math.max(0, normalized);
+  }
+
+  private toOptionalBoundedPercentage(value: unknown): number | null {
+    const normalized = this.toOptionalNonNegativeNumber(value);
+    return normalized === null ? null : Math.min(100, normalized);
+  }
+
+  private calculateDiscountPercentageFromAmount(
+    subtotal: number,
+    discountAmount: number | null
+  ): number | null {
+    if (discountAmount === null || subtotal <= 0) {
+      return null;
+    }
+
+    return this.roundCurrency(Math.min((discountAmount / subtotal) * 100, 100));
+  }
+
+  private roundCurrency(value: number): number {
+    return Number((value || 0).toFixed(2));
   }
 
   private sumHistoryItemTotals(items: CustomerHistoryView['items']): number {

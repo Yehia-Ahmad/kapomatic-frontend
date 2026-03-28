@@ -22,8 +22,8 @@ export type CreditInvoicePrintData = {
   itemCount: number;
   totalQuantity: number;
   subtotal: number;
-  discountPercentage: number;
-  shippingFees: number;
+  discountPercentage: number | null;
+  shippingFees: number | null;
   totalPrice: number;
   paidAmount: number;
   remainingAmount: number;
@@ -86,8 +86,14 @@ export function buildCreditInvoiceDocument(params: {
   const itemCount = formatCreditInvoiceMetric(invoice.itemCount, language);
   const totalQuantity = formatCreditInvoiceMetric(invoice.totalQuantity, language);
   const subtotal = formatCreditInvoiceMetric(invoice.subtotal, language);
-  const discountPercentage = formatCreditInvoicePercentage(invoice.discountPercentage);
-  const shippingFees = formatCreditInvoiceMetric(invoice.shippingFees, language);
+  const hasDiscountPercentage = hasCreditInvoiceValue(invoice.discountPercentage);
+  const hasShippingFees = hasCreditInvoiceValue(invoice.shippingFees);
+  const discountPercentage = hasDiscountPercentage
+    ? formatCreditInvoicePercentage(invoice.discountPercentage)
+    : '';
+  const shippingFees = hasShippingFees
+    ? formatCreditInvoiceMetric(invoice.shippingFees, language)
+    : '';
   const totalPrice = formatCreditInvoiceMetric(invoice.totalPrice, language);
   const paidAmount = formatCreditInvoiceMetric(invoice.paidAmount, language);
   const remainingAmount = formatCreditInvoiceMetric(invoice.remainingAmount, language);
@@ -98,6 +104,30 @@ export function buildCreditInvoiceDocument(params: {
   const footerNote = escapeHtml(invoice.footerNote || labels.footerNote);
   const escapedFontUrl = escapeCssString(fontUrl);
   const tableRows = buildCreditInvoiceTableRows(invoice.items, language, unitLabel);
+  const discountSummaryItem = hasDiscountPercentage
+    ? `<div class="summary-item">
+                <p class="summary-label">${labels.discountPercentage}</p>
+                <p class="summary-value">${discountPercentage}</p>
+              </div>`
+    : '';
+  const shippingSummaryItem = hasShippingFees
+    ? `<div class="summary-item">
+                <p class="summary-label">${labels.shippingFees}</p>
+                <p class="summary-value">${shippingFees}</p>
+              </div>`
+    : '';
+  const discountTotalItem = hasDiscountPercentage
+    ? `<div>
+              <span>${labels.discountPercentage}</span>
+              <strong>${discountPercentage}</strong>
+            </div>`
+    : '';
+  const shippingTotalItem = hasShippingFees
+    ? `<div>
+              <span>${labels.shippingFees}</span>
+              <strong>${shippingFees}</strong>
+            </div>`
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="${language}" dir="${direction}">
@@ -476,14 +506,8 @@ export function buildCreditInvoiceDocument(params: {
                 <p class="summary-label">${labels.subtotal}</p>
                 <p class="summary-value">${subtotal}</p>
               </div>
-              <div class="summary-item">
-                <p class="summary-label">${labels.discountPercentage}</p>
-                <p class="summary-value">${discountPercentage}</p>
-              </div>
-              <div class="summary-item">
-                <p class="summary-label">${labels.shippingFees}</p>
-                <p class="summary-value">${shippingFees}</p>
-              </div>
+              ${discountSummaryItem}
+              ${shippingSummaryItem}
               <div class="summary-item">
                 <p class="summary-label">${labels.paidAmount}</p>
                 <p class="summary-value">${paidAmount}</p>
@@ -520,14 +544,8 @@ export function buildCreditInvoiceDocument(params: {
               <span>${labels.subtotal}</span>
               <strong>${subtotal}</strong>
             </div>
-            <div>
-              <span>${labels.discountPercentage}</span>
-              <strong>${discountPercentage}</strong>
-            </div>
-            <div>
-              <span>${labels.shippingFees}</span>
-              <strong>${shippingFees}</strong>
-            </div>
+            ${discountTotalItem}
+            ${shippingTotalItem}
             <div>
               <span>${labels.invoiceTotal}</span>
               <strong>${totalPrice}</strong>
@@ -690,20 +708,27 @@ function formatCreditInvoiceNumber(value: number): string {
   });
 }
 
-function formatCreditInvoiceMetric(value: number, language: CreditInvoicePrintLanguage): string {
-  if (!Number.isFinite(value)) {
+function formatCreditInvoiceMetric(
+  value: number | null | undefined,
+  language: CreditInvoicePrintLanguage
+): string {
+  if (!hasCreditInvoiceValue(value)) {
     return getCreditInvoiceFallbackValue(language);
   }
 
   return formatCreditInvoiceNumber(value);
 }
 
-function formatCreditInvoicePercentage(value: number): string {
-  if (!Number.isFinite(value)) {
+function formatCreditInvoicePercentage(value: number | null | undefined): string {
+  if (!hasCreditInvoiceValue(value)) {
     return '0%';
   }
 
   return `${formatCreditInvoiceNumber(value)}%`;
+}
+
+function hasCreditInvoiceValue(value: number | null | undefined): value is number {
+  return value !== null && value !== undefined && Number.isFinite(value) && value !== 0;
 }
 
 function buildCreditInvoiceTableRows(

@@ -24,6 +24,7 @@ export type InvoiceHistoryRow = {
   itemCount: number | null;
   totalQuantity: number | null;
   subtotal: number | null;
+  discountAmount: number | null;
   discountPercentage: number | null;
   shippingFees: number | null;
   totalPrice: number | null;
@@ -82,13 +83,43 @@ export function buildInvoiceDocument(params: {
   const itemCount = formatInvoiceMetric(selling.itemCount, language);
   const totalQuantity = formatInvoiceMetric(selling.totalQuantity, language);
   const subtotal = formatInvoiceMetric(selling.subtotal ?? selling.totalPrice, language);
-  const discountPercentage = formatInvoicePercentage(selling.discountPercentage);
-  const shippingFees = formatInvoiceMetric(selling.shippingFees, language);
+  const hasDiscountPercentage = hasInvoiceValue(selling.discountPercentage);
+  const hasShippingFees = hasInvoiceValue(selling.shippingFees);
+  const discountPercentage = hasDiscountPercentage
+    ? formatInvoicePercentage(selling.discountPercentage)
+    : '';
+  const shippingFees = hasShippingFees
+    ? formatInvoiceMetric(selling.shippingFees, language)
+    : '';
   const totalPrice = formatInvoiceMetric(selling.totalPrice, language);
   const unitLabel = isArabic ? 'قطعة' : 'Piece';
   const title = isArabic ? `فاتورة ${invoiceNumber}` : `Invoice ${invoiceNumber}`;
   const escapedFontUrl = escapeCssString(fontUrl);
   const tableRows = buildInvoiceTableRows(selling.items, language, unitLabel);
+  const discountSummaryItem = hasDiscountPercentage
+    ? `<div class="summary-item">
+                <p class="summary-label">${labels.discountPercentage}</p>
+                <p class="summary-value">${discountPercentage}</p>
+              </div>`
+    : '';
+  const shippingSummaryItem = hasShippingFees
+    ? `<div class="summary-item">
+                <p class="summary-label">${labels.shippingFees}</p>
+                <p class="summary-value">${shippingFees}</p>
+              </div>`
+    : '';
+  const discountTotalItem = hasDiscountPercentage
+    ? `<div>
+              <span>${labels.discountPercentage}</span>
+              <strong>${discountPercentage}</strong>
+            </div>`
+    : '';
+  const shippingTotalItem = hasShippingFees
+    ? `<div>
+              <span>${labels.shippingFees}</span>
+              <strong>${shippingFees}</strong>
+            </div>`
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="${language}" dir="${direction}">
@@ -458,14 +489,8 @@ export function buildInvoiceDocument(params: {
                 <p class="summary-label">${labels.totalQuantity}</p>
                 <p class="summary-value">${totalQuantity}</p>
               </div>
-              <div class="summary-item">
-                <p class="summary-label">${labels.discountPercentage}</p>
-                <p class="summary-value">${discountPercentage}</p>
-              </div>
-              <div class="summary-item">
-                <p class="summary-label">${labels.shippingFees}</p>
-                <p class="summary-value">${shippingFees}</p>
-              </div>
+              ${discountSummaryItem}
+              ${shippingSummaryItem}
               <div class="summary-item">
                 <p class="summary-label">${labels.invoiceTotal}</p>
                 <p class="summary-value">${totalPrice}</p>
@@ -498,14 +523,8 @@ export function buildInvoiceDocument(params: {
               <span>${labels.subtotal}</span>
               <strong>${subtotal}</strong>
             </div>
-            <div>
-              <span>${labels.discountPercentage}</span>
-              <strong>${discountPercentage}</strong>
-            </div>
-            <div>
-              <span>${labels.shippingFees}</span>
-              <strong>${shippingFees}</strong>
-            </div>
+            ${discountTotalItem}
+            ${shippingTotalItem}
             <div class="grand-total">
               <span>${labels.invoiceTotal}</span>
               <strong>${totalPrice}</strong>
@@ -668,6 +687,10 @@ function formatInvoicePercentage(value: number | null): string {
   }
 
   return `${formatInvoiceNumber(value)}%`;
+}
+
+function hasInvoiceValue(value: number | null | undefined): value is number {
+  return value !== null && value !== undefined && Number.isFinite(value) && value !== 0;
 }
 
 function buildInvoiceTableRows(

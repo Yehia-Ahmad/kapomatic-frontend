@@ -259,6 +259,7 @@ export class InvoiceHistoryComponent implements OnInit {
       item.number ||
       buildFallbackInvoiceNumber(normalizedId)
     );
+    const subtotal = this.toNumber(item.subtotal) ?? this.sumInvoiceMetric(items, 'totalPrice');
 
     return {
       id: normalizedId,
@@ -269,9 +270,10 @@ export class InvoiceHistoryComponent implements OnInit {
       sellingDate: item.sellingDate ? String(item.sellingDate) : (items[0]?.sellingDate || null),
       itemCount: this.toNumber(item.itemCount) ?? items.length,
       totalQuantity: this.toNumber(item.totalQuantity) ?? this.sumInvoiceMetric(items, 'quantity'),
-      subtotal: this.toNumber(item.subtotal) ?? this.sumInvoiceMetric(items, 'totalPrice'),
-      discountPercentage: this.toNumber(item.discountPercentage) ?? 0,
-      shippingFees: this.toNumber(item.shippingFees) ?? 0,
+      subtotal,
+      discountAmount: this.resolveDiscountAmount(item, subtotal),
+      discountPercentage: this.resolveDiscountPercentage(item, subtotal),
+      shippingFees: this.toNumber(item.shippingFees),
       totalPrice: this.resolveInvoiceTotal(item, items),
       items
     };
@@ -464,11 +466,34 @@ export class InvoiceHistoryComponent implements OnInit {
     }
 
     const subtotal = this.toNumber(item.subtotal) ?? this.sumInvoiceMetric(items, 'totalPrice');
-    const discountPercentage = this.toNumber(item.discountPercentage) ?? 0;
+    const discountAmount = this.resolveDiscountAmount(item, subtotal);
     const shippingFees = this.toNumber(item.shippingFees) ?? 0;
-    const discountAmount = (subtotal * discountPercentage) / 100;
 
     return Number((Math.max(subtotal - discountAmount + shippingFees, 0)).toFixed(2));
+  }
+
+  private resolveDiscountAmount(item: any, subtotal: number): number {
+    const explicitDiscountAmount = this.toNumber(item.discountAmount);
+    if (explicitDiscountAmount !== null) {
+      return Number((Math.min(Math.max(explicitDiscountAmount, 0), Math.max(subtotal, 0))).toFixed(2));
+    }
+
+    const discountPercentage = this.toNumber(item.discountPercentage) ?? 0;
+    return Number(((subtotal * Math.min(Math.max(discountPercentage, 0), 100)) / 100).toFixed(2));
+  }
+
+  private resolveDiscountPercentage(item: any, subtotal: number): number | null {
+    const explicitDiscountPercentage = this.toNumber(item.discountPercentage);
+    if (explicitDiscountPercentage !== null) {
+      return Number((Math.min(Math.max(explicitDiscountPercentage, 0), 100)).toFixed(2));
+    }
+
+    const explicitDiscountAmount = this.toNumber(item.discountAmount);
+    if (explicitDiscountAmount === null || subtotal <= 0) {
+      return null;
+    }
+
+    return Number((((Math.min(Math.max(explicitDiscountAmount, 0), subtotal) / subtotal) * 100)).toFixed(2));
   }
 
   private toNumber(value: any): number | null {
