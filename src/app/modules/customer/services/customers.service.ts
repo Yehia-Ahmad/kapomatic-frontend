@@ -7,6 +7,7 @@ export interface Customer {
   _id?: string;
   name: string;
   phone: string;
+  isIndebted?: boolean;
   createdAt?: string;
   updatedAt?: string;
   lastCashSaleDate?: string | null;

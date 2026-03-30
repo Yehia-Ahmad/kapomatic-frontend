@@ -202,8 +202,9 @@
                     'border-b border-b-orange/20': !(isDarkMode$ | async)
                   }">
                     <td class="px-4 py-4 text-center font-roboto" [ngClass]="{
-                      'text-light_orange': isDarkMode$ | async,
-                      'text-orange': !(isDarkMode$ | async)
+                      'text-red': customer.isIndebted,
+                      'text-light_orange': (isDarkMode$ | async) && !customer.isIndebted,
+                      'text-orange': !(isDarkMode$ | async) && !customer.isIndebted
                     }">
                       {{ customer.name }}
                     </td>
