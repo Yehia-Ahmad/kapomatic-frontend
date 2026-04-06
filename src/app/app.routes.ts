@@ -50,6 +50,10 @@ export const routes: Routes = [
         loadComponent: () => import('./modules/category/components/product-edit/product-edit.component').then(m => m.ProductEditComponent)
     },
     {
+        path: 'products/profit-report',
+        loadComponent: () => import('./modules/products/components/product-profit-report/product-profit-report.component').then(m => m.ProductProfitReportComponent)
+    },
+    {
         path: '**',
         // canActivate: [authGuard],
         component: HomeComponent

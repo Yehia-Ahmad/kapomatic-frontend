@@ -104,6 +104,7 @@ export class CategoryDetailsComponent {
       imageBase64: [null],
       categoryId: [category_id],
       wholesalePrice: [''],
+      purchasePrice: [''],
       retailPrice: [''],
       soldItemCount: [''],
     });
@@ -201,6 +202,7 @@ export class CategoryDetailsComponent {
       imageBase64: null,
       categoryId: this.categoryId,
       wholesalePrice: '',
+      purchasePrice: '',
       retailPrice: '',
       soldItemCount: '',
     });

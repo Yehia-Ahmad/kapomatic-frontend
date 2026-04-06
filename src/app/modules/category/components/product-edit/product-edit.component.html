@@ -109,6 +109,21 @@
                                 }" />
                     </div>
 
+                    <label class="text-lg capitalize font-medium font-roboto text-orange" for="purchasePrice">
+                        {{ 'category.editProduct.purchasePrice' | translate }}
+                    </label>
+                    <div class="field-wrapper w-full px-4 py-1 rounded-md" [ngClass]="{
+                              'border border-orange bg-light_bg text-orange': !(isDarkMode$ | async),
+                              'border border-gray bg-gray_dark': (isDarkMode$ | async)
+                            }">
+                            <input id="purchasePrice" type="text"
+                                class="w-full rounded-md p-2 bg-transparent border border-none focus:outline-none"
+                                [(ngModel)]="product.purchasePrice" [ngModelOptions]="{standalone: true}" [ngClass]="{
+                                    'text-orange': !(isDarkMode$ | async),
+                                    'text-light_orange ': (isDarkMode$ | async)
+                                }" />
+                    </div>
+
                     <label class="text-lg capitalize font-medium font-roboto text-orange" for="soldItemCount">
                         {{ 'category.editProduct.soldItemCount' | translate }}
                     </label>
@@ -142,9 +157,14 @@
         <button class="px-8 py-1 text-xl font-semibold font-roboto capitalize bg-red text-dark rounded-md" (click)="showDeleteDialog()">
             {{ 'category.deleteProduct.title' | translate }}
         </button>
-        <button class="px-8 py-1 text-xl font-semibold font-roboto capitalize disabled:opacity-50 disabled:cursor-wait bg-orange text-dark rounded-md" [disabled]="loading" (click)="updateProduct()">
-            {{ !isLoading ? ('category.editProduct.actions.save' | translate) : ('actions.loading' | translate) }}
-        </button>
+        <div class="flex items-center gap-3">
+            <button class="px-8 py-1 text-xl font-semibold font-roboto text-white rounded-md bg-[#0d6efd]" (click)="showSyncDialog()">
+                {{ 'category.editProduct.actions.syncPurchasePrice' | translate }}
+            </button>
+            <button class="px-8 py-1 text-xl font-semibold font-roboto capitalize disabled:opacity-50 disabled:cursor-wait bg-orange text-dark rounded-md" [disabled]="loading" (click)="updateProduct()">
+                {{ !isLoading ? ('category.editProduct.actions.save' | translate) : ('actions.loading' | translate) }}
+            </button>
+        </div>
     </div>
 
     <p-dialog [(visible)]="deleteVisible" styleClass="!border-0" [style]="{ width: '50vw' }">
@@ -169,6 +189,69 @@
                         class="px-4 py-2 w-max uppercase text-xl font-semibold rounded-md text-light_orange bg-red font-roboto border border-white/30" (click)="deleteProduct()" [disabled]="isLoading"
                         >
                         {{ !isLoading ? ('category.deleteProduct.actions.deleteButton' | translate) : ('actions.loading' | translate) }}
+                    </button>
+                </div>
+            </div>
+        </ng-template>
+    </p-dialog>
+
+    <p-dialog [(visible)]="syncVisible" [modal]="true" [closable]="!syncLoading" [dismissableMask]="!syncLoading"
+        [style]="{ width: '32vw' }" styleClass="!border-0" (onHide)="closeSyncDialog()">
+        <ng-template #headless>
+            <div class="flex flex-col gap-5 p-6 rounded-2xl" [ngClass]="{
+                'bg-gray': isDarkMode$ | async,
+                'bg-light_card_bg': !(isDarkMode$ | async)
+            }">
+                <h2 class="text-center text-2xl font-bold font-azonix text-orange">{{ 'category.editProduct.syncPurchasePrice.title' | translate }}</h2>
+
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-roboto" [ngClass]="{
+                            'text-light_orange': isDarkMode$ | async,
+                            'text-gray_dark': !(isDarkMode$ | async)
+                        }">{{ 'category.editProduct.syncPurchasePrice.dateFrom' | translate }}</label>
+                        <p-datepicker
+                            [(ngModel)]="syncDateFrom"
+                            [showIcon]="true"
+                            [iconDisplay]="'input'"
+                            appendTo="body"
+                            inputId="syncDateFrom"
+                            styleClass="sync-date-picker w-full"
+                            inputStyleClass="w-full"
+                        />
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-roboto" [ngClass]="{
+                            'text-light_orange': isDarkMode$ | async,
+                            'text-gray_dark': !(isDarkMode$ | async)
+                        }">{{ 'category.editProduct.syncPurchasePrice.dateTo' | translate }}</label>
+                        <p-datepicker
+                            [(ngModel)]="syncDateTo"
+                            [showIcon]="true"
+                            [iconDisplay]="'input'"
+                            appendTo="body"
+                            inputId="syncDateTo"
+                            styleClass="sync-date-picker w-full"
+                            inputStyleClass="w-full"
+                        />
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-center gap-3">
+                    <button
+                        type="button"
+                        class="px-6 py-2 rounded-lg font-roboto font-semibold text-gray_dark bg-[#b9b9b9]"
+                        [disabled]="syncLoading"
+                        (click)="closeSyncDialog()">
+                        {{ 'category.editProduct.syncPurchasePrice.cancel' | translate }}
+                    </button>
+                    <button
+                        type="button"
+                        class="px-6 py-2 rounded-lg font-roboto font-semibold text-white bg-[#0d6efd] disabled:opacity-60"
+                        [disabled]="syncLoading"
+                        (click)="syncPurchasePriceToInvoices()">
+                        {{ syncLoading ? ('actions.loading' | translate) : ('category.editProduct.syncPurchasePrice.save' | translate) }}
                     </button>
                 </div>
             </div>

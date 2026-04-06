@@ -10,10 +10,12 @@ import { WarnComponent } from "../../../assets/warn/warn.component";
 import { TranslatePipe } from '@ngx-translate/core';
 import { ThemeService } from '../../../shared/services/theme.service';
 import { ErrorIconComponent } from "../../../assets/error/error-icon.component";
+import { DatePickerModule } from 'primeng/datepicker';
+import { format as formatDate } from 'date-fns';
 
 @Component({
   selector: 'app-product-edit',
-  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, SideNavComponent, WarnComponent, TranslatePipe, ErrorIconComponent],
+  imports: [CommonModule, FormsModule, DialogModule, ButtonModule, SideNavComponent, WarnComponent, TranslatePipe, ErrorIconComponent, DatePickerModule],
   templateUrl: './product-edit.component.html',
   styleUrl: './product-edit.component.scss'
 })
@@ -28,6 +30,10 @@ export class ProductEditComponent {
   soldItemCount: any;
   loading: boolean = false;
   deleteVisible: boolean = false;
+  syncVisible: boolean = false;
+  syncLoading: boolean = false;
+  syncDateFrom: Date | null = null;
+  syncDateTo: Date | null = null;
   isDarkMode$;
   imagePreview: string | ArrayBuffer | null = null;
   errorVisible = false;
@@ -88,6 +94,7 @@ export class ProductEditComponent {
       inventoryCount: currentInventoryCount,
       newInventory: newInventoryCount,
       wholesalePrice: this.product.wholesalePrice,
+      purchasePrice: this.product.purchasePrice,
       retailPrice: this.product.retailPrice,
       soldItemCount: this.product.soldItemCount,
       image: this.product.image,
@@ -113,6 +120,40 @@ export class ProductEditComponent {
 
   closeDialog() {
     this.deleteVisible = false;
+  }
+
+  showSyncDialog() {
+    this.syncVisible = true;
+  }
+
+  closeSyncDialog() {
+    if (this.syncLoading) return;
+    this.syncVisible = false;
+    this.syncDateFrom = null;
+    this.syncDateTo = null;
+  }
+
+  syncPurchasePriceToInvoices() {
+    this.syncLoading = true;
+
+    const payload = {
+      ...(this.syncDateFrom ? { dateFrom: formatDate(this.syncDateFrom, 'yyyy-MM-dd') } : {}),
+      ...(this.syncDateTo ? { dateTo: formatDate(this.syncDateTo, 'yyyy-MM-dd') } : {})
+    };
+
+    this._cateoryService.syncProductPurchasePrice(this.productId, payload).subscribe({
+      next: () => {
+        this.syncLoading = false;
+        this.closeSyncDialog();
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.syncLoading = false;
+        this.errorVisible = true;
+        this.errorMessage = err.error.message;
+        this.cdr.detectChanges();
+      }
+    });
   }
   
   onBasicUploadAuto(event: any) {

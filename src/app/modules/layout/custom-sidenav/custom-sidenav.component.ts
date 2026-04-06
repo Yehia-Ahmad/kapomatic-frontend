@@ -139,11 +139,12 @@ export class CustomSidenavComponent implements OnInit {
   private isProductsContext(): boolean {
     const isProductsRoute = this._router.url.includes('/selling')
       || this._router.url.includes('/credit-sales')
-      || this._router.url.includes('/invoice-history');
+      || this._router.url.includes('/invoice-history')
+      || this._router.url.includes('/products/profit-report');
     if (!this.isBrowser) return isProductsRoute;
 
     const currentView = localStorage.getItem(HOME_VIEW_STORAGE_KEY);
-    const isProductsView = currentView === 'products' || currentView === 'selling' || currentView === 'invoice-history';
+    const isProductsView = currentView === 'products' || currentView === 'selling' || currentView === 'invoice-history' || currentView === 'profit-report';
     return isProductsView || isProductsRoute;
   }
 
@@ -181,6 +182,17 @@ export class CustomSidenavComponent implements OnInit {
         </span>
         `),
         route: '/invoice-history'
+      },
+      {
+        label: 'sidebarTitles.profit_report',
+        icon: this.sanitize(`
+        <span class="block w-8 h-8">
+            <svg width="100%" height="100%" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+              <path d="M128 96C110.3 96 96 110.3 96 128L96 512C96 529.7 110.3 544 128 544L512 544C529.7 544 544 529.7 544 512C544 494.3 529.7 480 512 480L160 480L160 128C160 110.3 145.7 96 128 96zM464 184C471.7 176.3 471.7 163.7 464 156C456.3 148.3 443.7 148.3 436 156L336 256L284 204C276.3 196.3 263.7 196.3 256 204L188 272C180.3 279.7 180.3 292.3 188 300C195.7 307.7 208.3 307.7 216 300L270 246L322 298C329.7 305.7 342.3 305.7 350 298L464 184zM224 352C206.3 352 192 366.3 192 384C192 401.7 206.3 416 224 416L448 416C465.7 416 480 401.7 480 384C480 366.3 465.7 352 448 352L224 352z" style="fill:#2f2f2f;fill-rule:nonzero;" />
+            </svg>
+        </span>
+        `),
+        route: '/products/profit-report'
       }
     ];
   }

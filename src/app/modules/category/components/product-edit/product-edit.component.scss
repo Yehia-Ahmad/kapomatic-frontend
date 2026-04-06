@@ -56,6 +56,18 @@
   min-width: 0;
 }
 
+:host ::ng-deep .sync-date-picker.p-datepicker {
+  width: 100%;
+}
+
+:host ::ng-deep .sync-date-picker.p-datepicker input {
+  width: 100%;
+}
+
+:host ::ng-deep .sync-date-picker.p-datepicker .p-datepicker-input {
+  width: 100%;
+}
+
 @media (max-width: 1300px) {
   .edit-layout {
     width: min(100%, 1040px);

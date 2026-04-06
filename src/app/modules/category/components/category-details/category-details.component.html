@@ -95,6 +95,13 @@
             </div>
 
             <div class="w-full flex flex-col gap-2 items-start">
+                <label class="text-lg font-medium font-roboto text-light_orange" for="purchasePrice">{{ 'category.addProduct.purchasePrice' | translate }}</label>
+                <input type="text"
+                    class="w-full rounded-md p-2 bg-transparent text-light_orange border border-[#696969] focus:outline-none"
+                    formControlName="purchasePrice" />
+            </div>
+
+            <div class="w-full flex flex-col gap-2 items-start">
                 <label class="text-lg font-medium font-roboto text-light_orange" for="retailPrice">{{ 'category.addProduct.retailPrice' | translate }}</label>
                 <input type="text"
                     class="w-full rounded-md p-2 bg-transparent text-light_orange border border-[#696969] focus:outline-none"

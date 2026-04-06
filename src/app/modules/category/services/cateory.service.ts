@@ -42,6 +42,13 @@ export class CateoryService {
     return this._http.put(`${this._baseUrl}products/${id}`, payload);
   }
 
+  syncProductPurchasePrice(id: number | string, payload: {
+    dateFrom?: string;
+    dateTo?: string;
+  }) {
+    return this._http.post(`${this._baseUrl}products/${id}/sync-purchase-price`, payload);
+  }
+
   deleteProduct(id: number) {
     return this._http.delete(`${this._baseUrl}products/${id}`);
   }
