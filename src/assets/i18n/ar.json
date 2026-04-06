@@ -11,6 +11,7 @@
     "selling": "البيع",
     "credit_sales": "البيع الآجل",
     "invoice_history": "سجل الفواتير",
+    "profit_report": "تقرير الأرباح",
     "addProducts": "إضافة منتجات",
     "showProducts": "عرض المنتجات",
     "warranties": "الضمانات",
@@ -114,6 +115,7 @@
       "code": "كود المنتج",
       "inventoryCount": "عدد المخزون",
       "wholesalePrice": "سعر الوحدة بالجملة",
+      "purchasePrice": "سعر الشراء",
       "retailPrice": "سعر الوحدة بالتجزئة",
       "soldItemCount": "عدد المبيعات",
       "description":"وصف المنتج",
@@ -135,6 +137,7 @@
       "inventoryCount": "عدد المخزون",
       "newInventory": "المخزون الجديد",
       "wholesalePrice": "سعر الوحدة بالجملة",
+      "purchasePrice": "سعر الشراء",
       "retailPrice": "سعر الوحدة بالتجزئة",
       "soldItemCount": "عدد المبيعات",
       "description":"وصف المنتج",
@@ -143,8 +146,16 @@
       "changeImage": "تغيير صورة",
       "actions": {
         "save": "حفظ المنتج",
+        "syncPurchasePrice": "تعديل سعر البيع",
         "creating": "جاري الإنشاء...",
         "deleteButton": "حذف المنتج"
+      },
+      "syncPurchasePrice": {
+        "title": "تعديل سعر البيع",
+        "dateFrom": "من تاريخ",
+        "dateTo": "إلى تاريخ",
+        "cancel": "إلغاء",
+        "save": "حفظ"
       }
     },
     "deleteProduct": {
@@ -485,6 +496,56 @@
       "empty": "لا توجد فواتير.",
       "invoiceWindowBlocked": "يرجى السماح بالنوافذ المنبثقة لفتح الفاتورة وحفظها.",
       "invoiceDownloadFailed": "فشل فتح الفاتورة."
+    }
+  },
+  "profitReportPage": {
+    "title": "تقرير أرباح المنتجات",
+    "subtitle": "راجع أرباح جميع المنتجات وافتح تفاصيل الفواتير عند اختيار أي صف.",
+    "filters": {
+      "categoryId": "الفئة",
+      "productId": "المنتج",
+      "dateFrom": "من تاريخ",
+      "dateTo": "إلى تاريخ",
+      "placeholders": {
+        "categoryId": "اختر الفئة",
+        "productId": "اختر المنتج"
+      },
+      "actions": {
+        "apply": "تطبيق",
+        "reset": "إعادة تعيين"
+      }
+    },
+    "export": {
+      "year": "السنة",
+      "yearPlaceholder": "أدخل السنة",
+      "action": "تصدير PDF"
+    },
+    "tableHeaders": {
+      "index": "#",
+      "productName": "اسم المنتج",
+      "categoryName": "اسم الفئة",
+      "totalProfit": "قيمة الربح",
+      "lastSellingDate": "آخر تاريخ بيع",
+      "lastSellingPrice": "آخر سعر بيع",
+      "invoices": "الفواتير"
+    },
+    "invoiceTypes": {
+      "selling": "بيع نقدي",
+      "creditSale": "بيع آجل",
+      "unknown": "غير معروف"
+    },
+    "dialog": {
+      "title": "تفاصيل الفواتير",
+      "sellingPrice": "سعر البيع",
+      "purchasePrice": "سعر الشراء",
+      "quantity": "الكمية",
+      "profit": "الربح",
+      "customerName": "العميل"
+    },
+    "messages": {
+      "empty": "لا توجد صفوف أرباح للمنتجات.",
+      "noInvoices": "لا توجد فواتير مرتبطة.",
+      "loadFailed": "فشل تحميل تقرير أرباح المنتجات."
     }
   },
   "customerPage": {

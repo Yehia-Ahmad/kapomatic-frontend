@@ -81,8 +81,10 @@
     "@primeuix/themes": "^1.2.5",
     "angular-svg-icon": "^19.1.1",
     "angularx-qrcode": "^20.0.0",
+    "chart.js": "^4.5.0",
     "date-fns": "^4.1.0",
     "express": "^5.1.0",
+    "jspdf": "^3.0.2",
     "primeng": "^20.2.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

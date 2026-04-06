@@ -11,6 +11,7 @@
         "selling": "Selling",
         "credit_sales": "Credit Sales",
         "invoice_history": "Invoice History",
+        "profit_report": "Profit Report",
         "addProducts": "Add Products",
         "showProducts": "Show Products",
         "categories": "Categories",
@@ -113,6 +114,7 @@
             "code": "Product Code",
             "inventoryCount": "Inventory Count",
             "wholesalePrice": "Wholesale Price",
+            "purchasePrice": "Purchase Price",
             "retailPrice": "Retail Price",
             "soldItemCount": "Sold Item Count",
             "description": "Product Description",
@@ -132,6 +134,7 @@
             "inventoryCount": "Inventory Count",
             "newInventory": "New Inventory",
             "wholesalePrice": "Wholesale Price",
+            "purchasePrice": "Purchase Price",
             "retailPrice": "Retail Price",
             "soldItemCount": "Sold Item Count",
             "description": "Product Description",
@@ -140,8 +143,16 @@
             "changeImage": "Change Image",
             "actions": {
                 "save": "Save & Exit",
+                "syncPurchasePrice": "Sync Selling Price",
                 "creating": "Creating...",
                 "deleteButton": "Delete Product"
+            },
+            "syncPurchasePrice": {
+                "title": "Sync Selling Price",
+                "dateFrom": "Date From",
+                "dateTo": "Date To",
+                "cancel": "Cancel",
+                "save": "Save"
             }
         },
         "deleteProduct": {
@@ -482,6 +493,56 @@
             "empty": "No invoices found.",
             "invoiceWindowBlocked": "Allow pop-ups to open and save the invoice.",
             "invoiceDownloadFailed": "Failed to open the invoice."
+        }
+    },
+    "profitReportPage": {
+        "title": "Products Profit Report",
+        "subtitle": "Review profit across all products and open invoice details by selecting a row.",
+        "filters": {
+            "categoryId": "Category",
+            "productId": "Product",
+            "dateFrom": "Date From",
+            "dateTo": "Date To",
+            "placeholders": {
+                "categoryId": "Select category",
+                "productId": "Select product"
+            },
+            "actions": {
+                "apply": "Apply",
+                "reset": "Reset"
+            }
+        },
+        "export": {
+            "year": "Year",
+            "yearPlaceholder": "Enter year",
+            "action": "Export PDF"
+        },
+        "tableHeaders": {
+            "index": "#",
+            "productName": "Product Name",
+            "categoryName": "Category Name",
+            "totalProfit": "Profit Value",
+            "lastSellingDate": "Last Selling Date",
+            "lastSellingPrice": "Last Selling Price",
+            "invoices": "Invoices"
+        },
+        "invoiceTypes": {
+            "selling": "Selling",
+            "creditSale": "Credit Sale",
+            "unknown": "Unknown"
+        },
+        "dialog": {
+            "title": "Invoice Details",
+            "sellingPrice": "Selling Price",
+            "purchasePrice": "Purchase Price",
+            "quantity": "Quantity",
+            "profit": "Profit",
+            "customerName": "Customer"
+        },
+        "messages": {
+            "empty": "No product profit rows found.",
+            "noInvoices": "No related invoices.",
+            "loadFailed": "Failed to load products profit report."
         }
     },
     "customerPage": {
