@@ -15,6 +15,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ThemeService } from '../../shared/services/theme.service';
 import { HOME_DEFAULT_VIEW, HOME_VIEW_STORAGE_KEY } from '../constants/home-view.constants';
 import { filter } from 'rxjs';
+import { ProductsService } from '../../products/services/products.service';
 
 export type MenuItem = {
   label: string;
@@ -50,11 +51,15 @@ export class CustomSidenavComponent implements OnInit {
   imagePreview: string | ArrayBuffer | null = null;
   errorMessage = signal('');
   errorVisible = signal(false);
+  isExportingProducts = signal(false);
+  hasProducts = signal(false);
+  private hasProductsChecked = false;
 
   constructor(
     private _themeService: ThemeService,
     private sanitizer: DomSanitizer,
     private _cateoryService: CateoryService,
+    private _productsService: ProductsService,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private _router: Router,
@@ -97,6 +102,7 @@ export class CustomSidenavComponent implements OnInit {
         this.categories.push({ label: category.name, route: `/categories/${category._id}`, id: category._id })
       });
       this.buildAdminMenuItems();
+      this.checkHasAnyProducts();
     })
   }
 
@@ -136,7 +142,7 @@ export class CustomSidenavComponent implements OnInit {
     ]);
   }
 
-  private isProductsContext(): boolean {
+  isProductsContext(): boolean {
     const isProductsRoute = this._router.url.includes('/selling')
       || this._router.url.includes('/credit-sales')
       || this._router.url.includes('/invoice-history')
@@ -195,6 +201,71 @@ export class CustomSidenavComponent implements OnInit {
         route: '/products/profit-report'
       }
     ];
+  }
+
+  private checkHasAnyProducts() {
+    if (!this.isBrowser || this.hasProductsChecked) return;
+
+    this.hasProductsChecked = true;
+    const categoryIdHint = this.categories?.[0]?.id;
+
+    this._cateoryService.getProducts('all', { limit: 1 }).subscribe({
+      next: (res: any) => {
+        this.hasProducts.set(this.extractList(res).length > 0);
+      },
+      error: () => {
+        if (!categoryIdHint) {
+          this.hasProducts.set(false);
+          return;
+        }
+
+        this._cateoryService.getProducts(categoryIdHint, { categoryId: categoryIdHint, limit: 1 }).subscribe({
+          next: (res: any) => {
+            this.hasProducts.set(this.extractList(res).length > 0);
+          },
+          error: () => this.hasProducts.set(false)
+        });
+      }
+    });
+  }
+
+  private extractList(response: any): any[] {
+    if (Array.isArray(response)) return response;
+    if (Array.isArray(response?.data)) return response.data;
+    if (Array.isArray(response?.products)) return response.products;
+    if (Array.isArray(response?.data?.products)) return response.data.products;
+    return [];
+  }
+
+  exportProductsExcel() {
+    if (!this.isBrowser || this.isExportingProducts()) return;
+
+    this.isExportingProducts.set(true);
+    this._productsService.exportProductsExcel().subscribe({
+      next: (blob) => {
+        this.isExportingProducts.set(false);
+        this.downloadBlob(blob, `products-${new Date().toISOString().slice(0, 10)}.xlsx`);
+      },
+      error: (err) => {
+        this.isExportingProducts.set(false);
+        const fallback = this._languageService.selectedLanguage() === 'ar'
+          ? 'حدث خطأ أثناء تصدير المنتجات'
+          : 'Failed to export products.';
+        this.errorMessage.set(this.extractErrorMessage(err, fallback));
+        this.errorVisible.set(true);
+        console.error(err);
+      }
+    });
+  }
+
+  private downloadBlob(blob: Blob, filename: string) {
+    if (!this.isBrowser) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   toggleCategory(category: string) {
@@ -279,11 +350,11 @@ export class CustomSidenavComponent implements OnInit {
     }
   }
 
-  private extractErrorMessage(err: any): string {
+  private extractErrorMessage(err: any, fallbackMessage: string = 'حدث خطأ أثناء إضافة الفئة'): string {
     if (typeof err?.error === 'string') return err.error;
     if (typeof err?.error?.message === 'string') return err.error.message;
     if (typeof err?.message === 'string') return err.message;
-    return 'حدث خطأ أثناء إضافة الفئة';
+    return fallbackMessage;
   }
 
   resetHomeView() {

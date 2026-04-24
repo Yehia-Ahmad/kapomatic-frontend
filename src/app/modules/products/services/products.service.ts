@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { removeNullishFieldsParams } from '../../../core/utilities/helper-function';
+import { Observable } from 'rxjs';
 
 export interface ProductProfitReportInvoice {
   id: string;
@@ -77,5 +78,9 @@ export class ProductsService {
   }) {
     const cleanedParams = removeNullishFieldsParams({ ...(params ?? {}) });
     return this._http.get(`${this._baseUrl}products/profit-report`, { params: cleanedParams });
+  }
+
+  exportProductsExcel(): Observable<Blob> {
+    return this._http.get(`${this._baseUrl}products/export/excel`, { responseType: 'blob' });
   }
 }

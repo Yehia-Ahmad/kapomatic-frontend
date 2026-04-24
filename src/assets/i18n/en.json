@@ -12,6 +12,7 @@
         "credit_sales": "Credit Sales",
         "invoice_history": "Invoice History",
         "profit_report": "Profit Report",
+        "export_products": "Export Products",
         "addProducts": "Add Products",
         "showProducts": "Show Products",
         "categories": "Categories",
