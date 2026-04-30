@@ -579,11 +579,16 @@
       "cancelEdit": "إلغاء التعديل",
       "viewDetails": "التفاصيل",
       "edit": "تغيير",
-      "delete": "حذف"
+      "delete": "حذف",
+      "deleteWithRestore": "حذف واسترجاع المنتجات",
+      "deleteWithoutRestore": "حذف بيانات العميل فقط"
     },
     "messages": {
       "deleteTitle": "حذف العميل",
-      "deleteConfirm": "هل تريد حذف هذا العميل؟"
+      "deleteConfirm": "هل تريد حذف هذا العميل؟",
+      "restoreCreditInvoicesTitle": "استرجاع فواتير الآجل؟",
+      "restoreCreditInvoicesConfirm": "هذا العميل لديه فواتير بيع آجل مدفوعة بالكامل فقط. اختر هل تريد استرجاع منتجات الفواتير إلى المخزون قبل حذف بيانات العميل.",
+      "relatedCreditInvoices": "فواتير الآجل المرتبطة"
     }
   },
   "customerDetailsPage": {

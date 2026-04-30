@@ -83,6 +83,10 @@ export interface CustomerQueryParams {
   phone?: string;
 }
 
+export interface DeleteCustomerOptions {
+  restoreCreditInvoices?: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -108,7 +112,8 @@ export class CustomersService {
     return this._http.put(`${this._baseUrl}customers/${id}`, payload);
   }
 
-  deleteCustomer(id: string) {
-    return this._http.delete(`${this._baseUrl}customers/${id}`);
+  deleteCustomer(id: string, options?: DeleteCustomerOptions) {
+    const requestOptions = options ? { body: options } : undefined;
+    return this._http.delete(`${this._baseUrl}customers/${id}`, requestOptions);
   }
 }

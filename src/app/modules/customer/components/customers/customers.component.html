@@ -302,6 +302,73 @@
     </ng-template>
   </p-dialog>
 
+  <p-dialog [(visible)]="restoreCreditInvoicesVisible" [modal]="true" styleClass="!border-0" [style]="{ width: '36rem' }">
+    <ng-template #headless>
+      <div class="flex flex-col gap-6 rounded-2xl px-8 py-8" [ngClass]="{
+        'bg-gray_dark': isDarkMode$ | async,
+        'bg-light_card_bg': !(isDarkMode$ | async)
+      }">
+        <div class="mx-auto">
+          <app-warn></app-warn>
+        </div>
+
+        <div class="text-center">
+          <h2 class="text-2xl font-bold font-azonix text-orange">
+            {{ 'customerPage.messages.restoreCreditInvoicesTitle' | translate }}
+          </h2>
+        </div>
+
+        <div class="space-y-3 text-center font-roboto text-base" [ngClass]="{
+          'text-light_orange': isDarkMode$ | async,
+          'text-gray_dark': !(isDarkMode$ | async)
+        }">
+          <p>
+            {{ 'customerPage.messages.restoreCreditInvoicesConfirm' | translate }}
+          </p>
+          @if (customerToDelete?.name) {
+            <p class="font-semibold">{{ customerToDelete?.name }}</p>
+          }
+          @if (deleteConfirmation?.message) {
+            <p class="text-sm opacity-80">{{ deleteConfirmation?.message }}</p>
+          }
+          @if (deleteConfirmation?.relatedCreditInvoiceCount !== undefined) {
+            <p class="text-sm opacity-80">
+              {{ 'customerPage.messages.relatedCreditInvoices' | translate }}:
+              <span class="font-semibold">{{ deleteConfirmation?.relatedCreditInvoiceCount }}</span>
+            </p>
+          }
+        </div>
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
+          <button
+            type="button"
+            (click)="closeRestoreCreditInvoicesDialog()"
+            class="rounded-md bg-orange px-5 py-2 font-roboto text-base font-semibold text-gray_dark"
+            [disabled]="isDeleting"
+          >
+            {{ 'actions.cancelButton' | translate }}
+          </button>
+          <button
+            type="button"
+            (click)="confirmDeleteWithCreditInvoices(false)"
+            class="rounded-md bg-gray px-5 py-2 font-roboto text-base font-semibold text-light_orange disabled:opacity-50"
+            [disabled]="isDeleting"
+          >
+            {{ 'customerPage.actions.deleteWithoutRestore' | translate }}
+          </button>
+          <button
+            type="button"
+            (click)="confirmDeleteWithCreditInvoices(true)"
+            class="rounded-md bg-red px-5 py-2 font-roboto text-base font-semibold text-light_orange disabled:opacity-50"
+            [disabled]="isDeleting"
+          >
+            {{ 'customerPage.actions.deleteWithRestore' | translate }}
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </p-dialog>
+
   <p-dialog [(visible)]="errorVisible" [modal]="true" [closable]="true" [dismissableMask]="true" [style]="{ width: '24rem' }" styleClass="!border-0">
     <ng-template #headless>
       <div class="flex flex-col gap-4 rounded-2xl p-6" [ngClass]="{

@@ -576,11 +576,16 @@
             "cancelEdit": "Cancel Edit",
             "viewDetails": "View Details",
             "edit": "Change",
-            "delete": "Delete"
+            "delete": "Delete",
+            "deleteWithRestore": "Delete and Restore Products",
+            "deleteWithoutRestore": "Delete Customer Only"
         },
         "messages": {
             "deleteTitle": "Delete Customer",
-            "deleteConfirm": "Do you want to delete this customer?"
+            "deleteConfirm": "Do you want to delete this customer?",
+            "restoreCreditInvoicesTitle": "Restore Credit Invoices?",
+            "restoreCreditInvoicesConfirm": "This customer only has fully paid credit invoices. Choose whether to restore the invoice products to inventory before deleting the customer data.",
+            "relatedCreditInvoices": "Related credit invoices"
         }
     },
     "customerDetailsPage": {
