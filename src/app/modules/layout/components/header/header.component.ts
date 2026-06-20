@@ -40,7 +40,7 @@ export class HeaderComponent {
   }
 
   ngAfterViewInit() {
-    this.toggleSidenav();
+    queueMicrotask(() => this.toggleSidenav());
   }
 
   onLanguageChange(lang: string) {

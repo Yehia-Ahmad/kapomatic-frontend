@@ -54,6 +54,22 @@ export const routes: Routes = [
         loadComponent: () => import('./modules/products/components/product-profit-report/product-profit-report.component').then(m => m.ProductProfitReportComponent)
     },
     {
+        path: 'ecommerce-settings/shipping/general',
+        loadComponent: () => import('./modules/ecommerce-settings/components/ecommerce-settings/ecommerce-settings.component').then(m => m.EcommerceSettingsComponent)
+    },
+    {
+        path: 'ecommerce-settings/shipping/governments',
+        loadComponent: () => import('./modules/ecommerce-settings/components/ecommerce-settings/ecommerce-settings.component').then(m => m.EcommerceSettingsComponent)
+    },
+    {
+        path: 'ecommerce-settings',
+        loadComponent: () => import('./modules/ecommerce-settings/components/ecommerce-settings/ecommerce-settings.component').then(m => m.EcommerceSettingsComponent)
+    },
+    {
+        path: 'website-images',
+        loadComponent: () => import('./modules/website-images/components/website-images/website-images.component').then(m => m.WebsiteImagesComponent)
+    },
+    {
         path: '**',
         // canActivate: [authGuard],
         component: HomeComponent

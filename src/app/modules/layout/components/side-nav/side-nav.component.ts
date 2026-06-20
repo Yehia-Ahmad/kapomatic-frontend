@@ -24,16 +24,16 @@ export class SideNavComponent implements AfterViewInit {
   isDarkMode$;
   direction = computed(() => this._languageService.selectedLanguage() === 'ar' ? 'rtl' : 'ltr');
 
-  sidenavWidth = computed(() => {
+  sidenavWidth(): string {
     return this.isSidenavCollapsed ? '100px' : '250px';
-  });
+  }
 
   constructor(private _themeService: ThemeService, private _languageService: LanguageService) {
     this.isDarkMode$ = this._themeService.isDarkMode$;
   }
 
   ngAfterViewInit() {
-    this.updateSidenavHeight();
+    queueMicrotask(() => this.updateSidenavHeight());
   }
 
   @HostListener('window:resize')
@@ -51,6 +51,5 @@ export class SideNavComponent implements AfterViewInit {
   toggleSidenav(event: boolean) {
     this.isSidenavCollapsed = event;
     this.customSidenav.isSidenavCollapsed = event;
-    this.sidenavWidth = computed(() => (this.isSidenavCollapsed ? '100px' : '250px'));
   }
 }

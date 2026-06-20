@@ -4,7 +4,7 @@ import { CateoryService } from '../../services/cateory.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SideNavComponent } from "../../../layout/components/side-nav/side-nav.component";
 import { DialogModule } from "primeng/dialog";
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from "primeng/select";
 import { TranslatePipe } from '@ngx-translate/core';
@@ -107,6 +107,21 @@ export class CategoryDetailsComponent {
       purchasePrice: [''],
       retailPrice: [''],
       soldItemCount: [''],
+      specifications: this.fb.array([]),
+    });
+  }
+
+  get productDetails(): FormArray {
+    return this.addProductForm.get('specifications') as FormArray;
+  }
+
+  private resetProductDetailsControls(details: { title: string; value?: string }[] = []): void {
+    this.productDetails.clear();
+    details.forEach((detail) => {
+      this.productDetails.push(this.fb.group({
+        title: [detail.title],
+        value: [detail.value || '']
+      }));
     });
   }
 
@@ -142,6 +157,7 @@ export class CategoryDetailsComponent {
 
   showDialog() {
     this.resetForm();
+    this.resetProductDetailsControls(this.buildProductDetailsFromCategory(this.categoryDetails));
     this.addProductForm.patchValue({
       code: this.getNextProductCode(),
       categoryId: this.categoryId,
@@ -175,6 +191,10 @@ export class CategoryDetailsComponent {
     if (!payload.imageBase64) {
       delete payload.imageBase64;
     }
+    payload.specifications = this.normalizeProductDetails(payload.specifications);
+    if (!payload.specifications.length) {
+      delete payload.specifications;
+    }
     console.log('Adding product with payload:', this.addProductForm.value);
     console.log('Adding product with payload:', payload);
 
@@ -205,7 +225,9 @@ export class CategoryDetailsComponent {
       purchasePrice: '',
       retailPrice: '',
       soldItemCount: '',
+      specifications: [],
     });
+    this.resetProductDetailsControls();
     this.imagePreview = null;
   }
 
@@ -279,5 +301,38 @@ export class CategoryDetailsComponent {
       numericValue: Number(numericPart),
       width: numericPart.length,
     };
+  }
+
+  private buildProductDetailsFromCategory(category: any): { title: string; value: string }[] {
+    return this.extractCategorySpecifications(category).map((specification) => ({
+      title: specification.title,
+      value: ''
+    }));
+  }
+
+  private extractCategorySpecifications(category: any): { title: string }[] {
+    const specifications = category?.specifications || category?.specification || category?.specs || [];
+    if (!Array.isArray(specifications)) return [];
+
+    return specifications
+      .map((specification: any) => {
+        if (typeof specification === 'string') return { title: specification };
+        return { title: specification?.title || specification?.name || specification?.rowName || '' };
+      })
+      .map((specification: { title: string }) => ({
+        title: String(specification.title || '').trim()
+      }))
+      .filter((specification: { title: string }) => Boolean(specification.title));
+  }
+
+  private normalizeProductDetails(details: any[]): { title: string; value: string }[] {
+    if (!Array.isArray(details)) return [];
+
+    return details
+      .map((detail: any) => ({
+        title: String(detail?.title || '').trim(),
+        value: String(detail?.value || '').trim()
+      }))
+      .filter((detail: { title: string }) => Boolean(detail.title));
   }
 }

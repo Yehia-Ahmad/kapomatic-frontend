@@ -12,6 +12,8 @@
     "credit_sales": "البيع الآجل",
     "invoice_history": "سجل الفواتير",
     "profit_report": "تقرير الأرباح",
+    "ecommerce_settings": "إعدادات المتجر",
+    "website_images": "صور الموقع",
     "export_products": "تصدير المنتجات",
     "addProducts": "إضافة منتجات",
     "showProducts": "عرض المنتجات",
@@ -110,6 +112,13 @@
     "namePlaceholder": "اسم الفئة",
     "description": "وصف الفئة",
     "descriptionPlaceholder": "وصف الفئة",
+    "specifications": {
+      "title": "المواصفات",
+      "addButton": "إضافة",
+      "rowNamePlaceholder": "اسم الوصف",
+      "valuePlaceholder": "ادخل القيمة",
+      "removeButton": "حذف"
+    },
     "addProduct": {
       "title": "إضافة منتج",
       "productName": "اسم المنتج",
@@ -191,11 +200,13 @@
     },
     "addButton": "إضافة فئة",
     "listTitle": "قائمة الفئات",
+    "edit_category_title": "تعديل الفئة",
     "delete_category_title": "حذف الفئة",
     "delete_category_message": "هل تريد حذف هذه الفئة؟",
     "cancel_button": "لا، إلغاء",
     "delete_button": "نعم، احذف",
     "saveButton": "حفظ الفئة",
+    "updateButton": "تحديث الفئة",
     "isSaving": "جاري الحفظ...",
     "deleteButton": "حذف",
     "changeButton": "تغيير"
@@ -270,6 +281,10 @@
         "title": "العملاء",
         "description": "إنشاء وإدارة بيانات العملاء."
       },
+      "ecommerceSettings": {
+        "title": "إعدادات المتجر",
+        "description": "تحكم في ظهور الفئات والمنتجات والفلاتر على الموقع."
+      },
       "selling": {
         "title": "البيع",
         "description": "فتح صفحة البيع."
@@ -291,6 +306,184 @@
     "actions": {
       "back": "رجوع",
       "resetView": "إعادة العرض"
+    }
+  },
+  "websiteImages": {
+    "eyebrow": "محتوى الموقع",
+    "title": "صور الموقع",
+    "subtitle": "إدارة الصور الترويجية والمنتجات المستهدفة بها.",
+    "columns": {
+      "preview": "معاينة الصورة",
+      "title": "العنوان",
+      "targetType": "نوع الاستهداف",
+      "status": "الحالة",
+      "createdAt": "تاريخ الإنشاء",
+      "actions": "الإجراءات"
+    },
+    "targetTypes": {
+      "category": "فئة",
+      "product": "منتج",
+      "both": "الفئة والمنتج",
+      "price": "السعر"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "actions": {
+      "add": "إضافة صورة للموقع",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "previewProducts": "معاينة المنتجات",
+      "chooseImage": "اختيار صورة",
+      "changeImage": "تغيير الصورة",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "saving": "جاري الحفظ...",
+      "deleting": "جاري الحذف..."
+    },
+    "form": {
+      "addTitle": "إضافة صورة للموقع",
+      "editTitle": "تعديل صورة الموقع",
+      "title": "العنوان",
+      "image": "الصورة",
+      "targetType": "نوع الاستهداف",
+      "categories": "الفئات",
+      "products": "المنتجات",
+      "maxPrice": "الحد الأقصى للسعر",
+      "active": "نشط",
+      "optional": "اختياري",
+      "selectCategories": "اختر الفئات",
+      "selectProducts": "اختر المنتجات",
+      "selectCategoriesFirst": "اختر فئة واحدة أو أكثر لتحميل المنتجات.",
+      "priceCategoryHint": "اترك الفئات فارغة لاستهداف المنتجات في جميع الفئات."
+    },
+    "validation": {
+      "titleRequired": "العنوان مطلوب.",
+      "imageRequired": "الصورة مطلوبة عند إنشاء صورة جديدة للموقع.",
+      "categoriesRequired": "اختر فئة واحدة على الأقل.",
+      "productsRequired": "اختر منتجًا واحدًا على الأقل.",
+      "maxPriceRequired": "أدخل حدًا أقصى للسعر يساوي صفرًا أو أكثر."
+    },
+    "delete": {
+      "title": "حذف صورة الموقع",
+      "message": "حذف"
+    },
+    "preview": {
+      "title": "المنتجات المطابقة",
+      "image": "صورة المنتج",
+      "name": "الاسم",
+      "code": "الكود",
+      "category": "الفئة",
+      "retailPrice": "سعر التجزئة",
+      "empty": "لا توجد منتجات مطابقة لقواعد استهداف هذه الصورة."
+    },
+    "messages": {
+      "empty": "لم تتم إضافة صور للموقع."
+    }
+  },
+  "ecommerceSettings": {
+    "eyebrow": "كتالوج الموقع",
+    "title": "إعدادات المتجر",
+    "subtitle": "اختر الفئات التي تظهر على الموقع وحدد المنتجات ومجموعات المنتجات الديناميكية داخل كل فلتر.",
+    "sections": {
+      "categories": "الفئات",
+      "shipping": "الشحن"
+    },
+    "categories": "الفئات",
+    "categorySettings": "إعدادات الفئة",
+    "showOnWebsite": "إظهار الفئة على الموقع",
+    "hiddenHint": "هذه الفئة مخفية من الموقع. قم بتفعيلها لاختيار المنتجات وحقول العرض والفلاتر.",
+    "status": {
+      "visible": "ظاهرة",
+      "hidden": "مخفية"
+    },
+    "products": {
+      "title": "المنتجات المعروضة داخل هذه الفئة",
+      "count": "منتجات",
+      "selectAll": "تحديد الكل"
+    },
+    "specifications": {
+      "title": "قيم فلاتر الفئة",
+      "subtitle": "القيم الفريدة المحسوبة من مواصفات منتجات هذه الفئة.",
+      "emptyValues": "لا توجد قيم بعد"
+    },
+    "filters": {
+      "title": "الفلاتر",
+      "add": "إضافة فلتر",
+      "itemTitle": "عنوان الفلتر",
+      "visible": "ظاهر",
+      "products": "المنتجات داخل هذا الفلتر",
+      "options": "خيارات الفلتر",
+      "optionsHint": "يتم إنشاء عناوين الفلاتر وخياراتها من فلاتر الفئة.",
+      "emptyOptions": "لا توجد خيارات بعد"
+    },
+    "shipping": {
+      "eyebrow": "إعدادات الشحن",
+      "navigationTitle": "صفحات الشحن",
+      "general": {
+        "title": "الإعدادات العامة",
+        "subtitle": "حدد قيمة السلة التي تؤهل الطلب للحصول على شحن مجاني.",
+        "freeShippingMinimumAmount": "الحد الأدنى للشحن المجاني",
+        "freeShippingMinimumAmountRequired": "الحد الأدنى للشحن المجاني يجب أن يكون صفر أو أكثر."
+      },
+      "governments": {
+        "title": "رسوم الشحن حسب المحافظة",
+        "subtitle": "أضف كل محافظة ورسوم الشحن الخاصة بها. الحفظ يستبدل قائمة رسوم المحافظات بالكامل.",
+        "addGovernment": "إضافة محافظة",
+        "government": "المحافظة",
+        "governmentPlaceholder": "القاهرة",
+        "shippingFees": "رسوم الشحن",
+        "governmentRequired": "اسم المحافظة مطلوب.",
+        "shippingFeesRequired": "رسوم الشحن يجب أن تكون صفر أو أكثر.",
+        "remove": "حذف"
+      }
+    },
+    "currency": {
+      "title": "عملة الموقع",
+      "subtitle": "حدد العملة المستخدمة لعرض الأسعار على الموقع.",
+      "label": "رمز العملة",
+      "placeholder": "EGP",
+      "invalid": "أدخل رمز عملة صحيحًا مكونًا من ثلاثة أحرف، مثل EGP أو USD."
+    },
+    "websiteGeneral": {
+      "eyebrow": "إعدادات الموقع",
+      "title": "هوية المتجر وبيانات التواصل",
+      "subtitle": "إدارة شعار الموقع واللون الرئيسي ومواقع الفروع وروابط التواصل الاجتماعي.",
+      "required": "هذا الحقل مطلوب.",
+      "validUrl": "أدخل رابطًا صحيحًا يبدأ بـ http:// أو https://.",
+      "remove": "حذف",
+      "logo": {
+        "label": "الشعار الرئيسي",
+        "choose": "اختيار الشعار",
+        "hint": "اختر صورة ليتم حفظها كشعار رئيسي للموقع.",
+        "previewAlt": "معاينة الشعار الرئيسي"
+      },
+      "mainColor": {
+        "label": "اللون الرئيسي",
+        "placeholder": "#F4D80A",
+        "invalid": "أدخل لونًا سداسيًا صحيحًا مكونًا من ست خانات."
+      },
+      "locations": {
+        "title": "مواقع الفروع",
+        "subtitle": "أضف اسم وعنوان ورابط خريطة كل فرع.",
+        "add": "إضافة موقع فرع",
+        "name": "اسم الفرع",
+        "detailedLocation": "العنوان بالتفصيل",
+        "mapLink": "رابط الخريطة",
+        "empty": "لم تتم إضافة مواقع فروع."
+      },
+      "social": {
+        "title": "روابط التواصل الاجتماعي",
+        "subtitle": "أضف منصة التواصل ورابط الصفحة العامة الخاص بها.",
+        "add": "إضافة رابط تواصل",
+        "name": "اسم المنصة",
+        "link": "رابط الصفحة",
+        "empty": "لم تتم إضافة روابط تواصل اجتماعي."
+      }
+    },
+    "actions": {
+      "reset": "إعادة تعيين"
     }
   },
   "sellingPage": {

@@ -7,7 +7,7 @@ import { CateoryService } from '../../category/services/cateory.service';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { WarnComponent } from "../../assets/warn/warn.component";
 import { ErrorIconComponent } from "../../assets/error/error-icon.component";
 import { LanguageService } from '../../shared/services/translation.service';
@@ -21,7 +21,7 @@ export type MenuItem = {
   label: string;
   icon: SafeHtml;
   route?: string;
-  children?: { label: string; route: string }[];
+  children?: { label: string; route: string; id: string; category?: any }[];
 }
 
 @Component({
@@ -41,6 +41,7 @@ export class CustomSidenavComponent implements OnInit {
   categories: any[] = [];
   visible: boolean = false;
   isSaving = signal(false);
+  editingCategory: any = null;
   deleteCategoryVisible: boolean = false;
   categoryToDelete: any = null;
   addCategory: FormGroup;
@@ -87,8 +88,28 @@ export class CustomSidenavComponent implements OnInit {
   initalizeAddCategory() {
     this.addCategory = this.fb.group({
       name: [null, Validators.required],
-      imageBase64: [null]
+      imageBase64: [null],
+      specifications: this.fb.array([])
     })
+  }
+
+  get specifications(): FormArray {
+    return this.addCategory.get('specifications') as FormArray;
+  }
+
+  addSpecification(): void {
+    this.specifications.push(this.fb.control('', Validators.required));
+  }
+
+  removeSpecification(index: number): void {
+    this.specifications.removeAt(index);
+  }
+
+  private resetSpecificationControls(specifications: string[] = []): void {
+    this.specifications.clear();
+    specifications.forEach((specification) => {
+      this.specifications.push(this.fb.control(specification, Validators.required));
+    });
   }
 
   private sanitize(svg: string): SafeHtml {
@@ -99,7 +120,7 @@ export class CustomSidenavComponent implements OnInit {
     this.categories = [];
     this._cateoryService.getCategories().subscribe((res: any) => {
       res.map((category: any) => {
-        this.categories.push({ label: category.name, route: `/categories/${category._id}`, id: category._id })
+        this.categories.push({ label: category.name, route: `/categories/${category._id}`, id: category._id, category })
       });
       this.buildAdminMenuItems();
       this.checkHasAnyProducts();
@@ -125,6 +146,28 @@ export class CustomSidenavComponent implements OnInit {
         route: '/customers'
       },
       {
+        label: 'sidebarTitles.ecommerce_settings',
+        icon: this.sanitize(`
+        <span class="block w-8 h-8">
+          <svg width="100%" height="100%" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+            <path d="M96 128C96 92.7 124.7 64 160 64L480 64C515.3 64 544 92.7 544 128L544 512C544 547.3 515.3 576 480 576L160 576C124.7 576 96 547.3 96 512L96 128zM160 128L160 192L480 192L480 128L160 128zM160 240L160 512L480 512L480 240L160 240zM224 288L416 288C429.3 288 440 298.7 440 312C440 325.3 429.3 336 416 336L224 336C210.7 336 200 325.3 200 312C200 298.7 210.7 288 224 288zM224 384L352 384C365.3 384 376 394.7 376 408C376 421.3 365.3 432 352 432L224 432C210.7 432 200 421.3 200 408C200 394.7 210.7 384 224 384z" style="fill:#2f2f2f;fill-rule:nonzero;" />
+          </svg>
+        </span>
+        `),
+        route: '/ecommerce-settings'
+      },
+      {
+        label: 'sidebarTitles.website_images',
+        icon: this.sanitize(`
+        <span class="block w-8 h-8">
+          <svg width="100%" height="100%" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 2v14h16V5H4zm3 2.5A1.5 1.5 0 1 1 7 10.5a1.5 1.5 0 0 1 0-3zM5 17l4-4 2.5 2.5L15 12l4 5H5z" style="fill:#2f2f2f;fill-rule:nonzero;" />
+          </svg>
+        </span>
+        `),
+        route: '/website-images'
+      },
+      {
         label: 'sidebarTitles.categories',
         icon: this.sanitize(`
         <span class="block w-8 h-8">
@@ -143,6 +186,8 @@ export class CustomSidenavComponent implements OnInit {
   }
 
   isProductsContext(): boolean {
+    if (this._router.url.includes('/website-images')) return false;
+
     const isProductsRoute = this._router.url.includes('/selling')
       || this._router.url.includes('/credit-sales')
       || this._router.url.includes('/invoice-history')
@@ -209,23 +254,16 @@ export class CustomSidenavComponent implements OnInit {
     this.hasProductsChecked = true;
     const categoryIdHint = this.categories?.[0]?.id;
 
-    this._cateoryService.getProducts('all', { limit: 1 }).subscribe({
+    if (!categoryIdHint) {
+      this.hasProducts.set(false);
+      return;
+    }
+
+    this._cateoryService.getProducts(categoryIdHint, { categoryId: categoryIdHint, limit: 1 }).subscribe({
       next: (res: any) => {
         this.hasProducts.set(this.extractList(res).length > 0);
       },
-      error: () => {
-        if (!categoryIdHint) {
-          this.hasProducts.set(false);
-          return;
-        }
-
-        this._cateoryService.getProducts(categoryIdHint, { categoryId: categoryIdHint, limit: 1 }).subscribe({
-          next: (res: any) => {
-            this.hasProducts.set(this.extractList(res).length > 0);
-          },
-          error: () => this.hasProducts.set(false)
-        });
-      }
+      error: () => this.hasProducts.set(false)
     });
   }
 
@@ -287,15 +325,53 @@ export class CustomSidenavComponent implements OnInit {
   }
 
   openDialog(): void {
+    this.editingCategory = null;
+    this.addCategory.reset();
+    this.resetSpecificationControls();
+    this.imagePreview = null;
     this.visible = true;
     this.errorMessage.set('');
     this.errorVisible.set(false);
     this.cdr.detectChanges();
   }
 
+  openEditCategoryDialog(category: any, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+
+    this.editingCategory = category;
+    this.addCategory.reset();
+    this.resetSpecificationControls(this.extractSpecifications(category.category));
+    this.addCategory.patchValue({
+      name: category.label || category.category?.name || '',
+      imageBase64: null
+    });
+    this.imagePreview = category.category?.image || null;
+    this.visible = true;
+    this.errorMessage.set('');
+    this.errorVisible.set(false);
+
+    this._cateoryService.getCategoryById(category.id).subscribe({
+      next: (response: any) => {
+        const categoryDetails = response?.data || response?.category || response;
+        this.editingCategory = { ...category, category: categoryDetails };
+        this.addCategory.patchValue({
+          name: categoryDetails?.name || category.label || ''
+        });
+        this.resetSpecificationControls(this.extractSpecifications(categoryDetails));
+        this.imagePreview = categoryDetails?.image || this.imagePreview;
+        this.cdr.detectChanges();
+      },
+      error: () => this.cdr.detectChanges()
+    });
+    this.cdr.detectChanges();
+  }
+
   closeDialog(): void {
     this.visible = false;
+    this.editingCategory = null;
     this.addCategory.reset();
+    this.resetSpecificationControls();
     this.imagePreview = null;
     this.errorMessage.set('');
     this.errorVisible.set(false);
@@ -315,9 +391,23 @@ export class CustomSidenavComponent implements OnInit {
 
     this.isSaving.set(true);
     this.errorMessage.set('');
-    const payload: any = { ...this.addCategory.value };
-    if (!payload.imageBase64) {
-      delete payload.imageBase64;
+    const payload = this.buildCategoryPayload();
+
+    if (this.editingCategory?.id) {
+      this._cateoryService.updateCategory(this.editingCategory.id, payload).subscribe({
+        next: () => {
+          this.isSaving.set(false);
+          this.getAllCategories();
+          this.closeDialog();
+        },
+        error: (err: any) => {
+          this.isSaving.set(false);
+          this.errorMessage.set(this.extractErrorMessage(err, 'حدث خطأ أثناء تعديل الفئة'));
+          this.errorVisible.set(true);
+          console.error(err);
+        }
+      });
+      return;
     }
 
     this._cateoryService.createCategory(payload).subscribe({
@@ -333,6 +423,34 @@ export class CustomSidenavComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  private buildCategoryPayload(): any {
+    const payload: any = { ...this.addCategory.value };
+    if (!payload.imageBase64) {
+      delete payload.imageBase64;
+    }
+    payload.specifications = (payload.specifications || [])
+      .map((specification: string) => String(specification || '').trim())
+      .filter(Boolean)
+      .map((title: string) => ({ title }));
+    if (!payload.specifications.length) {
+      delete payload.specifications;
+    }
+    return payload;
+  }
+
+  private extractSpecifications(category: any): string[] {
+    const specifications = category?.specifications || category?.specification || category?.specs || [];
+    if (!Array.isArray(specifications)) return [];
+
+    return specifications
+      .map((specification: any) => {
+        if (typeof specification === 'string') return specification;
+        return specification?.name || specification?.rowName || specification?.title || '';
+      })
+      .map((specification: string) => String(specification || '').trim())
+      .filter(Boolean);
   }
 
   onBasicUploadAuto(event: any) {

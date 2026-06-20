@@ -108,7 +108,7 @@
                     [style.display]="'block'"
                     [style.padding-block]="'0.5rem'"
                     [style.padding-inline-start]="'0.8rem'"
-                    [style.padding-inline-end]="!rla.isActive ? '2.5rem' : '0.8rem'"
+                    [style.padding-inline-end]="rla.isActive ? '2.75rem' : '5rem'"
                     [style.text-align]="direction() === 'rtl' ? 'right' : 'left'"
                     [style.border-radius]="'6px'"
                     [style.background-color]="rla.isActive ? '#FF9933' : (isDarkMode$ | async) ? '#2F2F2F' : '#e1e0e0'"
@@ -116,8 +116,22 @@
                   >
                     {{ child.label }}
                   </a>
+                  <button
+                    type="button"
+                    (click)="openEditCategoryDialog(child, $event)"
+                    class="absolute top-2 z-50 text-light_orange"
+                    [style.inset-inline-end]="rla.isActive ? '1.5rem' : '3.75rem'"
+                    [attr.aria-label]="'category.changeButton' | translate"
+                    [title]="'category.changeButton' | translate"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2">
+                      <path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
+                  </button>
                   @if(!rla.isActive) {
                     <button
+                      type="button"
                       (click)="promptForCategoryDeletion(child)"
                       class="absolute top-2 z-50 text-light_orange"
                       [style.inset-inline-end]="'1.5rem'"
@@ -228,7 +242,9 @@
   <!-- Dialog for adding new category -->
   <p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '35vw' }">
     <div class="flex justify-center items-center">
-      <h1 class="text-2xl font-bold font-azonix text-orange">{{ 'category.add_new_category' | translate }}</h1>
+      <h1 class="text-2xl font-bold font-azonix text-orange">
+        {{ (editingCategory ? 'category.edit_category_title' : 'category.add_new_category') | translate }}
+      </h1>
     </div>
     <form class="flex flex-col gap-4 my-6" [formGroup]="addCategory">
       <div class="w-full flex flex-col gap-2 items-start">
@@ -238,6 +254,36 @@
           class="w-full rounded-md p-2 bg-transparent text-light_orange border border-[#696969] focus:outline-none"
           formControlName="name" placeholder="{{ 'category.namePlaceholder' | translate }}"
         />
+      </div>
+      <div class="w-full flex flex-col gap-3 items-start" formArrayName="specifications">
+        <div class="w-full flex items-center justify-between gap-3">
+          <h2 class="m-0 text-lg font-semibold font-roboto text-light_orange">{{ 'category.specifications.title' | translate }}</h2>
+          <button
+            type="button"
+            class="rounded-md px-3 py-2 text-sm font-semibold font-roboto bg-orange text-dark"
+            (click)="addSpecification()"
+          >
+            {{ 'category.specifications.addButton' | translate }}
+          </button>
+        </div>
+
+        @for (specification of specifications.controls; track $index) {
+          <div class="w-full flex items-center gap-2">
+            <input
+              type="text"
+              class="w-full rounded-md p-2 bg-transparent text-light_orange border border-[#696969] focus:outline-none"
+              [formControlName]="$index"
+              placeholder="{{ 'category.specifications.rowNamePlaceholder' | translate }}"
+            />
+            <button
+              type="button"
+              class="rounded-md px-3 py-2 text-sm font-semibold font-roboto border border-[#696969] text-light_orange"
+              (click)="removeSpecification($index)"
+            >
+              {{ 'category.specifications.removeButton' | translate }}
+            </button>
+          </div>
+        }
       </div>
       <div class="w-full flex flex-col gap-2 items-center rounded-md bg-gray_light" (click)="fileInput.click()">
         <input #fileInput accept="image/*" type="file" class="hidden" (change)="onBasicUploadAuto($event)" />
@@ -251,7 +297,7 @@
       }
     </form>
     <div class="flex justify-center items-center">
-      <p-button label="{{ 'category.saveButton' | translate}}" severity="warn" styleClass="!px-4 !py-1 !bg-orange !text-dark" (click)="addNewCategory()" [disabled]="addCategory.invalid || isSaving()"
+      <p-button label="{{ (editingCategory ? 'category.updateButton' : 'category.saveButton') | translate}}" severity="warn" styleClass="!px-4 !py-1 !bg-orange !text-dark" (click)="addNewCategory()" [disabled]="addCategory.invalid || isSaving()"
         [loading]="isSaving()"></p-button>
     </div>
   </p-dialog>

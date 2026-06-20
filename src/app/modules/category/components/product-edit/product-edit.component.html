@@ -138,6 +138,32 @@
                                     'text-light_orange ': (isDarkMode$ | async)
                                 }" />
                     </div>
+
+                    @if(productDetails.length) {
+                        <h3 class="text-lg capitalize font-medium font-roboto text-orange">
+                            {{ 'category.specifications.title' | translate }}
+                        </h3>
+                        <div class="w-full"></div>
+
+                        @for(detail of productDetails; track detail.title) {
+                            <label class="text-lg capitalize font-medium font-roboto text-orange" [for]="'detail-' + $index">
+                                {{ detail.title }}
+                            </label>
+                            <div class="field-wrapper w-full px-4 py-1 rounded-md" [ngClass]="{
+                                      'border border-orange bg-light_bg text-orange': !(isDarkMode$ | async),
+                                      'border border-gray bg-gray_dark': (isDarkMode$ | async)
+                                    }">
+                                    <input [id]="'detail-' + $index" type="text"
+                                        class="w-full rounded-md p-2 bg-transparent border border-none focus:outline-none"
+                                        [(ngModel)]="detail.value" [ngModelOptions]="{standalone: true}"
+                                        [placeholder]="'category.specifications.valuePlaceholder' | translate"
+                                        [ngClass]="{
+                                            'text-orange': !(isDarkMode$ | async),
+                                            'text-light_orange ': (isDarkMode$ | async)
+                                        }" />
+                            </div>
+                        }
+                    }
                 </div>
                 
             </div>

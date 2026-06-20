@@ -36,6 +36,7 @@ export class ProductEditComponent {
   syncDateTo: Date | null = null;
   isDarkMode$;
   imagePreview: string | ArrayBuffer | null = null;
+  productDetails: { title: string; value: string }[] = [];
   errorVisible = false;
   errorMessage = '';
 
@@ -56,6 +57,7 @@ export class ProductEditComponent {
       next: (res: any) => {
         this.loading = false;
         this.product = res;
+        this.productDetails = this.buildProductDetails(this.product);
         this.newInventory = null;
         this.cdr.detectChanges();
       }, error: (err: any) => {
@@ -98,6 +100,7 @@ export class ProductEditComponent {
       retailPrice: this.product.retailPrice,
       soldItemCount: this.product.soldItemCount,
       image: this.product.image,
+      specifications: this.normalizeProductDetails(this.productDetails),
     };
     this._cateoryService.updateProduct(this.productId, payload).subscribe({
       next: (res: any) => {
@@ -179,5 +182,48 @@ export class ProductEditComponent {
   private toNumber(value: unknown): number {
     const parsedValue = Number(value);
     return Number.isFinite(parsedValue) ? parsedValue : 0;
+  }
+
+  private buildProductDetails(product: any): { title: string; value: string }[] {
+    const existingDetails = this.normalizeProductDetails(product?.specifications || product?.details || []);
+    const existingValueByTitle = new Map(
+      existingDetails.map((detail) => [detail.title, detail.value])
+    );
+
+    const categorySpecifications = this.extractCategorySpecifications(product?.category);
+    if (!categorySpecifications.length) {
+      return existingDetails;
+    }
+
+    return categorySpecifications.map((specification) => ({
+      title: specification.title,
+      value: existingValueByTitle.get(specification.title) || ''
+    }));
+  }
+
+  private extractCategorySpecifications(category: any): { title: string }[] {
+    const specifications = category?.specifications || category?.specification || category?.specs || [];
+    if (!Array.isArray(specifications)) return [];
+
+    return specifications
+      .map((specification: any) => {
+        if (typeof specification === 'string') return { title: specification };
+        return { title: specification?.title || specification?.name || specification?.rowName || '' };
+      })
+      .map((specification: { title: string }) => ({
+        title: String(specification.title || '').trim()
+      }))
+      .filter((specification: { title: string }) => Boolean(specification.title));
+  }
+
+  private normalizeProductDetails(details: any[]): { title: string; value: string }[] {
+    if (!Array.isArray(details)) return [];
+
+    return details
+      .map((detail: any) => ({
+        title: String(detail?.title || '').trim(),
+        value: String(detail?.value || '').trim()
+      }))
+      .filter((detail: { title: string }) => Boolean(detail.title));
   }
 }

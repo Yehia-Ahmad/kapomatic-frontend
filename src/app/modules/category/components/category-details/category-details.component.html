@@ -115,6 +115,23 @@
                     formControlName="soldItemCount" />
             </div>
 
+            @if(productDetails.controls.length) {
+                <div class="w-full flex flex-col gap-3 items-start" formArrayName="specifications">
+                    <h2 class="m-0 text-lg font-semibold font-roboto text-light_orange">{{ 'category.specifications.title' | translate }}</h2>
+                    @for(detail of productDetails.controls; track $index) {
+                        <div class="w-full flex flex-col gap-2 items-start" [formGroupName]="$index">
+                            <label class="text-lg font-medium font-roboto text-light_orange">
+                                {{ detail.get('title')?.value }}
+                            </label>
+                            <input type="text"
+                                class="w-full rounded-md p-2 bg-transparent text-light_orange border border-[#696969] focus:outline-none"
+                                formControlName="value"
+                                placeholder="{{ 'category.specifications.valuePlaceholder' | translate }}" />
+                        </div>
+                    }
+                </div>
+            }
+
             <div class="w-full flex flex-col gap-2 items-center rounded-md bg-gray_light" (click)="fileInput.click()">
                 <input #fileInput accept="image/*" type="file" class="hidden" (change)="onBasicUploadAuto($event)" />
                 <p-button label="{{ imagePreview ? ('category.addProduct.changeImage' | translate) : ('category.addProduct.uploadImage' | translate) }}"

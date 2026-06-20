@@ -22,6 +22,10 @@ export class CateoryService {
     return this._http.post(`${this._baseUrl}categories`, category);
   }
 
+  updateCategory(id: string, category: any) {
+    return this._http.put(`${this._baseUrl}categories/${id}`, category);
+  }
+
   deleteCategory(id: string) {
     return this._http.delete(`${this._baseUrl}categories/${id}`);
   }

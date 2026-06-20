@@ -12,6 +12,8 @@
         "credit_sales": "Credit Sales",
         "invoice_history": "Invoice History",
         "profit_report": "Profit Report",
+        "ecommerce_settings": "E-commerce Settings",
+        "website_images": "Website Images",
         "export_products": "Export Products",
         "addProducts": "Add Products",
         "showProducts": "Show Products",
@@ -109,6 +111,13 @@
         "namePlaceholder": "Enter Category Name",
         "description": "Description",
         "descriptionPlaceholder": "Enter Category Description",
+        "specifications": {
+            "title": "Specifications",
+            "addButton": "Add",
+            "rowNamePlaceholder": "Enter row name",
+            "valuePlaceholder": "Enter value",
+            "removeButton": "Remove"
+        },
         "addProduct": {
             "title": "Add Product",
             "productName": "Product Name",
@@ -187,9 +196,11 @@
           "deleteSuccess": "Category deleted successfully"
         },
         "saveButton": "Save Category",
+        "updateButton": "Update Category",
         "isSaving": "Saving...",
         "addButton": "Add Category",
         "listTitle": "Category List",
+        "edit_category_title": "Edit Category",
         "delete_category_title": "Delete Category",
         "delete_category_message": "Do you want to delete this category?",
         "cancel_button": "No Cancel",
@@ -267,6 +278,10 @@
                 "title": "Customers",
                 "description": "Create and manage customer records."
             },
+            "ecommerceSettings": {
+                "title": "E-commerce Settings",
+                "description": "Control website category visibility, products, and filters."
+            },
             "selling": {
                 "title": "Selling",
                 "description": "Open the selling page."
@@ -288,6 +303,184 @@
         "actions": {
             "back": "Back",
             "resetView": "Reset View"
+        }
+    },
+    "websiteImages": {
+        "eyebrow": "Website merchandising",
+        "title": "Website Images",
+        "subtitle": "Manage promotional images and the products they target.",
+        "columns": {
+            "preview": "Image Preview",
+            "title": "Title",
+            "targetType": "Target Type",
+            "status": "Status",
+            "createdAt": "Created Date",
+            "actions": "Actions"
+        },
+        "targetTypes": {
+            "category": "Category",
+            "product": "Product",
+            "both": "Both",
+            "price": "Price"
+        },
+        "status": {
+            "active": "Active",
+            "inactive": "Inactive"
+        },
+        "actions": {
+            "add": "Add Website Image",
+            "edit": "Edit",
+            "delete": "Delete",
+            "previewProducts": "Preview Products",
+            "chooseImage": "Choose Image",
+            "changeImage": "Change Image",
+            "cancel": "Cancel",
+            "save": "Save",
+            "saving": "Saving...",
+            "deleting": "Deleting..."
+        },
+        "form": {
+            "addTitle": "Add Website Image",
+            "editTitle": "Edit Website Image",
+            "title": "Title",
+            "image": "Image",
+            "targetType": "Target Type",
+            "categories": "Categories",
+            "products": "Products",
+            "maxPrice": "Maximum Price",
+            "active": "Active",
+            "optional": "Optional",
+            "selectCategories": "Select categories",
+            "selectProducts": "Select products",
+            "selectCategoriesFirst": "Select one or more categories to load products.",
+            "priceCategoryHint": "Leave categories empty to target products across every category."
+        },
+        "validation": {
+            "titleRequired": "Title is required.",
+            "imageRequired": "An image is required when creating a website image.",
+            "categoriesRequired": "Select at least one category.",
+            "productsRequired": "Select at least one product.",
+            "maxPriceRequired": "Enter a maximum price of zero or more."
+        },
+        "delete": {
+            "title": "Delete Website Image",
+            "message": "Delete"
+        },
+        "preview": {
+            "title": "Resolved Products",
+            "image": "Product Image",
+            "name": "Name",
+            "code": "Code",
+            "category": "Category",
+            "retailPrice": "Retail Price",
+            "empty": "No products match this image's targeting rules."
+        },
+        "messages": {
+            "empty": "No website images have been created."
+        }
+    },
+    "ecommerceSettings": {
+        "eyebrow": "Website catalog",
+        "title": "E-commerce Settings",
+        "subtitle": "Choose which categories appear on the website, select their products, and define dynamic product groups for each filter.",
+        "sections": {
+            "categories": "Categories",
+            "shipping": "Shipping"
+        },
+        "categories": "Categories",
+        "categorySettings": "Category Settings",
+        "showOnWebsite": "Show category on website",
+        "hiddenHint": "This category is hidden from the website. Enable it to choose products, visible fields, and filters.",
+        "status": {
+            "visible": "Visible",
+            "hidden": "Hidden"
+        },
+        "products": {
+            "title": "Products shown inside this category",
+            "count": "products",
+            "selectAll": "Select all"
+        },
+        "specifications": {
+            "title": "Category filter values",
+            "subtitle": "Unique product specification values computed for this category.",
+            "emptyValues": "No values yet"
+        },
+        "filters": {
+            "title": "Dynamic filters",
+            "add": "Add filter",
+            "itemTitle": "Filter title",
+            "visible": "Visible",
+            "products": "Products inside this filter",
+            "options": "Filter options",
+            "optionsHint": "Filter titles and options are generated from category filters.",
+            "emptyOptions": "No options yet"
+        },
+        "shipping": {
+            "eyebrow": "Shipping settings",
+            "navigationTitle": "Shipping Pages",
+            "general": {
+                "title": "General Settings",
+                "subtitle": "Set the cart amount that qualifies an order for free shipping.",
+                "freeShippingMinimumAmount": "Free Shipping Minimum Amount",
+                "freeShippingMinimumAmountRequired": "Free shipping minimum must be zero or more."
+            },
+            "governments": {
+                "title": "Government Shipping Fees",
+                "subtitle": "Add every government and its shipping fee. Saving replaces the full government fees list.",
+                "addGovernment": "Add Government",
+                "government": "Government",
+                "governmentPlaceholder": "Cairo",
+                "shippingFees": "Shipping Fees",
+                "governmentRequired": "Government name is required.",
+                "shippingFeesRequired": "Shipping fees must be zero or more.",
+                "remove": "Remove"
+            }
+        },
+        "currency": {
+            "title": "Website Currency",
+            "subtitle": "Set the currency used to display prices on the website.",
+            "label": "Currency Code",
+            "placeholder": "EGP",
+            "invalid": "Enter a valid three-letter currency code, such as EGP or USD."
+        },
+        "websiteGeneral": {
+            "eyebrow": "Website settings",
+            "title": "Store Identity and Contact",
+            "subtitle": "Manage the website logo, primary color, store locations, and social media links.",
+            "required": "This field is required.",
+            "validUrl": "Enter a valid URL beginning with http:// or https://.",
+            "remove": "Remove",
+            "logo": {
+                "label": "Main Logo",
+                "choose": "Choose Logo",
+                "hint": "Select an image to store as the website's main logo.",
+                "previewAlt": "Main logo preview"
+            },
+            "mainColor": {
+                "label": "Main Color",
+                "placeholder": "#F4D80A",
+                "invalid": "Enter a valid six-digit hexadecimal color."
+            },
+            "locations": {
+                "title": "Store Locations",
+                "subtitle": "Add the name, address, and map link for each store.",
+                "add": "Add Store Location",
+                "name": "Store Name",
+                "detailedLocation": "Detailed Location",
+                "mapLink": "Map Link",
+                "empty": "No store locations have been added."
+            },
+            "social": {
+                "title": "Social Media Links",
+                "subtitle": "Add each social platform and its public profile link.",
+                "add": "Add Social Link",
+                "name": "Platform Name",
+                "link": "Profile Link",
+                "empty": "No social media links have been added."
+            }
+        },
+        "actions": {
+            "reset": "Reset"
         }
     },
     "sellingPage": {
