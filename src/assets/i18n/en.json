@@ -479,6 +479,21 @@
                 "empty": "No social media links have been added."
             }
         },
+        "homePageCategories": {
+            "tabTitle": "Home Page Categories",
+            "eyebrow": "Home page settings",
+            "title": "Displayed Categories",
+            "subtitle": "Choose the active categories displayed on the website home page and arrange their display order.",
+            "availableTitle": "Active Categories",
+            "availableHint": "Select a category to add it to the home page.",
+            "selectedTitle": "Home Page Order",
+            "orderHint": "Use the arrow buttons to control the display order.",
+            "noActiveCategories": "No active categories are available.",
+            "emptySelection": "No categories are currently selected for the home page.",
+            "moveUp": "Move category up",
+            "moveDown": "Move category down",
+            "remove": "Remove category"
+        },
         "actions": {
             "reset": "Reset"
         }

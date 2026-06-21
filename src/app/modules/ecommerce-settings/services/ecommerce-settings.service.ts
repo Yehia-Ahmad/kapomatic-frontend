@@ -9,6 +9,8 @@ import {
   EcommerceCategoryWithSettings,
   EcommerceFilterItem,
   EcommerceGeneralSettings,
+  EcommerceHomePageCategoriesResponse,
+  EcommerceHomePageCategory,
   EcommerceProductOption,
   EcommerceSocialMediaLink,
   EcommerceSetting,
@@ -21,6 +23,8 @@ import {
   UpdateEcommerceGeneralSettingsResponse,
   UpdateGovernmentShippingFeesPayload,
   UpdateGovernmentShippingFeesResponse,
+  UpdateEcommerceHomePageCategoriesPayload,
+  UpdateEcommerceHomePageCategoriesResponse,
   UpsertEcommerceSettingPayload,
   UpsertEcommerceSettingResponse
 } from '../models/ecommerce-settings.models';
@@ -44,6 +48,8 @@ import {
 } from '../api/get-government-shipping-fees.api';
 import { GET_GENERAL_SETTINGS_API } from '../api/get-general-settings.api';
 import { UPDATE_GENERAL_SETTINGS_API } from '../api/update-general-settings.api';
+import { GET_HOME_PAGE_CATEGORIES_API } from '../api/get-home-page-categories.api';
+import { UPDATE_HOME_PAGE_CATEGORIES_API } from '../api/update-home-page-categories.api';
 
 @Injectable({
   providedIn: 'root'
@@ -59,6 +65,8 @@ export class EcommerceSettingsService {
   readonly getGovernmentShippingFeesApiName = GET_GOVERNMENT_SHIPPING_FEES_API;
   readonly getGeneralSettingsApiName = GET_GENERAL_SETTINGS_API;
   readonly updateGeneralSettingsApiName = UPDATE_GENERAL_SETTINGS_API;
+  readonly getHomePageCategoriesApiName = GET_HOME_PAGE_CATEGORIES_API;
+  readonly updateHomePageCategoriesApiName = UPDATE_HOME_PAGE_CATEGORIES_API;
 
   private readonly baseUrl = `${environment.api_base_url}ecommerce-settings`;
 
@@ -143,6 +151,44 @@ export class EcommerceSettingsService {
           ...settings,
           success: Boolean(body?.success ?? true),
           message: body?.message || 'General settings saved successfully.'
+        };
+      })
+    );
+  }
+
+  getActiveCategories(): Observable<EcommerceHomePageCategory[]> {
+    return this.http.get<unknown>(`${environment.api_base_url}categories`, {
+      params: { isActive: 'true' }
+    }).pipe(
+      map((response) => {
+        const categories = this.extractArray(response, ['categories', 'data', 'data.categories']);
+
+        return categories
+          .filter((category: any) => category?.isActive !== false && category?.active !== false)
+          .map((category: any) => this.normalizeHomePageCategory(category))
+          .filter((category) => category.id);
+      })
+    );
+  }
+
+  getHomePageCategories(): Observable<EcommerceHomePageCategoriesResponse> {
+    return this.http.get<unknown>(`${this.baseUrl}/home-page/categories`).pipe(
+      map((response) => this.normalizeHomePageCategoriesResponse(response))
+    );
+  }
+
+  updateHomePageCategories(
+    payload: UpdateEcommerceHomePageCategoriesPayload
+  ): Observable<UpdateEcommerceHomePageCategoriesResponse> {
+    return this.http.put<unknown>(`${this.baseUrl}/home-page/categories`, payload).pipe(
+      map((response) => {
+        const body = response as any;
+        const normalized = this.normalizeHomePageCategoriesResponse(response, payload.categoryIds);
+
+        return {
+          ...normalized,
+          success: Boolean(body?.success ?? true),
+          message: body?.message || 'Home page categories saved successfully.'
         };
       })
     );
@@ -339,6 +385,31 @@ export class EcommerceSettingsService {
       name: String(item?.name || '').trim(),
       link: String(item?.link || '').trim()
     }));
+  }
+
+  private normalizeHomePageCategoriesResponse(
+    response: unknown,
+    fallbackCategoryIds: string[] = []
+  ): EcommerceHomePageCategoriesResponse {
+    const body = response as any;
+    const data = body?.data || body?.settings || body || {};
+    const categories = Array.isArray(data?.categories)
+      ? data.categories.map((category: any) => this.normalizeHomePageCategory(category))
+      : [];
+    const categoryIds = this.extractIds(data?.categoryIds || fallbackCategoryIds);
+
+    return {
+      categoryIds: categoryIds.length ? categoryIds : categories.map((category) => category.id),
+      categories
+    };
+  }
+
+  private normalizeHomePageCategory(category: any): EcommerceHomePageCategory {
+    return {
+      id: String(category?._id || category?.id || ''),
+      name: String(category?.name || category?.categoryName || ''),
+      image: category?.image ? String(category.image) : undefined
+    };
   }
 
   private extractIds(values: any[]): string[] {

@@ -112,3 +112,24 @@ export interface UpdateEcommerceGeneralSettingsResponse extends EcommerceGeneral
   success: boolean;
   message: string;
 }
+
+export interface EcommerceHomePageCategory {
+  id: string;
+  name: string;
+  image?: string;
+}
+
+export interface EcommerceHomePageCategoriesResponse {
+  categoryIds: string[];
+  categories: EcommerceHomePageCategory[];
+}
+
+export interface UpdateEcommerceHomePageCategoriesPayload {
+  categoryIds: string[];
+}
+
+export interface UpdateEcommerceHomePageCategoriesResponse
+  extends EcommerceHomePageCategoriesResponse {
+  success: boolean;
+  message: string;
+}

@@ -48,6 +48,14 @@
       >
         {{ 'ecommerceSettings.shipping.general.title' | translate }}
       </button>
+      <button
+        type="button"
+        class="rounded-lg px-4 py-2 text-sm font-extrabold transition"
+        [ngClass]="activeSection === 'homePage' ? 'bg-orange text-dark' : 'bg-transparent'"
+        (click)="selectSection('homePage')"
+      >
+        {{ 'ecommerceSettings.homePageCategories.tabTitle' | translate }}
+      </button>
     </div>
 
     @if (isLoading) {
@@ -310,7 +318,7 @@
           </button>
         </div>
       </form>
-    } @else {
+    } @else if (activeSection === 'general') {
       <form
         class="grid gap-6 rounded-lg border p-4"
         [formGroup]="websiteGeneralSettingsForm"
@@ -539,7 +547,117 @@
           </button>
         </div>
       </form>
+    } @else {
+      <section
+        class="grid gap-6 rounded-lg border p-4"
+        [ngClass]="(isDarkMode$ | async) ? 'border-gray bg-gray_dark' : 'border-gray-200 bg-white'"
+      >
+        <header class="grid gap-1">
+          <p class="mb-1 text-xs font-extrabold uppercase tracking-wide text-orange">
+            {{ 'ecommerceSettings.homePageCategories.eyebrow' | translate }}
+          </p>
+          <h2 class="m-0 font-azonix text-azonix-title">
+            {{ 'ecommerceSettings.homePageCategories.title' | translate }}
+          </h2>
+          <p class="m-0 text-sm" [ngClass]="(isDarkMode$ | async) ? 'text-light_gray' : 'text-gray-500'">
+            {{ 'ecommerceSettings.homePageCategories.subtitle' | translate }}
+          </p>
+        </header>
 
+        @if (isLoadingHomePageCategories) {
+          <div class="rounded-lg border p-6 text-center" [ngClass]="(isDarkMode$ | async) ? 'border-gray bg-dark' : 'border-gray-200 bg-light_content'">
+            {{ 'actions.loading' | translate }}
+          </div>
+        } @else {
+          <div class="grid gap-4 xl:grid-cols-2">
+            <section class="grid content-start gap-4 rounded-lg border p-4" [ngClass]="(isDarkMode$ | async) ? 'border-gray bg-dark' : 'border-gray-200 bg-light_content'">
+              <div>
+                <h3 class="m-0 font-azonix text-azonix-card">
+                  {{ 'ecommerceSettings.homePageCategories.availableTitle' | translate }}
+                </h3>
+                <p class="m-0 text-sm opacity-70">
+                  {{ 'ecommerceSettings.homePageCategories.availableHint' | translate }}
+                </p>
+              </div>
+
+              <div class="grid gap-3 sm:grid-cols-2">
+                @for (category of homePageCategoryOptions; track category.id) {
+                  <button
+                    type="button"
+                    class="grid grid-cols-[3rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border p-3 text-start transition disabled:cursor-not-allowed disabled:opacity-50"
+                    [ngClass]="(isDarkMode$ | async) ? 'border-gray bg-gray_dark' : 'border-gray-200 bg-white'"
+                    [disabled]="isHomePageCategorySelected(category.id)"
+                    (click)="addHomePageCategory(category.id)"
+                  >
+                    @if (category.image) {
+                      <img [src]="category.image" [alt]="category.name" class="h-12 w-12 rounded-md object-cover" />
+                    } @else {
+                      <span class="flex h-12 w-12 items-center justify-center rounded-md bg-light_orange font-bold text-dark">
+                        {{ category.name.charAt(0) }}
+                      </span>
+                    }
+                    <span class="font-bold">{{ category.name }}</span>
+                    <span class="text-xl font-bold text-orange">+</span>
+                  </button>
+                } @empty {
+                  <p class="m-0 text-sm opacity-70 sm:col-span-2">
+                    {{ 'ecommerceSettings.homePageCategories.noActiveCategories' | translate }}
+                  </p>
+                }
+              </div>
+            </section>
+
+            <section class="grid content-start gap-4 rounded-lg border p-4" [ngClass]="(isDarkMode$ | async) ? 'border-gray bg-dark' : 'border-gray-200 bg-light_content'">
+              <div>
+                <h3 class="m-0 font-azonix text-azonix-card">
+                  {{ 'ecommerceSettings.homePageCategories.selectedTitle' | translate }}
+                </h3>
+                <p class="m-0 text-sm opacity-70">
+                  {{ 'ecommerceSettings.homePageCategories.orderHint' | translate }}
+                </p>
+              </div>
+
+              <div class="grid gap-3">
+                @for (category of selectedHomePageCategories; track category.id; let index = $index) {
+                  <div class="grid grid-cols-[auto_3rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border p-3" [ngClass]="(isDarkMode$ | async) ? 'border-gray bg-gray_dark' : 'border-gray-200 bg-white'">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-orange font-extrabold text-dark">
+                      {{ index + 1 }}
+                    </span>
+                    @if (category.image) {
+                      <img [src]="category.image" [alt]="category.name" class="h-12 w-12 rounded-md object-cover" />
+                    } @else {
+                      <span class="flex h-12 w-12 items-center justify-center rounded-md bg-light_orange font-bold text-dark">
+                        {{ category.name.charAt(0) }}
+                      </span>
+                    }
+                    <span class="font-bold">{{ category.name }}</span>
+                    <div class="flex gap-1">
+                      <button type="button" class="rounded border border-gray-300 px-2 py-1 disabled:opacity-30" [disabled]="index === 0" (click)="moveHomePageCategory(index, -1)" [attr.aria-label]="'ecommerceSettings.homePageCategories.moveUp' | translate">↑</button>
+                      <button type="button" class="rounded border border-gray-300 px-2 py-1 disabled:opacity-30" [disabled]="index === selectedHomePageCategories.length - 1" (click)="moveHomePageCategory(index, 1)" [attr.aria-label]="'ecommerceSettings.homePageCategories.moveDown' | translate">↓</button>
+                      <button type="button" class="rounded border border-red px-2 py-1 text-red" (click)="removeHomePageCategory(index)" [attr.aria-label]="'ecommerceSettings.homePageCategories.remove' | translate">×</button>
+                    </div>
+                  </div>
+                } @empty {
+                  <p class="m-0 rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm opacity-70">
+                    {{ 'ecommerceSettings.homePageCategories.emptySelection' | translate }}
+                  </p>
+                }
+              </div>
+            </section>
+          </div>
+
+          <div class="flex justify-end">
+            <button
+              type="button"
+              class="rounded-lg bg-orange px-5 py-2 font-extrabold text-dark disabled:cursor-not-allowed disabled:opacity-60"
+              [disabled]="isSavingHomePageCategories"
+              (click)="saveHomePageCategories()"
+            >
+              {{ (isSavingHomePageCategories ? 'actions.creating' : 'actions.save') | translate }}
+            </button>
+          </div>
+        }
+      </section>
     }
   </div>
 </app-side-nav>

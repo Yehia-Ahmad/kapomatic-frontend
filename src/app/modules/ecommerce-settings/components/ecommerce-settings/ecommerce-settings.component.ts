@@ -11,12 +11,14 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { SideNavComponent } from '../../../layout/components/side-nav/side-nav.component';
 import { ThemeService } from '../../../shared/services/theme.service';
 import { EcommerceSettingsService } from '../../services/ecommerce-settings.service';
 import {
   EcommerceCategoryWithSettings,
   EcommerceGeneralSettings,
+  EcommerceHomePageCategory,
   EcommerceProductOption,
   EcommerceSocialMediaLink,
   EcommerceStoreLocation,
@@ -87,14 +89,18 @@ export class EcommerceSettingsComponent implements OnInit {
   messageTone: 'success' | 'error' | 'info' = 'info';
   categories: EcommerceCategoryWithSettings[] = [];
   activeCategory: EcommerceCategoryWithSettings | null = null;
-  activeSection: 'categories' | 'shipping' | 'general' = 'categories';
+  activeSection: 'categories' | 'shipping' | 'general' | 'homePage' = 'categories';
   form: CategorySettingsForm;
   shippingForm: ShippingSettingsForm;
   websiteGeneralSettingsForm: WebsiteGeneralSettingsForm;
+  homePageCategoriesControl: FormControl<string[]>;
+  homePageCategoryOptions: EcommerceHomePageCategory[] = [];
   isSavingShipping = false;
   isLoadingShipping = false;
   isLoadingWebsiteGeneralSettings = false;
   isSavingWebsiteGeneralSettings = false;
+  isLoadingHomePageCategories = false;
+  isSavingHomePageCategories = false;
 
   constructor(
     private fb: FormBuilder,
@@ -107,12 +113,14 @@ export class EcommerceSettingsComponent implements OnInit {
     this.form = this.createForm();
     this.shippingForm = this.createShippingForm();
     this.websiteGeneralSettingsForm = this.createWebsiteGeneralSettingsForm();
+    this.homePageCategoriesControl = this.fb.nonNullable.control<string[]>([]);
   }
 
   ngOnInit(): void {
     this.loadSettings();
     this.loadShippingSettings();
     this.loadWebsiteGeneralSettings();
+    this.loadHomePageCategories();
   }
 
   get filters(): CategorySettingsForm['controls']['filters'] {
@@ -133,6 +141,16 @@ export class EcommerceSettingsComponent implements OnInit {
 
   get socialMediaLinks(): WebsiteGeneralSettingsForm['controls']['socialMediaLinks'] {
     return this.websiteGeneralSettingsForm.controls.socialMediaLinks;
+  }
+
+  get selectedHomePageCategories(): EcommerceHomePageCategory[] {
+    const categoriesById = new Map(
+      this.homePageCategoryOptions.map((category) => [category.id, category])
+    );
+
+    return this.homePageCategoriesControl.value
+      .map((categoryId) => categoriesById.get(categoryId))
+      .filter((category): category is EcommerceHomePageCategory => Boolean(category));
   }
 
   get areAllProductsSelected(): boolean {
@@ -177,7 +195,7 @@ export class EcommerceSettingsComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  selectSection(section: 'categories' | 'shipping' | 'general'): void {
+  selectSection(section: 'categories' | 'shipping' | 'general' | 'homePage'): void {
     this.activeSection = section;
     this.saveMessage = '';
     this.errorMessage = '';
@@ -444,6 +462,95 @@ export class EcommerceSettingsComponent implements OnInit {
     this.socialMediaLinks.removeAt(index);
     this.websiteGeneralSettingsForm.markAsDirty();
     this.cdr.detectChanges();
+  }
+
+  loadHomePageCategories(): void {
+    this.isLoadingHomePageCategories = true;
+
+    forkJoin({
+      activeCategories: this.ecommerceSettingsService.getActiveCategories(),
+      homePageSettings: this.ecommerceSettingsService.getHomePageCategories()
+    }).subscribe({
+      next: ({ activeCategories, homePageSettings }) => {
+        this.homePageCategoryOptions = activeCategories;
+        const activeCategoryIds = new Set(activeCategories.map((category) => category.id));
+        this.homePageCategoriesControl.setValue(
+          homePageSettings.categoryIds.filter((categoryId) => activeCategoryIds.has(categoryId))
+        );
+        this.homePageCategoriesControl.markAsPristine();
+        this.isLoadingHomePageCategories = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoadingHomePageCategories = false;
+        this.showMessage(
+          'error',
+          'Failed to load home page categories',
+          err?.error?.message || 'The active categories or home page selection could not be loaded.'
+        );
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  isHomePageCategorySelected(categoryId: string): boolean {
+    return this.homePageCategoriesControl.value.includes(categoryId);
+  }
+
+  addHomePageCategory(categoryId: string): void {
+    if (this.isHomePageCategorySelected(categoryId)) return;
+
+    this.homePageCategoriesControl.setValue([
+      ...this.homePageCategoriesControl.value,
+      categoryId
+    ]);
+    this.homePageCategoriesControl.markAsDirty();
+    this.cdr.detectChanges();
+  }
+
+  removeHomePageCategory(index: number): void {
+    const categoryIds = [...this.homePageCategoriesControl.value];
+    categoryIds.splice(index, 1);
+    this.homePageCategoriesControl.setValue(categoryIds);
+    this.homePageCategoriesControl.markAsDirty();
+    this.cdr.detectChanges();
+  }
+
+  moveHomePageCategory(index: number, direction: -1 | 1): void {
+    const nextIndex = index + direction;
+    const categoryIds = [...this.homePageCategoriesControl.value];
+    if (nextIndex < 0 || nextIndex >= categoryIds.length) return;
+
+    [categoryIds[index], categoryIds[nextIndex]] = [categoryIds[nextIndex], categoryIds[index]];
+    this.homePageCategoriesControl.setValue(categoryIds);
+    this.homePageCategoriesControl.markAsDirty();
+    this.cdr.detectChanges();
+  }
+
+  saveHomePageCategories(): void {
+    if (this.isSavingHomePageCategories) return;
+
+    this.isSavingHomePageCategories = true;
+    const categoryIds = [...this.homePageCategoriesControl.value];
+
+    this.ecommerceSettingsService.updateHomePageCategories({ categoryIds }).subscribe({
+      next: (response) => {
+        this.homePageCategoriesControl.setValue(response.categoryIds);
+        this.homePageCategoriesControl.markAsPristine();
+        this.isSavingHomePageCategories = false;
+        this.showMessage('success', 'Saved', response.message);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isSavingHomePageCategories = false;
+        this.showMessage(
+          'error',
+          'Save failed',
+          err?.error?.message || 'Failed to save the home page categories.'
+        );
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   closeMessageDialog(): void {
