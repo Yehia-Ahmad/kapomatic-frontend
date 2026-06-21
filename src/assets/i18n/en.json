@@ -103,6 +103,11 @@
         "add_Button": "Add Admin"
     },
     "category": {
+        "products": {
+            "loading": "Loading more products...",
+            "noMore": "No more products",
+            "retry": "Retry"
+        },
         "add_new_category": "Add New Category",
         "pressAddModel": "Press Add Model to",
         "printQr": "Print QR codes",

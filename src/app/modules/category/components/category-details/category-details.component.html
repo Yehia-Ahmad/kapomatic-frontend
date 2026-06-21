@@ -57,6 +57,20 @@
         }
     </div>
 
+    <div #scrollSentinel class="flex min-h-12 items-center justify-center py-4" aria-live="polite">
+        @if(isLoadingProducts) {
+            <div class="flex items-center gap-3 text-lg font-medium text-orange" role="status">
+                <span class="infinite-scroll-spinner" aria-hidden="true"></span>
+                <span>{{ 'category.products.loading' | translate }}</span>
+            </div>
+        } @else if(hasLoadedProducts && !hasNextPage) {
+            <p class="m-0 text-center text-lg font-medium" [ngClass]="{
+                'text-light_orange': isDarkMode$ | async,
+                'text-gray_dark': !(isDarkMode$ | async)
+            }">{{ 'category.products.noMore' | translate }}</p>
+        }
+    </div>
+
 
     <!-- Add Product Dialog -->
     <p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '35vw', height: '90vh' }" [contentStyle]="{ overflow: 'auto' }">
@@ -164,11 +178,19 @@
                     'text-gray_dark': !(isDarkMode$ | async)
                  }">{{ errorMessage }}</p>
                 <div class="flex justify-center mt-4">
+                    @if(hasNextPage && hasLoadedProducts) {
+                    <button type="button"
+                        class="px-6 py-2 rounded-lg text-white bg-[#FF9933] hover:opacity-90"
+                        (click)="retryProductsLoad()">
+                        {{ 'category.products.retry' | translate }}
+                    </button>
+                    } @else {
                     <button type="button"
                         class="px-6 py-2 rounded-lg text-white bg-[#FF9933] hover:opacity-90"
                         (click)="errorVisible = false">
                         OK
                     </button>
+                    }
                 </div>
             </div>
         </ng-template>

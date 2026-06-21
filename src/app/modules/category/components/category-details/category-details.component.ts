@@ -1,6 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component } from '@angular/core';
-import { CateoryService } from '../../services/cateory.service';
+import { isPlatformBrowser } from '@angular/common';
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  ViewChild
+} from '@angular/core';
+import { CateoryService, Product } from '../../services/cateory.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SideNavComponent } from "../../../layout/components/side-nav/side-nav.component";
 import { DialogModule } from "primeng/dialog";
@@ -11,6 +22,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ThemeService } from '../../../shared/services/theme.service';
 import { ErrorIconComponent } from "../../../assets/error/error-icon.component";
 import { LanguageService } from '../../../shared/services/translation.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { distinctUntilChanged, map } from 'rxjs';
 
 @Component({
   selector: 'app-category-details',
@@ -29,13 +42,25 @@ import { LanguageService } from '../../../shared/services/translation.service';
   templateUrl: './category-details.component.html',
   styleUrl: './category-details.component.scss'
 })
-export class CategoryDetailsComponent {
-  categoryId: number;
+export class CategoryDetailsComponent implements OnInit, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly pageSize = 10;
+  private scrollObserver?: IntersectionObserver;
+  private scrollSentinel?: ElementRef<HTMLElement>;
+
+  @ViewChild('scrollSentinel')
+  set infiniteScrollSentinel(element: ElementRef<HTMLElement> | undefined) {
+    this.scrollSentinel = element;
+    this.observeScrollSentinel();
+  }
+
+  categoryId = '';
   categoryDetails: any;
   visible: boolean = false;
   categories: any[] = [];
   addProductForm: FormGroup;
-  products: any[] = [];
+  products: Product[] = [];
   searchTerm = '';
   qrCodes: any[] = [];
   codes: string[] = [];
@@ -52,6 +77,11 @@ export class CategoryDetailsComponent {
   isDarkMode$;
   errorVisible = false;
   errorMessage = '';
+  isLoadingProducts = false;
+  hasLoadedProducts = false;
+  hasNextPage = true;
+  currentPage = 0;
+  totalPages = 1;
 
   constructor(
     private _themeService: ThemeService,
@@ -64,17 +94,24 @@ export class CategoryDetailsComponent {
   ) {
     this.isDarkMode$ = this._themeService.isDarkMode$;
     this.initlizeAddProduct(null);
-    this._activatedRoute.params.subscribe(params => {
-      this.categoryId = params['id'];
-      setTimeout(() => {
-        this.getAllCategories();
-        this.getProducts();
-        this.initlizeAddProduct(this.categoryId);
-      }, 100);
+  }
+
+  ngOnInit(): void {
+    this._activatedRoute.paramMap.pipe(
+      map((params) => params.get('id') ?? ''),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((categoryId) => {
+      this.categoryId = categoryId;
+      this.initlizeAddProduct(categoryId);
+      this.getAllCategories();
+      this.resetProductsPagination();
+      this.loadNextPage();
     });
   }
 
-  ngOnInit() {
+  ngOnDestroy(): void {
+    this.scrollObserver?.disconnect();
   }
 
   get filteredProducts(): any[] {
@@ -96,7 +133,7 @@ export class CategoryDetailsComponent {
     return this._languageService.selectedLanguage() === 'ar' ? 'rtl' : 'ltr';
   }
 
-  initlizeAddProduct(category_id: number | null) {
+  initlizeAddProduct(category_id: string | null) {
     this.addProductForm = this.fb.group({
       name: [''],
       code: [''],
@@ -126,7 +163,9 @@ export class CategoryDetailsComponent {
   }
 
   getAllCategories() {
-    this._cateoryService.getCategories().subscribe({
+    this._cateoryService.getCategories().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (res: any) => {
         this.categories = res;
         this.categoryDetails = this.categories.filter(cat => cat._id == this.categoryId)[0];
@@ -140,19 +179,58 @@ export class CategoryDetailsComponent {
     });
   }
 
-  getProducts() {
-    let params = { categoryId: this.categoryId };
-    this._cateoryService.getProducts(this.categoryId, params).subscribe({
-      next: (res: any) => {
-        this.products = res;
+  getProducts(): void {
+    this.resetProductsPagination();
+    this.loadNextPage();
+  }
+
+  loadNextPage(): void {
+    if (!this.categoryId || this.isLoadingProducts || !this.hasNextPage) {
+      return;
+    }
+
+    const requestedPage = this.currentPage + 1;
+    this.isLoadingProducts = true;
+
+    const requestedCategoryId = this.categoryId;
+    this._cateoryService.getProductsPage(requestedCategoryId, {
+      page: requestedPage,
+      limit: this.pageSize
+    }).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: ({ products, pagination }) => {
+        if (this.categoryId !== requestedCategoryId) {
+          return;
+        }
+
+        this.products = this.appendUniqueProducts(this.products, products);
+        this.currentPage = pagination.page;
+        this.totalPages = pagination.totalPages;
+        this.hasNextPage = pagination.hasNextPage
+          && pagination.page < pagination.totalPages;
+        this.isLoadingProducts = false;
+        this.hasLoadedProducts = true;
         this.cdr.detectChanges();
+        this.observeScrollSentinel();
       },
       error: (err) => {
+        if (this.categoryId !== requestedCategoryId) {
+          return;
+        }
+
+        this.isLoadingProducts = false;
+        this.hasLoadedProducts = true;
         this.errorVisible = true;
-        this.errorMessage = err.error.message;
+        this.errorMessage = err?.error?.message || err?.message || 'Failed to load products.';
         this.cdr.detectChanges();
       }
     });
+  }
+
+  retryProductsLoad(): void {
+    this.errorVisible = false;
+    this.loadNextPage();
   }
 
   showDialog() {
@@ -171,7 +249,9 @@ export class CategoryDetailsComponent {
   }
 
   getCategoryDetails() {
-    this._cateoryService.getCategoryById(this.categoryId).subscribe({
+    this._cateoryService.getCategoryById(this.categoryId).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (res: any) => {
         this.categoryDetails = res.data;
         this.cdr.detectChanges();
@@ -198,7 +278,9 @@ export class CategoryDetailsComponent {
     console.log('Adding product with payload:', this.addProductForm.value);
     console.log('Adding product with payload:', payload);
 
-    this._cateoryService.addNewProduct(payload).subscribe({
+    this._cateoryService.addNewProduct(payload).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
       next: (res: any) => {
         this.hideDialog();
         this.getProducts();
@@ -334,5 +416,42 @@ export class CategoryDetailsComponent {
         value: String(detail?.value || '').trim()
       }))
       .filter((detail: { title: string }) => Boolean(detail.title));
+  }
+
+  private resetProductsPagination(): void {
+    this.products = [];
+    this.currentPage = 0;
+    this.totalPages = 1;
+    this.hasNextPage = true;
+    this.hasLoadedProducts = false;
+    this.isLoadingProducts = false;
+  }
+
+  private observeScrollSentinel(): void {
+    if (!this.isBrowser || !this.scrollSentinel) {
+      return;
+    }
+
+    if (!this.scrollObserver) {
+      this.scrollObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            this.loadNextPage();
+          }
+        },
+        { root: null, rootMargin: '200px 0px', threshold: 0 }
+      );
+    }
+
+    this.scrollObserver.disconnect();
+    this.scrollObserver.observe(this.scrollSentinel.nativeElement);
+  }
+
+  private appendUniqueProducts(current: Product[], incoming: Product[]): Product[] {
+    const productIds = new Set(current.map((product) => product._id));
+    return [
+      ...current,
+      ...incoming.filter((product) => !productIds.has(product._id))
+    ];
   }
 }
