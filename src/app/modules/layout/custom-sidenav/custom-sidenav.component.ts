@@ -1,9 +1,12 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ChangeDetectorRef, Component, effect, EventEmitter, Inject, inject, Injector, Input, OnInit, Output, PLATFORM_ID, runInInjectionContext, signal, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, effect, EventEmitter, Inject, inject, Injector, Input, OnInit, Output, PLATFORM_ID, runInInjectionContext, signal, SimpleChanges } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { CateoryService } from '../../category/services/cateory.service';
+import { CategoryImportResult, CateoryService } from '../../category/services/cateory.service';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -16,6 +19,7 @@ import { ThemeService } from '../../shared/services/theme.service';
 import { HOME_DEFAULT_VIEW, HOME_VIEW_STORAGE_KEY } from '../constants/home-view.constants';
 import { filter } from 'rxjs';
 import { ProductsService } from '../../products/services/products.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export type MenuItem = {
   label: string;
@@ -27,13 +31,14 @@ export type MenuItem = {
 @Component({
   selector: 'app-custom-sidenav',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatListModule, RouterModule, DialogModule, ButtonModule, InputTextModule, WarnComponent, ErrorIconComponent, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatListModule, MatButtonModule, MatProgressSpinnerModule, MatSnackBarModule, RouterModule, DialogModule, ButtonModule, InputTextModule, WarnComponent, ErrorIconComponent, TranslatePipe],
   templateUrl: './custom-sidenav.component.html',
   styleUrl: './custom-sidenav.component.scss'
 })
 export class CustomSidenavComponent implements OnInit {
   private _injector = inject(Injector);
   private _languageService = inject(LanguageService);
+  private readonly destroyRef = inject(DestroyRef);
   isSidenavCollapsed = true;
   @Output() collapsedSidenav = new EventEmitter<boolean>();
   menuItems = signal<MenuItem[]>([]);
@@ -55,6 +60,11 @@ export class CustomSidenavComponent implements OnInit {
   isExportingProducts = signal(false);
   hasProducts = signal(false);
   private hasProductsChecked = false;
+  isExportingCategories = signal(false);
+  isImportingCategories = signal(false);
+  isGeneratingCategoryTemplate = signal(false);
+  categoryImportResult = signal<CategoryImportResult | null>(null);
+  importResultVisible = signal(false);
 
   constructor(
     private _themeService: ThemeService,
@@ -64,6 +74,7 @@ export class CustomSidenavComponent implements OnInit {
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private _router: Router,
+    private snackBar: MatSnackBar,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.initalizeAddCategory();
@@ -118,13 +129,152 @@ export class CustomSidenavComponent implements OnInit {
 
   getAllCategories() {
     this.categories = [];
-    this._cateoryService.getCategories().subscribe((res: any) => {
-      res.map((category: any) => {
-        this.categories.push({ label: category.name, route: `/categories/${category._id}`, id: category._id, category })
+    this._cateoryService.getCategories().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (res: any) => {
+        const categories = Array.isArray(res) ? res : (res?.data ?? res?.categories ?? []);
+        this.categories = categories.map((category: any) => ({
+          label: category.name,
+          route: `/categories/${category._id}`,
+          id: category._id,
+          category
+        }));
+        this.buildAdminMenuItems();
+        this.checkHasAnyProducts();
+      },
+      error: (err) => this.showOperationError(
+        err,
+        'Failed to load categories.',
+        'تعذر تحميل الفئات.'
+      )
+    });
+  }
+
+  exportCategories(): void {
+    if (!this.isBrowser || this.isExportingCategories()) return;
+
+    this.isExportingCategories.set(true);
+    this._cateoryService.exportCategories().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (blob) => {
+        this.isExportingCategories.set(false);
+        this.downloadBlob(blob, 'categories-export.xlsx');
+        this.showSuccess('Categories exported successfully.', 'تم تصدير الفئات بنجاح.');
+      },
+      error: (err) => {
+        this.isExportingCategories.set(false);
+        this.showOperationError(err, 'Failed to export categories.', 'تعذر تصدير الفئات.');
+      }
+    });
+  }
+
+  onCategoryImportSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+
+    if (!file || this.isImportingCategories()) return;
+    if (!/\.(xlsx|xls)$/i.test(file.name)) {
+      this.showOperationError(
+        null,
+        'Select a valid .xlsx or .xls file.',
+        'اختر ملفًا صالحًا بصيغة .xlsx أو .xls.'
+      );
+      return;
+    }
+
+    this.isImportingCategories.set(true);
+    this.categoryImportResult.set(null);
+    this._cateoryService.importCategories(file).pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (result) => {
+        this.isImportingCategories.set(false);
+        this.categoryImportResult.set(result);
+        this.importResultVisible.set(true);
+        if (result.success) {
+          this.getAllCategories();
+          this.showSuccess('Categories import completed.', 'اكتمل استيراد الفئات.');
+        } else {
+          this.showOperationError(
+            null,
+            'The category import did not complete successfully.',
+            'لم يكتمل استيراد الفئات بنجاح.'
+          );
+        }
+      },
+      error: (err) => {
+        this.isImportingCategories.set(false);
+        this.showOperationError(err, 'Failed to import categories.', 'تعذر استيراد الفئات.');
+      }
+    });
+  }
+
+  async downloadCategoriesTemplate(): Promise<void> {
+    if (!this.isBrowser || this.isGeneratingCategoryTemplate()) return;
+
+    this.isGeneratingCategoryTemplate.set(true);
+    try {
+      const { Workbook } = await import('exceljs');
+      const workbook = new Workbook();
+      workbook.creator = 'Kapomatic Inventory System';
+      workbook.created = new Date();
+
+      const worksheet = workbook.addWorksheet('Categories');
+      worksheet.columns = [
+        { header: 'Name', key: 'name', width: 28 },
+        { header: 'ImageBase64', key: 'imageBase64', width: 35 },
+        { header: 'Specifications', key: 'specifications', width: 70 }
+      ];
+      worksheet.addRow({
+        name: 'Example Category',
+        imageBase64: '',
+        specifications: JSON.stringify([
+          { name: 'Color', value: 'Black' },
+          { name: 'Size', value: 'Medium' }
+        ])
       });
-      this.buildAdminMenuItems();
-      this.checkHasAnyProducts();
-    })
+      worksheet.views = [{ state: 'frozen', ySplit: 1 }];
+      worksheet.autoFilter = 'A1:C1';
+      worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      worksheet.getRow(1).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFFF9933' }
+      };
+      worksheet.getColumn('specifications').alignment = { wrapText: true, vertical: 'top' };
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const template = new Blob([buffer as ArrayBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      this.downloadBlob(template, 'categories-import-template.xlsx');
+      this.showSuccess('Category template downloaded.', 'تم تنزيل قالب الفئات.');
+    } catch (err) {
+      this.showOperationError(err, 'Failed to generate the template.', 'تعذر إنشاء القالب.');
+    } finally {
+      this.isGeneratingCategoryTemplate.set(false);
+    }
+  }
+
+  onImportResultVisibleChange(visible: boolean): void {
+    this.importResultVisible.set(visible);
+  }
+
+  formatImportError(error: unknown): string {
+    if (typeof error === 'string') return error;
+    if (error && typeof error === 'object') {
+      const candidate = error as Record<string, unknown>;
+      if (typeof candidate['message'] === 'string') return candidate['message'];
+      try {
+        return JSON.stringify(error);
+      } catch {
+        return String(error);
+      }
+    }
+    return String(error ?? 'Unknown import error');
   }
 
   buildAdminMenuItems() {
@@ -296,14 +446,45 @@ export class CustomSidenavComponent implements OnInit {
     });
   }
 
-  private downloadBlob(blob: Blob, filename: string) {
+  private downloadBlob(blob: Blob, filename: string): void {
     if (!this.isBrowser) return;
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+
+  private showSuccess(english: string, arabic: string): void {
+    this.snackBar.open(this.localizedMessage(english, arabic), undefined, {
+      duration: 3500,
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+      panelClass: ['operation-snackbar', 'operation-snackbar--success']
+    });
+  }
+
+  private showOperationError(
+    error: unknown,
+    englishFallback: string,
+    arabicFallback: string
+  ): void {
+    const fallback = this.localizedMessage(englishFallback, arabicFallback);
+    const message = this.extractErrorMessage(error, fallback);
+    this.snackBar.open(message, undefined, {
+      duration: 6000,
+      horizontalPosition: 'end',
+      verticalPosition: 'top',
+      panelClass: ['operation-snackbar', 'operation-snackbar--error']
+    });
+  }
+
+  private localizedMessage(english: string, arabic: string): string {
+    return this._languageService.selectedLanguage() === 'ar' ? arabic : english;
   }
 
   toggleCategory(category: string) {

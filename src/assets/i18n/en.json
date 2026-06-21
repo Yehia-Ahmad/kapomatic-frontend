@@ -103,6 +103,20 @@
         "add_Button": "Add Admin"
     },
     "category": {
+        "importExport": {
+            "toolsTitle": "Category tools",
+            "export": "Export Categories",
+            "exporting": "Exporting...",
+            "import": "Import Categories",
+            "importing": "Importing...",
+            "template": "Download Template",
+            "generating": "Generating...",
+            "resultTitle": "Category Import Result",
+            "importedCount": "Imported",
+            "skippedCount": "Skipped",
+            "errors": "Import errors",
+            "noErrors": "No import errors"
+        },
         "products": {
             "loading": "Loading more products...",
             "noMore": "No more products",

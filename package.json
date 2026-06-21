@@ -83,6 +83,7 @@
     "angularx-qrcode": "^20.0.0",
     "chart.js": "^4.5.0",
     "date-fns": "^4.1.0",
+    "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "jspdf": "^3.0.2",
     "primeng": "^20.2.0",

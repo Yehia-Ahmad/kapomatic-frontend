@@ -104,6 +104,20 @@
     "add_Button": "إضافة مشرف"
   },
   "category": {
+    "importExport": {
+      "toolsTitle": "أدوات الفئات",
+      "export": "تصدير الفئات",
+      "exporting": "جاري التصدير...",
+      "import": "استيراد الفئات",
+      "importing": "جاري الاستيراد...",
+      "template": "تنزيل القالب",
+      "generating": "جاري الإنشاء...",
+      "resultTitle": "نتيجة استيراد الفئات",
+      "importedCount": "تم الاستيراد",
+      "skippedCount": "تم التخطي",
+      "errors": "أخطاء الاستيراد",
+      "noErrors": "لا توجد أخطاء في الاستيراد"
+    },
     "products": {
       "loading": "جاري تحميل المزيد من المنتجات...",
       "noMore": "لا توجد منتجات أخرى",

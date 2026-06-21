@@ -32,6 +32,17 @@ interface RawProductsResponse {
   };
 }
 
+export interface CategoryImportResult {
+  success: boolean;
+  importedCount: number;
+  skippedCount: number;
+  errors: unknown[];
+}
+
+interface RawCategoryImportResponse extends Partial<CategoryImportResult> {
+  data?: Partial<CategoryImportResult>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -58,6 +69,21 @@ export class CateoryService {
 
   deleteCategory(id: string) {
     return this._http.delete(`${this._baseUrl}categories/${id}`);
+  }
+
+  exportCategories(): Observable<Blob> {
+    return this._http.get(`${this._baseUrl}categories/export`, {
+      responseType: 'blob'
+    });
+  }
+
+  importCategories(file: File): Observable<CategoryImportResult> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this._http
+      .post<RawCategoryImportResponse>(`${this._baseUrl}categories/import`, formData)
+      .pipe(map((response) => this.normalizeCategoryImportResult(response)));
   }
 
   getProducts(categoryId: number | string, params?: Record<string, string | number>) {
@@ -158,5 +184,20 @@ export class CateoryService {
         totalPages: Number.isFinite(totalPages) ? totalPages : requestedPage
       }
     };
+  }
+
+  private normalizeCategoryImportResult(response: RawCategoryImportResponse): CategoryImportResult {
+    const result = response.data ?? response;
+    return {
+      success: (result.success ?? response.success) === true,
+      importedCount: this.toNonNegativeNumber(result.importedCount),
+      skippedCount: this.toNonNegativeNumber(result.skippedCount),
+      errors: Array.isArray(result.errors) ? result.errors : []
+    };
+  }
+
+  private toNonNegativeNumber(value: unknown): number {
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) && parsedValue >= 0 ? parsedValue : 0;
   }
 }

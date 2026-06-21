@@ -163,6 +163,72 @@
               >
                 + {{ 'sidebarTitles.add_new_category' | translate }}
               </button>
+
+              <div class="category-transfer-actions" [ngClass]="{
+                'category-transfer-actions--dark': isDarkMode$ | async,
+                'category-transfer-actions--light': !(isDarkMode$ | async)
+              }">
+                <p class="category-transfer-actions__title">
+                  {{ 'category.importExport.toolsTitle' | translate }}
+                </p>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="category-transfer-button"
+                  (click)="exportCategories()"
+                  [disabled]="isExportingCategories()"
+                >
+                  @if (isExportingCategories()) {
+                    <mat-progress-spinner diameter="18" mode="indeterminate"></mat-progress-spinner>
+                  } @else {
+                    <svg class="h-5 w-5 shrink-0 fill-none stroke-orange" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 15v4h14v-4" />
+                    </svg>
+                  }
+                  <span>{{ (isExportingCategories() ? 'category.importExport.exporting' : 'category.importExport.export') | translate }}</span>
+                </button>
+
+                <input
+                  #categoryImportInput
+                  type="file"
+                  class="hidden"
+                  accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                  (change)="onCategoryImportSelected($event)"
+                />
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="category-transfer-button"
+                  (click)="categoryImportInput.click()"
+                  [disabled]="isImportingCategories()"
+                >
+                  @if (isImportingCategories()) {
+                    <mat-progress-spinner diameter="18" mode="indeterminate"></mat-progress-spinner>
+                  } @else {
+                    <svg class="h-5 w-5 shrink-0 fill-none stroke-orange" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 16V4m0 0-4 4m4-4 4 4M5 15v4h14v-4" />
+                    </svg>
+                  }
+                  <span>{{ (isImportingCategories() ? 'category.importExport.importing' : 'category.importExport.import') | translate }}</span>
+                </button>
+
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="category-transfer-button"
+                  (click)="downloadCategoriesTemplate()"
+                  [disabled]="isGeneratingCategoryTemplate()"
+                >
+                  @if (isGeneratingCategoryTemplate()) {
+                    <mat-progress-spinner diameter="18" mode="indeterminate"></mat-progress-spinner>
+                  } @else {
+                    <svg class="h-5 w-5 shrink-0 fill-none stroke-orange" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M7 3h7l4 4v14H7zM14 3v5h4M10 13h5m-5 4h5" />
+                    </svg>
+                  }
+                  <span>{{ (isGeneratingCategoryTemplate() ? 'category.importExport.generating' : 'category.importExport.template') | translate }}</span>
+                </button>
+              </div>
             </div>
           }
         </div>
@@ -300,6 +366,53 @@
       <p-button label="{{ (editingCategory ? 'category.updateButton' : 'category.saveButton') | translate}}" severity="warn" styleClass="!px-4 !py-1 !bg-orange !text-dark" (click)="addNewCategory()" [disabled]="addCategory.invalid || isSaving()"
         [loading]="isSaving()"></p-button>
     </div>
+  </p-dialog>
+
+  <p-dialog
+    [visible]="importResultVisible()"
+    (visibleChange)="onImportResultVisibleChange($event)"
+    [modal]="true"
+    [closable]="true"
+    [dismissableMask]="true"
+    [style]="{ width: 'min(92vw, 520px)' }"
+    [header]="'category.importExport.resultTitle' | translate"
+  >
+    @if (categoryImportResult(); as result) {
+      <div class="grid gap-4" [ngClass]="{
+        'text-light_orange': isDarkMode$ | async,
+        'text-gray_dark': !(isDarkMode$ | async)
+      }" aria-live="polite">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="grid gap-1 rounded-lg border p-4" [ngClass]="{
+            'border-[#5a5a5a] bg-gray_dark': isDarkMode$ | async,
+            'border-[#ffd4ad] bg-[#fff7ef]': !(isDarkMode$ | async)
+          }">
+            <span>{{ 'category.importExport.importedCount' | translate }}</span>
+            <strong class="text-2xl text-green-400">{{ result.importedCount }}</strong>
+          </div>
+          <div class="grid gap-1 rounded-lg border p-4" [ngClass]="{
+            'border-[#5a5a5a] bg-gray_dark': isDarkMode$ | async,
+            'border-[#ffd4ad] bg-[#fff7ef]': !(isDarkMode$ | async)
+          }">
+            <span>{{ 'category.importExport.skippedCount' | translate }}</span>
+            <strong class="text-2xl text-yellow-400">{{ result.skippedCount }}</strong>
+          </div>
+        </div>
+
+        @if (result.errors.length) {
+          <section>
+            <h3 class="mb-2 font-bold text-red-400">{{ 'category.importExport.errors' | translate }}</h3>
+            <ul class="m-0 max-h-56 list-disc overflow-y-auto ps-5">
+              @for (error of result.errors; track $index) {
+                <li class="mt-1 first:mt-0">{{ formatImportError(error) }}</li>
+              }
+            </ul>
+          </section>
+        } @else {
+          <p class="m-0 text-green-400">{{ 'category.importExport.noErrors' | translate }}</p>
+        }
+      </div>
+    }
   </p-dialog>
 
   <p-dialog [visible]="errorVisible()" (visibleChange)="onErrorDialogVisibleChange($event)" [modal]="true" [closable]="true" [dismissableMask]="true" [style]="{ width: '400px' }"
