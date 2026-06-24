@@ -7,6 +7,8 @@ import {
   WebsiteImageCategoryOption,
   WebsiteImagePayload,
   WebsiteImageProductOption,
+  WebsiteImageSpecificationFilter,
+  WebsiteImageSpecificationOption,
   WebsiteImageTargetType
 } from '../models/website-images.models';
 
@@ -56,6 +58,12 @@ export class WebsiteImagesService {
     );
   }
 
+  getSpecifications(categoryIds: string[]): Observable<WebsiteImageSpecificationOption[]> {
+    return this.http.get<unknown>(`${this.baseUrl}/specifications`, {
+      params: { categoryIds: categoryIds.join(',') }
+    }).pipe(map((response) => this.normalizeSpecificationOptions(response)));
+  }
+
   getCategories(): Observable<WebsiteImageCategoryOption[]> {
     return this.http.get<unknown>(this.categoriesUrl).pipe(
       map((response) => this.extractArray(response, ['categories', 'data.categories', 'data']).map((category: any) => ({
@@ -92,6 +100,7 @@ export class WebsiteImagesService {
       maxPrice: item?.maxPrice === null || item?.maxPrice === undefined
         ? null
         : Number(item.maxPrice),
+      specificationFilters: this.normalizeSpecificationFilters(item?.specificationFilters || []),
       isActive: Boolean(item?.isActive ?? true),
       createdAt: item?.createdAt ? String(item.createdAt) : null
     };
@@ -134,7 +143,56 @@ export class WebsiteImagesService {
     return values.map((value) => String(value?._id || value?.id || value)).filter(Boolean);
   }
 
+  private normalizeSpecificationOptions(response: unknown): WebsiteImageSpecificationOption[] {
+    const body = (response as any)?.data ?? response ?? {};
+    const source = Array.isArray(body)
+      ? body
+      : body?.specifications || body?.categories || body?.categorySpecifications || body?.items || [];
+    const rawSpecifications = (Array.isArray(source) ? source : []).flatMap((item: any) =>
+      Array.isArray(item?.specifications) ? item.specifications : [item]
+    );
+    const merged = new Map<string, WebsiteImageSpecificationOption>();
+
+    this.normalizeSpecificationFilters(rawSpecifications).forEach((specification) => {
+      const key = specification.specificationName.toLocaleLowerCase();
+      const existing = merged.get(key);
+      if (!existing) {
+        merged.set(key, { ...specification });
+        return;
+      }
+      existing.values = this.uniqueCaseInsensitive([...existing.values, ...specification.values]);
+    });
+
+    return Array.from(merged.values()).sort((left, right) =>
+      left.specificationName.localeCompare(right.specificationName)
+    );
+  }
+
+  private normalizeSpecificationFilters(filters: any[]): WebsiteImageSpecificationFilter[] {
+    if (!Array.isArray(filters)) return [];
+    return filters
+      .map((filter) => ({
+        specificationName: String(
+          filter?.specificationName || filter?.name || filter?.title || filter?.rowName || ''
+        ).trim(),
+        values: this.uniqueCaseInsensitive(
+          Array.isArray(filter?.values) ? filter.values : (filter?.availableValues || [])
+        )
+      }))
+      .filter((filter) => filter.specificationName);
+  }
+
+  private uniqueCaseInsensitive(values: any[]): string[] {
+    const uniqueValues = new Map<string, string>();
+    values.forEach((value) => {
+      const normalizedValue = String(value?.value || value?.title || value?.name || value || '').trim();
+      const key = normalizedValue.toLocaleLowerCase();
+      if (key && !uniqueValues.has(key)) uniqueValues.set(key, normalizedValue);
+    });
+    return Array.from(uniqueValues.values());
+  }
+
   private isTargetType(value: string): value is WebsiteImageTargetType {
-    return ['category', 'product', 'both', 'price'].includes(value);
+    return ['category', 'product', 'both', 'price', 'specification'].includes(value);
   }
 }

@@ -344,7 +344,8 @@
       "category": "فئة",
       "product": "منتج",
       "both": "الفئة والمنتج",
-      "price": "السعر"
+      "price": "السعر",
+      "specification": "المواصفة"
     },
     "status": {
       "active": "نشط",
@@ -360,7 +361,9 @@
       "cancel": "إلغاء",
       "save": "حفظ",
       "saving": "جاري الحفظ...",
-      "deleting": "جاري الحذف..."
+      "deleting": "جاري الحذف...",
+      "addSpecification": "إضافة مواصفة",
+      "removeSpecification": "إزالة"
     },
     "form": {
       "addTitle": "إضافة صورة للموقع",
@@ -371,19 +374,31 @@
       "categories": "الفئات",
       "products": "المنتجات",
       "maxPrice": "الحد الأقصى للسعر",
+      "specificationFilters": "فلاتر المواصفات",
+      "specificationName": "اسم المواصفة",
+      "specificationValues": "القيم",
       "active": "نشط",
       "optional": "اختياري",
       "selectCategories": "اختر الفئات",
       "selectProducts": "اختر المنتجات",
+      "selectSpecificationName": "اختر المواصفة",
+      "selectSpecificationValues": "اختر قيمة واحدة أو أكثر",
       "selectCategoriesFirst": "اختر فئة واحدة أو أكثر لتحميل المنتجات.",
-      "priceCategoryHint": "اترك الفئات فارغة لاستهداف المنتجات في جميع الفئات."
+      "selectCategoriesForSpecifications": "اختر فئة واحدة أو أكثر لتحميل مواصفاتها.",
+      "loadingSpecifications": "جاري تحميل المواصفات...",
+      "noSpecifications": "لا توجد مواصفات بقيم متاحة للفئات المحددة.",
+      "priceCategoryHint": "اترك الفئات فارغة لاستهداف المنتجات في جميع الفئات.",
+      "specificationHint": "يجب أن يتطابق كل صف، وتكفي مطابقة أي قيمة عند اختيار عدة قيم داخل الصف."
     },
     "validation": {
       "titleRequired": "العنوان مطلوب.",
       "imageRequired": "الصورة مطلوبة عند إنشاء صورة جديدة للموقع.",
       "categoriesRequired": "اختر فئة واحدة على الأقل.",
       "productsRequired": "اختر منتجًا واحدًا على الأقل.",
-      "maxPriceRequired": "أدخل حدًا أقصى للسعر يساوي صفرًا أو أكثر."
+      "maxPriceRequired": "أدخل حدًا أقصى للسعر يساوي صفرًا أو أكثر.",
+      "specificationFiltersRequired": "أضف فلتر مواصفة واحدًا على الأقل.",
+      "specificationNameRequired": "اختر اسم المواصفة.",
+      "specificationValuesRequired": "اختر قيمة واحدة على الأقل."
     },
     "delete": {
       "title": "حذف صورة الموقع",

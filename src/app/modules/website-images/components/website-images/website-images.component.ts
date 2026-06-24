@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import { DialogModule } from 'primeng/dialog';
@@ -13,6 +13,8 @@ import {
   WebsiteImageCategoryOption,
   WebsiteImagePayload,
   WebsiteImageProductOption,
+  WebsiteImageSpecificationFilter,
+  WebsiteImageSpecificationOption,
   WebsiteImageTargetType
 } from '../../models/website-images.models';
 import { WebsiteImagesService } from '../../services/website-images.service';
@@ -24,7 +26,13 @@ type WebsiteImageForm = FormGroup<{
   categoryIds: FormControl<string[]>;
   productIds: FormControl<string[]>;
   maxPrice: FormControl<number | null>;
+  specificationFilters: FormArray<SpecificationFilterForm>;
   isActive: FormControl<boolean>;
+}>;
+
+type SpecificationFilterForm = FormGroup<{
+  specificationName: FormControl<string>;
+  values: FormControl<string[]>;
 }>;
 
 @Component({
@@ -59,6 +67,7 @@ export class WebsiteImagesComponent implements OnInit {
   isLoading = false;
   isCategoriesLoading = false;
   isProductsLoading = false;
+  isSpecificationsLoading = false;
   isEditorLoading = false;
   isSaving = false;
   isDeleting = false;
@@ -66,7 +75,9 @@ export class WebsiteImagesComponent implements OnInit {
   loadError = '';
   formError = '';
   previewError = '';
+  availableSpecifications: WebsiteImageSpecificationOption[] = [];
   private productLoadSequence = 0;
+  private specificationLoadSequence = 0;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -88,7 +99,7 @@ export class WebsiteImagesComponent implements OnInit {
   }
 
   get showsCategories(): boolean {
-    return ['category', 'product', 'both', 'price'].includes(this.targetType);
+    return ['category', 'product', 'both', 'price', 'specification'].includes(this.targetType);
   }
 
   get showsProducts(): boolean {
@@ -97,6 +108,14 @@ export class WebsiteImagesComponent implements OnInit {
 
   get showsMaxPrice(): boolean {
     return this.targetType === 'price';
+  }
+
+  get showsSpecification(): boolean {
+    return this.targetType === 'specification';
+  }
+
+  get specificationFilters(): FormArray<SpecificationFilterForm> {
+    return this.form.controls.specificationFilters;
   }
 
   loadImages(): void {
@@ -139,6 +158,7 @@ export class WebsiteImagesComponent implements OnInit {
     this.form = this.createForm();
     this.imagePreview = '';
     this.products = [];
+    this.availableSpecifications = [];
     this.formError = '';
     this.updateConditionalValidators();
     this.editorVisible = true;
@@ -165,12 +185,16 @@ export class WebsiteImagesComponent implements OnInit {
           maxPrice: details.maxPrice,
           isActive: details.isActive
         });
+        this.setSpecificationFilters(details.specificationFilters);
         this.updateConditionalValidators();
         this.form.markAsPristine();
         this.isEditorLoading = false;
 
         if (this.showsProducts) {
           this.loadProductsForSelectedCategories();
+        }
+        if (this.showsSpecification) {
+          this.loadSpecificationsForSelectedCategories();
         }
         this.cdr.detectChanges();
       },
@@ -185,25 +209,31 @@ export class WebsiteImagesComponent implements OnInit {
   closeEditor(): void {
     if (this.isSaving) return;
     this.productLoadSequence++;
+    this.specificationLoadSequence++;
     this.editorVisible = false;
     this.editingId = null;
     this.formError = '';
     this.products = [];
+    this.availableSpecifications = [];
   }
 
   onTargetTypeChanged(): void {
-    const type = this.targetType;
-
-    if (type === 'category') {
-      this.form.controls.productIds.setValue([]);
-      this.form.controls.maxPrice.setValue(null);
-      this.products = [];
-    } else if (type === 'price') {
+    if (!this.showsCategories) this.form.controls.categoryIds.setValue([]);
+    if (!this.showsProducts) {
       this.form.controls.productIds.setValue([]);
       this.products = [];
-    } else {
-      this.form.controls.maxPrice.setValue(null);
+    }
+    if (!this.showsMaxPrice) this.form.controls.maxPrice.setValue(null);
+    if (!this.showsSpecification) {
+      this.clearSpecificationFilters();
+      this.availableSpecifications = [];
+    }
+    if (this.showsProducts) {
       this.loadProductsForSelectedCategories();
+    }
+    if (this.showsSpecification) {
+      this.clearSpecificationFilters();
+      this.loadSpecificationsForSelectedCategories();
     }
 
     this.updateConditionalValidators();
@@ -214,6 +244,49 @@ export class WebsiteImagesComponent implements OnInit {
     if (this.showsProducts) {
       this.loadProductsForSelectedCategories();
     }
+    if (this.showsSpecification) {
+      this.clearSpecificationFilters();
+      this.loadSpecificationsForSelectedCategories();
+    }
+  }
+
+  addSpecificationFilter(): void {
+    if (!this.availableSpecifications.length) return;
+    this.specificationFilters.push(this.createSpecificationFilter());
+    this.specificationFilters.markAsDirty();
+  }
+
+  removeSpecificationFilter(index: number): void {
+    this.specificationFilters.removeAt(index);
+    this.specificationFilters.markAsDirty();
+  }
+
+  onSpecificationChanged(index: number): void {
+    this.specificationFilters.at(index).controls.values.setValue([]);
+  }
+
+  getSpecificationNames(index: number): string[] {
+    const currentName = this.specificationFilters.at(index)?.controls.specificationName.value;
+    const selectedNames = new Set(this.specificationFilters.controls
+      .map((control, controlIndex) => controlIndex === index ? '' : control.controls.specificationName.value.toLocaleLowerCase())
+      .filter(Boolean));
+    const names = this.availableSpecifications
+      .map((specification) => specification.specificationName)
+      .filter((name) => name === currentName || !selectedNames.has(name.toLocaleLowerCase()));
+    return currentName && !names.includes(currentName) ? [currentName, ...names] : names;
+  }
+
+  getSpecificationValues(specificationName: string, selectedValues: string[] = []): string[] {
+    const normalizedName = String(specificationName || '').trim().toLocaleLowerCase();
+    const availableValues = this.availableSpecifications.find(
+      (specification) => specification.specificationName.toLocaleLowerCase() === normalizedName
+    )?.values || [];
+    return Array.from(new Set([...selectedValues, ...availableValues]));
+  }
+
+  canAddSpecificationFilter(): boolean {
+    return this.availableSpecifications.length > this.specificationFilters.length &&
+      this.specificationFilters.controls.every((control) => !!control.controls.specificationName.value);
   }
 
   onImageSelected(event: Event): void {
@@ -362,6 +435,35 @@ export class WebsiteImagesComponent implements OnInit {
     });
   }
 
+  private loadSpecificationsForSelectedCategories(): void {
+    const categoryIds = this.form.controls.categoryIds.value;
+    const requestSequence = ++this.specificationLoadSequence;
+
+    if (!categoryIds.length) {
+      this.availableSpecifications = [];
+      this.isSpecificationsLoading = false;
+      return;
+    }
+
+    this.isSpecificationsLoading = true;
+    this.formError = '';
+    this.service.getSpecifications(categoryIds).subscribe({
+      next: (specifications) => {
+        if (requestSequence !== this.specificationLoadSequence) return;
+        this.availableSpecifications = specifications;
+        this.isSpecificationsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        if (requestSequence !== this.specificationLoadSequence) return;
+        this.availableSpecifications = [];
+        this.isSpecificationsLoading = false;
+        this.formError = this.errorMessage(error, 'Failed to load specifications for the selected categories.');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   private createForm(): WebsiteImageForm {
     return this.fb.group({
       title: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(150)]),
@@ -370,6 +472,7 @@ export class WebsiteImagesComponent implements OnInit {
       categoryIds: this.fb.nonNullable.control<string[]>([]),
       productIds: this.fb.nonNullable.control<string[]>([]),
       maxPrice: this.fb.control<number | null>(null),
+      specificationFilters: this.fb.array<SpecificationFilterForm>([]),
       isActive: this.fb.nonNullable.control(true)
     });
   }
@@ -378,12 +481,14 @@ export class WebsiteImagesComponent implements OnInit {
     const categoryControl = this.form.controls.categoryIds;
     const productControl = this.form.controls.productIds;
     const maxPriceControl = this.form.controls.maxPrice;
+    const specificationFiltersControl = this.form.controls.specificationFilters;
 
     categoryControl.clearValidators();
     productControl.clearValidators();
     maxPriceControl.clearValidators();
+    specificationFiltersControl.clearValidators();
 
-    if (['category', 'product', 'both'].includes(this.targetType)) {
+    if (['category', 'product', 'both', 'specification'].includes(this.targetType)) {
       categoryControl.addValidators(Validators.required);
     }
     if (this.showsProducts) {
@@ -391,6 +496,9 @@ export class WebsiteImagesComponent implements OnInit {
     }
     if (this.showsMaxPrice) {
       maxPriceControl.addValidators([Validators.required, Validators.min(0)]);
+    }
+    if (this.showsSpecification) {
+      specificationFiltersControl.addValidators(Validators.required);
     }
     if (!this.editingId) {
       this.form.controls.imageBase64.setValidators(Validators.required);
@@ -401,6 +509,7 @@ export class WebsiteImagesComponent implements OnInit {
     categoryControl.updateValueAndValidity({ emitEvent: false });
     productControl.updateValueAndValidity({ emitEvent: false });
     maxPriceControl.updateValueAndValidity({ emitEvent: false });
+    specificationFiltersControl.updateValueAndValidity({ emitEvent: false });
     this.form.controls.imageBase64.updateValueAndValidity({ emitEvent: false });
   }
 
@@ -416,7 +525,29 @@ export class WebsiteImagesComponent implements OnInit {
     if (this.showsCategories) payload.categoryIds = value.categoryIds;
     if (this.showsProducts) payload.productIds = value.productIds;
     if (this.showsMaxPrice && value.maxPrice !== null) payload.maxPrice = Number(value.maxPrice);
+    if (this.showsSpecification) {
+      payload.specificationFilters = value.specificationFilters.map((filter) => ({
+        specificationName: filter.specificationName.trim(),
+        values: filter.values.map((item) => item.trim()).filter(Boolean)
+      }));
+    }
     return payload;
+  }
+
+  private createSpecificationFilter(filter?: WebsiteImageSpecificationFilter): SpecificationFilterForm {
+    return this.fb.group({
+      specificationName: this.fb.nonNullable.control(filter?.specificationName || '', Validators.required),
+      values: this.fb.nonNullable.control<string[]>(filter?.values || [], Validators.required)
+    });
+  }
+
+  private setSpecificationFilters(filters: WebsiteImageSpecificationFilter[]): void {
+    this.clearSpecificationFilters();
+    filters.forEach((filter) => this.specificationFilters.push(this.createSpecificationFilter(filter)));
+  }
+
+  private clearSpecificationFilters(): void {
+    this.specificationFilters.clear();
   }
 
   private errorMessage(error: any, fallback: string): string {

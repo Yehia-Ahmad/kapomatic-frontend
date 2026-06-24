@@ -144,6 +144,7 @@
             <option value="product">{{ 'websiteImages.targetTypes.product' | translate }}</option>
             <option value="both">{{ 'websiteImages.targetTypes.both' | translate }}</option>
             <option value="price">{{ 'websiteImages.targetTypes.price' | translate }}</option>
+            <option value="specification">{{ 'websiteImages.targetTypes.specification' | translate }}</option>
           </select>
         </label>
 
@@ -175,6 +176,71 @@
               <small class="opacity-70">{{ 'websiteImages.form.priceCategoryHint' | translate }}</small>
             }
           </label>
+        }
+
+        @if (showsSpecification) {
+          <section class="grid gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="m-0 text-sm font-bold">{{ 'websiteImages.form.specificationFilters' | translate }}</h3>
+                <small class="opacity-70">{{ 'websiteImages.form.specificationHint' | translate }}</small>
+              </div>
+              <button type="button" class="rounded-lg bg-orange px-4 py-2 font-bold text-dark disabled:opacity-50" [disabled]="!canAddSpecificationFilter() || isSpecificationsLoading" (click)="addSpecificationFilter()">
+                {{ 'websiteImages.actions.addSpecification' | translate }}
+              </button>
+            </div>
+
+            @if (!form.controls.categoryIds.value.length) {
+              <small class="opacity-70">{{ 'websiteImages.form.selectCategoriesForSpecifications' | translate }}</small>
+            } @else if (isSpecificationsLoading) {
+              <small class="opacity-70">{{ 'websiteImages.form.loadingSpecifications' | translate }}</small>
+            } @else if (!availableSpecifications.length) {
+              <small class="text-red">{{ 'websiteImages.form.noSpecifications' | translate }}</small>
+            }
+
+            <div formArrayName="specificationFilters" class="grid gap-3">
+              @for (filter of specificationFilters.controls; track $index; let index = $index) {
+                <div [formGroupName]="index" class="grid grid-cols-1 items-start gap-3 rounded-lg border border-gray-300 p-3 md:grid-cols-[1fr_1.5fr_auto]">
+                  <label class="grid gap-1">
+                    <span class="text-sm font-bold">{{ 'websiteImages.form.specificationName' | translate }}</span>
+                    <select formControlName="specificationName" class="min-h-11 rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-inherit" (change)="onSpecificationChanged(index)">
+                      <option value="">{{ 'websiteImages.form.selectSpecificationName' | translate }}</option>
+                      @for (name of getSpecificationNames(index); track name) {
+                        <option [value]="name">{{ name }}</option>
+                      }
+                    </select>
+                    @if (filter.controls.specificationName.touched && filter.controls.specificationName.invalid) {
+                      <small class="text-red">{{ 'websiteImages.validation.specificationNameRequired' | translate }}</small>
+                    }
+                  </label>
+
+                  <label class="grid gap-1">
+                    <span class="text-sm font-bold">{{ 'websiteImages.form.specificationValues' | translate }}</span>
+                    <p-multiSelect
+                      [options]="getSpecificationValues(filter.controls.specificationName.value, filter.controls.values.value)"
+                      formControlName="values"
+                      [disabled]="!filter.controls.specificationName.value"
+                      [placeholder]="'websiteImages.form.selectSpecificationValues' | translate"
+                      display="chip"
+                      styleClass="w-full"
+                      appendTo="body"
+                    />
+                    @if (filter.controls.values.touched && filter.controls.values.invalid) {
+                      <small class="text-red">{{ 'websiteImages.validation.specificationValuesRequired' | translate }}</small>
+                    }
+                  </label>
+
+                  <button type="button" class="mt-6 rounded-lg border border-red px-3 py-2 font-bold text-red" (click)="removeSpecificationFilter(index)">
+                    {{ 'websiteImages.actions.removeSpecification' | translate }}
+                  </button>
+                </div>
+              }
+            </div>
+
+            @if (specificationFilters.touched && specificationFilters.invalid && !specificationFilters.length) {
+              <small class="text-red">{{ 'websiteImages.validation.specificationFiltersRequired' | translate }}</small>
+            }
+          </section>
         }
 
         @if (showsProducts) {
@@ -228,7 +294,7 @@
           <button type="button" class="rounded-lg border border-gray-300 px-5 py-2 font-bold" [disabled]="isSaving" (click)="closeEditor()">
             {{ 'websiteImages.actions.cancel' | translate }}
           </button>
-          <button type="submit" class="rounded-lg bg-orange px-5 py-2 font-extrabold text-dark disabled:opacity-60" [disabled]="form.invalid || isSaving || isProductsLoading">
+          <button type="submit" class="rounded-lg bg-orange px-5 py-2 font-extrabold text-dark disabled:opacity-60" [disabled]="form.invalid || isSaving || isProductsLoading || isSpecificationsLoading">
             {{ (isSaving ? 'websiteImages.actions.saving' : 'websiteImages.actions.save') | translate }}
           </button>
         </div>

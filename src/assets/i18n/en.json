@@ -341,7 +341,8 @@
             "category": "Category",
             "product": "Product",
             "both": "Both",
-            "price": "Price"
+            "price": "Price",
+            "specification": "Specification"
         },
         "status": {
             "active": "Active",
@@ -357,7 +358,9 @@
             "cancel": "Cancel",
             "save": "Save",
             "saving": "Saving...",
-            "deleting": "Deleting..."
+            "deleting": "Deleting...",
+            "addSpecification": "Add Specification",
+            "removeSpecification": "Remove"
         },
         "form": {
             "addTitle": "Add Website Image",
@@ -368,19 +371,31 @@
             "categories": "Categories",
             "products": "Products",
             "maxPrice": "Maximum Price",
+            "specificationFilters": "Specification Filters",
+            "specificationName": "Specification Name",
+            "specificationValues": "Values",
             "active": "Active",
             "optional": "Optional",
             "selectCategories": "Select categories",
             "selectProducts": "Select products",
+            "selectSpecificationName": "Select specification",
+            "selectSpecificationValues": "Select one or more values",
             "selectCategoriesFirst": "Select one or more categories to load products.",
-            "priceCategoryHint": "Leave categories empty to target products across every category."
+            "selectCategoriesForSpecifications": "Select one or more categories to load their specifications.",
+            "loadingSpecifications": "Loading specifications...",
+            "noSpecifications": "No specifications with available values were found for the selected categories.",
+            "priceCategoryHint": "Leave categories empty to target products across every category.",
+            "specificationHint": "Every row must match. Multiple values within one row match any selected value."
         },
         "validation": {
             "titleRequired": "Title is required.",
             "imageRequired": "An image is required when creating a website image.",
             "categoriesRequired": "Select at least one category.",
             "productsRequired": "Select at least one product.",
-            "maxPriceRequired": "Enter a maximum price of zero or more."
+            "maxPriceRequired": "Enter a maximum price of zero or more.",
+            "specificationFiltersRequired": "Add at least one specification filter.",
+            "specificationNameRequired": "Select a specification name.",
+            "specificationValuesRequired": "Select at least one value."
         },
         "delete": {
             "title": "Delete Website Image",

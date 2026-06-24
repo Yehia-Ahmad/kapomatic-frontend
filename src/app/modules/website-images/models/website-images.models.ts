@@ -1,4 +1,4 @@
-export type WebsiteImageTargetType = 'category' | 'product' | 'both' | 'price';
+export type WebsiteImageTargetType = 'category' | 'product' | 'both' | 'price' | 'specification';
 
 export interface WebsiteImage {
   id: string;
@@ -8,6 +8,7 @@ export interface WebsiteImage {
   categoryIds: string[];
   productIds: string[];
   maxPrice: number | null;
+  specificationFilters: WebsiteImageSpecificationFilter[];
   isActive: boolean;
   createdAt: string | null;
 }
@@ -19,6 +20,7 @@ export interface WebsiteImagePayload {
   categoryIds?: string[];
   productIds?: string[];
   maxPrice?: number;
+  specificationFilters?: WebsiteImageSpecificationFilter[];
   isActive: boolean;
 }
 
@@ -26,6 +28,13 @@ export interface WebsiteImageCategoryOption {
   id: string;
   name: string;
 }
+
+export interface WebsiteImageSpecificationFilter {
+  specificationName: string;
+  values: string[];
+}
+
+export type WebsiteImageSpecificationOption = WebsiteImageSpecificationFilter;
 
 export interface WebsiteImageProductOption {
   id: string;
