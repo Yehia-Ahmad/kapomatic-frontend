@@ -572,6 +572,15 @@
             "customerSearchFailed": "Failed to search customer.",
             "createdSuccess": "Invoice saved successfully.",
             "createFailed": "Failed to save invoice."
+        },
+        "inventoryConfirmation": {
+            "title": "Insufficient inventory",
+            "message": "Some products do not have enough stock. Proceeding will add the missing quantities and complete the sale.",
+            "requested": "Requested",
+            "available": "Available",
+            "missing": "Missing",
+            "cancel": "Cancel",
+            "proceed": "Proceed"
         }
     },
     "creditSalePage": {

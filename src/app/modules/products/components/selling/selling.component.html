@@ -423,6 +423,66 @@
   </p-dialog>
 
   <p-dialog
+    [(visible)]="inventoryConfirmationVisible"
+    [modal]="true"
+    [closable]="false"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '34rem', maxWidth: 'calc(100vw - 2rem)' }"
+  >
+    <div class="flex flex-col gap-5 py-2" [attr.dir]="direction">
+      <div class="text-center">
+        <p class="text-xl font-semibold font-roboto text-orange">
+          {{ 'sellingPage.inventoryConfirmation.title' | translate }}
+        </p>
+        <p class="mt-2 font-roboto" [ngClass]="{
+          'text-gray_light': (isDarkMode$ | async),
+          'text-gray_dark': !(isDarkMode$ | async)
+        }">
+          {{ 'sellingPage.inventoryConfirmation.message' | translate }}
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        @for (shortage of inventoryShortages; track shortage.productId) {
+          <div class="rounded-xl border border-orange/40 px-4 py-3 font-roboto" [ngClass]="{
+            'bg-[#303036] text-gray_light': (isDarkMode$ | async),
+            'bg-[#fff9d9] text-gray_dark': !(isDarkMode$ | async)
+          }">
+            <p class="font-semibold">{{ shortage.productName }}</p>
+            <p class="mt-1 text-sm">
+              {{ 'sellingPage.inventoryConfirmation.requested' | translate }}:
+              {{ shortage.requestedQuantity }} ·
+              {{ 'sellingPage.inventoryConfirmation.available' | translate }}:
+              {{ shortage.availableQuantity }} ·
+              {{ 'sellingPage.inventoryConfirmation.missing' | translate }}:
+              {{ shortage.missingQuantity }}
+            </p>
+          </div>
+        }
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <p-button
+          type="button"
+          [label]="'sellingPage.inventoryConfirmation.cancel' | translate"
+          (click)="cancelInsufficientInventory()"
+          [disabled]="isSaving"
+          styleClass="!px-5 !py-2 !bg-transparent !border-orange !text-orange !font-semibold"
+        />
+        <p-button
+          type="button"
+          [label]="'sellingPage.inventoryConfirmation.proceed' | translate"
+          (click)="confirmInsufficientInventory()"
+          [loading]="isSaving"
+          [disabled]="isSaving"
+          styleClass="!px-5 !py-2 !bg-orange !border-none !text-gray_dark !font-semibold"
+        />
+      </div>
+    </div>
+  </p-dialog>
+
+  <p-dialog
     [(visible)]="errorDialogVisible"
     [modal]="true"
     [closable]="false"

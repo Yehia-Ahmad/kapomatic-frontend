@@ -16,24 +16,37 @@
     </section>
 
     <form class="filters-card" [formGroup]="filtersForm" (ngSubmit)="search()">
-      <mat-form-field appearance="outline"><mat-label>{{ 'returnsPage.fields.returnType' | translate }}</mat-label><mat-select formControlName="returnType">
-        <mat-option value="">{{ 'returnsPage.types.all' | translate }}</mat-option><mat-option value="cash">{{ 'returnsPage.types.cash' | translate }}</mat-option><mat-option value="credit">{{ 'returnsPage.types.credit' | translate }}</mat-option>
-      </mat-select></mat-form-field>
-      <mat-form-field appearance="outline"><mat-label>{{ 'returnsPage.fields.customerName' | translate }}</mat-label><input matInput formControlName="customerName" autocomplete="off" /></mat-form-field>
-      <mat-form-field appearance="outline"><mat-label>{{ 'returnsPage.fields.customerPhone' | translate }}</mat-label><input matInput formControlName="customerPhone" autocomplete="off" /></mat-form-field>
-      <mat-form-field appearance="outline"><mat-label>{{ 'returnsPage.fields.productCode' | translate }}</mat-label><input matInput formControlName="productCode" autocomplete="off" /></mat-form-field>
-      <mat-form-field appearance="outline"><mat-label>{{ 'returnsPage.fields.invoiceId' | translate }}</mat-label><input matInput formControlName="invoiceId" autocomplete="off" /></mat-form-field>
-      <mat-form-field appearance="outline"><mat-label>{{ 'returnsPage.fields.dateFrom' | translate }}</mat-label>
-        <input matInput [matDatepicker]="dateFromPicker" formControlName="dateFrom" />
-        <mat-datepicker-toggle matIconSuffix [for]="dateFromPicker" /><mat-datepicker #dateFromPicker />
-      </mat-form-field>
-      <mat-form-field appearance="outline"><mat-label>{{ 'returnsPage.fields.dateTo' | translate }}</mat-label>
-        <input matInput [matDatepicker]="dateToPicker" formControlName="dateTo" />
-        <mat-datepicker-toggle matIconSuffix [for]="dateToPicker" /><mat-datepicker #dateToPicker />
-      </mat-form-field>
+      <div class="flex min-w-0 flex-col gap-1">
+        <label for="returnType" class="font-roboto text-sm">{{ 'returnsPage.fields.returnType' | translate }}</label>
+        <p-select inputId="returnType" [options]="returnTypeOptions" optionLabel="label" optionValue="value" formControlName="returnType" appendTo="body" styleClass="w-full" />
+      </div>
+      <div class="flex min-w-0 flex-col gap-1">
+        <label for="customerName" class="font-roboto text-sm">{{ 'returnsPage.fields.customerName' | translate }}</label>
+        <input id="customerName" pInputText formControlName="customerName" autocomplete="off" class="w-full" />
+      </div>
+      <div class="flex min-w-0 flex-col gap-1">
+        <label for="customerPhone" class="font-roboto text-sm">{{ 'returnsPage.fields.customerPhone' | translate }}</label>
+        <input id="customerPhone" pInputText formControlName="customerPhone" autocomplete="off" class="w-full" />
+      </div>
+      <div class="flex min-w-0 flex-col gap-1">
+        <label for="productCode" class="font-roboto text-sm">{{ 'returnsPage.fields.productCode' | translate }}</label>
+        <input id="productCode" pInputText formControlName="productCode" autocomplete="off" class="w-full" />
+      </div>
+      <div class="flex min-w-0 flex-col gap-1">
+        <label for="invoiceId" class="font-roboto text-sm">{{ 'returnsPage.fields.invoiceId' | translate }}</label>
+        <input id="invoiceId" pInputText formControlName="invoiceId" autocomplete="off" class="w-full" />
+      </div>
+      <div class="flex min-w-0 flex-col gap-1">
+        <label for="dateFrom" class="font-roboto text-sm">{{ 'returnsPage.fields.dateFrom' | translate }}</label>
+        <p-datepicker inputId="dateFrom" formControlName="dateFrom" [showIcon]="true" iconDisplay="input" appendTo="body" styleClass="w-full" inputStyleClass="w-full" />
+      </div>
+      <div class="flex min-w-0 flex-col gap-1">
+        <label for="dateTo" class="font-roboto text-sm">{{ 'returnsPage.fields.dateTo' | translate }}</label>
+        <p-datepicker inputId="dateTo" formControlName="dateTo" [showIcon]="true" iconDisplay="input" appendTo="body" styleClass="w-full" inputStyleClass="w-full" />
+      </div>
       <div class="filter-actions">
-        <button mat-flat-button class="search-button" type="submit" [disabled]="isLoading"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>{{ 'returnsPage.actions.search' | translate }}</button>
-        <button mat-stroked-button type="button" [disabled]="isLoading" (click)="resetFilters()">{{ 'returnsPage.actions.reset' | translate }}</button>
+        <p-button type="submit" [label]="'returnsPage.actions.search' | translate" icon="fa-solid fa-magnifying-glass" [disabled]="isLoading" styleClass="!px-3 !py-2 !bg-orange !border-none !text-gray_dark !font-semibold" />
+        <p-button type="button" [label]="'returnsPage.actions.reset' | translate" [disabled]="isLoading" (onClick)="resetFilters()" styleClass="!px-3 !py-2 !bg-[#b9b9b9] !border-none !text-gray_dark !font-semibold" />
       </div>
     </form>
 

@@ -575,6 +575,15 @@
       "customerSearchFailed": "فشل البحث عن العميل.",
       "createdSuccess": "تم حفظ الفاتورة بنجاح.",
       "createFailed": "فشل حفظ الفاتورة."
+    },
+    "inventoryConfirmation": {
+      "title": "الكمية المتاحة غير كافية",
+      "message": "بعض المنتجات لا تحتوي على مخزون كافٍ. عند المتابعة ستتم إضافة الكميات الناقصة وإكمال عملية البيع.",
+      "requested": "المطلوب",
+      "available": "المتاح",
+      "missing": "الناقص",
+      "cancel": "إلغاء",
+      "proceed": "متابعة"
     }
   },
   "creditSalePage": {
@@ -948,7 +957,7 @@
       "returnType": "نوع المرتجع",
       "type": "النوع",
       "invoiceNumber": "رقم الفاتورة",
-      "invoiceId": "معرّف الفاتورة",
+      "invoiceId": "رقم الفاتورة",
       "customerName": "اسم العميل",
       "customerPhone": "هاتف العميل",
       "productName": "اسم المنتج",

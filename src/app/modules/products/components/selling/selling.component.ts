@@ -50,6 +50,29 @@ type CustomerSearchResult = {
   displayLabel: string;
 };
 
+type SellingPayload = {
+  customerName: string;
+  customerPhone?: string;
+  sellingDate: string;
+  discountAmount: number;
+  discountPercentage: number;
+  shippingFees: number;
+  confirmInsufficientInventory: boolean;
+  items: Array<{
+    productId: string;
+    quantity: number;
+    price: number;
+  }>;
+};
+
+type InventoryShortage = {
+  productId: string;
+  productName: string;
+  requestedQuantity: number;
+  availableQuantity: number;
+  missingQuantity: number;
+};
+
 type InvoiceItemState = {
   id: string;
   searchInputValue: string;
@@ -100,8 +123,11 @@ export class SellingComponent implements OnInit, OnDestroy {
   isSaving = false;
   successDialogVisible = false;
   errorDialogVisible = false;
+  inventoryConfirmationVisible = false;
+  inventoryShortages: InventoryShortage[] = [];
   customerSearchError = '';
   saveError = '';
+  private pendingSellingPayload: SellingPayload | null = null;
   private latestRequestedCustomerQuery = '';
 
   priceTypeOptions = [
@@ -371,6 +397,7 @@ export class SellingComponent implements OnInit, OnDestroy {
 
   saveSelling(): void {
     this.errorDialogVisible = false;
+    this.inventoryConfirmationVisible = false;
     this.saveError = '';
 
     if (this.sellingForm.invalid || !this.invoiceItems.length) {
@@ -387,25 +414,14 @@ export class SellingComponent implements OnInit, OnDestroy {
     }
 
     const discountAmount = this.invoiceDiscountAmount;
-    const payload: {
-      customerName: string;
-      customerPhone?: string;
-      sellingDate: string;
-      discountAmount: number;
-      discountPercentage: number;
-      shippingFees: number;
-      items: Array<{
-        productId: string;
-        quantity: number;
-        price: number;
-      }>;
-    } = {
+    const payload: SellingPayload = {
       customerName: String(raw.customerName || '').trim(),
       customerPhone: String(raw.customerPhone || '').trim(),
       sellingDate,
       discountAmount,
       discountPercentage: this.discountPercentageInfo,
       shippingFees: this.toNonNegativeNumber(raw.shippingFees),
+      confirmInsufficientInventory: false,
       items: items.map((item: any) => ({
         productId: String(item.productId || ''),
         quantity: Number(item.quantity),
@@ -413,21 +429,80 @@ export class SellingComponent implements OnInit, OnDestroy {
       }))
     };
 
+    this.submitSelling(payload);
+  }
+
+  confirmInsufficientInventory(): void {
+    if (!this.pendingSellingPayload || this.isSaving) return;
+
+    this.inventoryConfirmationVisible = false;
+    this.submitSelling({
+      ...this.pendingSellingPayload,
+      confirmInsufficientInventory: true
+    });
+  }
+
+  cancelInsufficientInventory(): void {
+    this.inventoryConfirmationVisible = false;
+    this.inventoryShortages = [];
+    this.pendingSellingPayload = null;
+  }
+
+  private submitSelling(payload: SellingPayload): void {
     this.isSaving = true;
 
     this._productsService.createSelling(payload).subscribe({
       next: () => {
         this.isSaving = false;
+        this.pendingSellingPayload = null;
+        this.inventoryShortages = [];
         this.successDialogVisible = true;
         this.resetSellingForm();
         this._cdr.detectChanges();
       },
       error: (err: any) => {
         this.isSaving = false;
+
+        if (this.isInsufficientInventoryError(err)) {
+          this.pendingSellingPayload = payload;
+          this.inventoryShortages = this.mapInventoryShortages(err.error?.shortages);
+          this.inventoryConfirmationVisible = true;
+          this._cdr.detectChanges();
+          return;
+        }
+
         this.saveError = err?.error?.message || this.translateKey('sellingPage.messages.createFailed');
         this.errorDialogVisible = true;
         this._cdr.detectChanges();
       }
+    });
+  }
+
+  private isInsufficientInventoryError(err: any): boolean {
+    return err?.status === 409 &&
+      err?.error?.code === 'INSUFFICIENT_INVENTORY' &&
+      err?.error?.requiresConfirmation === true &&
+      Array.isArray(err?.error?.shortages) &&
+      err.error.shortages.length > 0;
+  }
+
+  private mapInventoryShortages(shortages: any[]): InventoryShortage[] {
+    return shortages.map((shortage) => {
+      const productId = String(shortage?.productId?._id || shortage?.productId || '');
+      const selectedProduct = this.invoiceItemStates.find(
+        (state) => state.selectedProduct?.id === productId
+      )?.selectedProduct;
+
+      return {
+        productId,
+        productName: String(
+          shortage?.productName || shortage?.name || shortage?.productId?.name ||
+          selectedProduct?.name || productId
+        ),
+        requestedQuantity: Number(shortage?.requestedQuantity || 0),
+        availableQuantity: Number(shortage?.availableQuantity || 0),
+        missingQuantity: Number(shortage?.missingQuantity || 0)
+      };
     });
   }
 

@@ -14,16 +14,15 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { ButtonModule } from 'primeng/button';
+import { DatePickerModule } from 'primeng/datepicker';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 import { finalize, forkJoin, takeUntil } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SideNavComponent } from '../../../layout/components/side-nav/side-nav.component';
@@ -109,15 +108,14 @@ class ReturnsPaginatorIntl extends MatPaginatorIntl {
     TranslatePipe,
     ReactiveFormsModule,
     SideNavComponent,
+    ButtonModule,
+    DatePickerModule,
+    InputTextModule,
+    SelectModule,
     MatButtonModule,
-    MatDatepickerModule,
     MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatNativeDateModule,
     MatPaginatorModule,
     MatProgressSpinnerModule,
-    MatSelectModule,
     MatSnackBarModule,
     MatTableModule
   ],
@@ -142,6 +140,14 @@ export class ReturnsComponent implements OnInit {
   readonly pageSizeOptions = [10, 25, 50, 100];
   readonly isDarkMode$;
   readonly filtersForm;
+
+  get returnTypeOptions(): Array<{ label: string; value: ReturnType | '' }> {
+    return [
+      { label: this.translate.instant('returnsPage.types.all'), value: '' },
+      { label: this.translate.instant('returnsPage.types.cash'), value: 'cash' },
+      { label: this.translate.instant('returnsPage.types.credit'), value: 'credit' }
+    ];
+  }
 
   returns: ReturnLog[] = [];
   summary: ReturnsSummary = { ...EMPTY_SUMMARY };

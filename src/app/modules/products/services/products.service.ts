@@ -47,6 +47,7 @@ export class ProductsService {
     discountAmount?: number;
     discountPercentage?: number;
     shippingFees?: number;
+    confirmInsufficientInventory?: boolean;
     items: Array<{
       productId: string;
       quantity: number;
