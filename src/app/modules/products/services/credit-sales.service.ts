@@ -40,17 +40,6 @@ export interface CreditSalePaymentPayload {
   note?: string;
 }
 
-export interface CreditSaleRefundItemPayload {
-  productId: string;
-  quantity: number;
-}
-
-export interface CreditSaleRefundPayload {
-  refundDate?: string;
-  note?: string;
-  items: CreditSaleRefundItemPayload[];
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -84,7 +73,4 @@ export class CreditSalesService {
     return this._http.post(`${this._baseUrl}credit-sales/${id}/payments`, payload);
   }
 
-  recordRefund(id: string, payload: CreditSaleRefundPayload) {
-    return this._http.post(`${this._baseUrl}credit-sales/${id}/refunds`, payload);
-  }
 }

@@ -14,6 +14,7 @@ import {
   CreditInvoicePrintLanguage
 } from './credit-invoice-print.util';
 import { CreditSalesService } from '../../../products/services/credit-sales.service';
+import { ReturnsService } from '../../../returns/services/returns.service';
 import { ThemeService } from '../../../shared/services/theme.service';
 import {
   Customer,
@@ -88,8 +89,12 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
   historyActionError = '';
   paymentErrorMessage = '';
   refundErrorMessage = '';
+  deleteCreditDialogVisible = false;
+  isDeletingCreditSale = false;
+  deleteCreditErrorMessage = '';
   selectedInvoiceForPayment: CustomerHistoryView | null = null;
   selectedInvoiceForRefund: CustomerHistoryView | null = null;
+  selectedInvoiceForDelete: CustomerHistoryView | null = null;
   private readonly isBrowser: boolean;
   private currentCustomerId: string | null = null;
   private readonly subscriptions = new Subscription();
@@ -98,6 +103,7 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
     private readonly themeService: ThemeService,
     private readonly customersService: CustomersService,
     private readonly creditSalesService: CreditSalesService,
+    private readonly returnsService: ReturnsService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly translate: TranslateService,
@@ -289,6 +295,41 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
     this.clearRefundItems();
   }
 
+  openDeleteCreditDialog(entry: CustomerHistoryView): void {
+    if (!entry?.id || this.isDeletingCreditSale) return;
+    this.selectedInvoiceForDelete = entry;
+    this.deleteCreditErrorMessage = '';
+    this.deleteCreditDialogVisible = true;
+  }
+
+  closeDeleteCreditDialog(): void {
+    if (this.isDeletingCreditSale) return;
+    this.deleteCreditDialogVisible = false;
+    this.selectedInvoiceForDelete = null;
+    this.deleteCreditErrorMessage = '';
+  }
+
+  deleteCreditInvoice(): void {
+    const invoice = this.selectedInvoiceForDelete;
+    if (!invoice?.id || this.isDeletingCreditSale) return;
+
+    this.isDeletingCreditSale = true;
+    this.deleteCreditErrorMessage = '';
+    this.creditSalesService.deleteCreditSale(invoice.id).subscribe({
+      next: () => {
+        this.isDeletingCreditSale = false;
+        this.deleteCreditDialogVisible = false;
+        this.selectedInvoiceForDelete = null;
+        if (this.currentCustomerId) this.loadCustomer(this.currentCustomerId);
+      },
+      error: (error: any) => {
+        this.isDeletingCreditSale = false;
+        this.deleteCreditErrorMessage = this.extractErrorMessage(error, 'customerDetailsPage.messages.deleteInvoiceFailed');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   fillRefundWithAllItems(): void {
     this.refundItems.controls.forEach((control) => {
       const availableQuantity = this.toInteger(control.get('availableQuantity')?.value);
@@ -339,7 +380,9 @@ export class CustomerDetailsComponent implements OnInit, OnDestroy {
 
     this.isSavingRefund = true;
 
-    this.creditSalesService.recordRefund(invoice.id, {
+    this.returnsService.createReturn({
+      returnType: 'credit',
+      invoiceId: invoice.id,
       refundDate: this.formatRequestDate(raw.refundDate),
       note: String(raw.note || '').trim() || undefined,
       items

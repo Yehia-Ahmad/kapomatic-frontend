@@ -9,12 +9,14 @@ import { ProductsService } from '../../services/products.service';
 import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { CateoryService } from '../../../category/services/cateory.service';
 import { WarnComponent } from '../../../assets/warn/warn.component';
+import { ReturnsService } from '../../../returns/services/returns.service';
 import {
   buildFallbackInvoiceNumber,
   buildInvoiceDocument,
@@ -27,6 +29,15 @@ type SelectOption = {
   value: string;
 };
 
+type CashReturnItem = {
+  productId: string;
+  productName: string;
+  productCode: string;
+  availableQuantity: number;
+  quantity: number;
+  returnReason: string;
+};
+
 @Component({
   selector: 'app-invoice-history',
   standalone: true,
@@ -37,6 +48,7 @@ type SelectOption = {
     TranslatePipe,
     TableModule,
     InputTextModule,
+    InputNumberModule,
     DatePickerModule,
     ButtonModule,
     DialogModule,
@@ -65,11 +77,19 @@ export class InvoiceHistoryComponent implements OnInit {
   downloadingInvoiceId = '';
   deleteDialogVisible = false;
   selectedSellingToDelete: InvoiceHistoryRow | null = null;
+  returnDialogVisible = false;
+  selectedSellingToReturn: InvoiceHistoryRow | null = null;
+  cashReturnDate = new Date();
+  cashReturnNote = '';
+  cashReturnItems: CashReturnItem[] = [];
+  returnError = '';
+  returningSellingId = '';
 
   constructor(
     private _themeService: ThemeService,
     private _router: Router,
     private _productsService: ProductsService,
+    private _returnsService: ReturnsService,
     private _categoryService: CateoryService,
     private _translate: TranslateService,
     private _cdr: ChangeDetectorRef,
@@ -371,6 +391,95 @@ export class InvoiceHistoryComponent implements OnInit {
 
   isDownloadingInvoice(sellingId: string): boolean {
     return this.downloadingInvoiceId === sellingId;
+  }
+
+  canReturnSelling(selling: InvoiceHistoryRow): boolean {
+    return !!selling?.id && selling.items.some((item) => !!item.productId && Number(item.quantity) > 0);
+  }
+
+  openReturnDialog(selling: InvoiceHistoryRow): void {
+    if (!this.canReturnSelling(selling)) return;
+
+    this.selectedSellingToReturn = selling;
+    this.cashReturnDate = new Date();
+    this.cashReturnNote = '';
+    this.returnError = '';
+    this.cashReturnItems = selling.items
+      .filter((item) => !!item.productId && Number(item.quantity) > 0)
+      .map((item) => ({
+        productId: item.productId,
+        productName: item.productName,
+        productCode: item.productCode,
+        availableQuantity: Math.max(0, Math.floor(Number(item.quantity) || 0)),
+        quantity: 0,
+        returnReason: ''
+      }));
+    this.returnDialogVisible = true;
+  }
+
+  closeReturnDialog(): void {
+    if (this.isReturningSelectedSelling) return;
+    this.returnDialogVisible = false;
+    this.selectedSellingToReturn = null;
+    this.cashReturnItems = [];
+    this.returnError = '';
+  }
+
+  fillCashReturnWithAllItems(): void {
+    this.cashReturnItems.forEach((item) => item.quantity = item.availableQuantity);
+  }
+
+  clearCashReturnQuantities(): void {
+    this.cashReturnItems.forEach((item) => item.quantity = 0);
+  }
+
+  hasCashReturnSelection(): boolean {
+    return this.cashReturnItems.some((item) => Number(item.quantity) > 0);
+  }
+
+  createCashReturn(): void {
+    const selling = this.selectedSellingToReturn;
+    const returnDate = this.formatDateParam(this.cashReturnDate);
+    if (!selling?.id || !returnDate || !this.hasCashReturnSelection()) return;
+
+    const items = this.cashReturnItems
+      .map((item) => ({
+        productId: item.productId,
+        quantity: Math.min(item.availableQuantity, Math.max(0, Math.floor(Number(item.quantity) || 0))),
+        ...(item.returnReason.trim() ? { returnReason: item.returnReason.trim() } : {})
+      }))
+      .filter((item) => item.quantity > 0);
+
+    this.returningSellingId = selling.id;
+    this.returnError = '';
+    this._returnsService.createReturn({
+      returnType: 'cash',
+      invoiceId: selling.id,
+      returnDate,
+      ...(this.cashReturnNote.trim() ? { note: this.cashReturnNote.trim() } : {}),
+      items
+    }).subscribe({
+      next: () => {
+        this.returningSellingId = '';
+        this.returnDialogVisible = false;
+        this.selectedSellingToReturn = null;
+        this.cashReturnItems = [];
+        this.loadSellings();
+      },
+      error: (error: any) => {
+        this.returningSellingId = '';
+        this.returnError = error?.error?.message || this.translateKey('invoiceHistoryPage.messages.returnFailed');
+        this._cdr.detectChanges();
+      }
+    });
+  }
+
+  isReturningSelling(sellingId: string): boolean {
+    return this.returningSellingId === sellingId;
+  }
+
+  get isReturningSelectedSelling(): boolean {
+    return this.isReturningSelling(this.selectedSellingToReturn?.id || '');
   }
 
   openDeleteDialog(selling: InvoiceHistoryRow): void {

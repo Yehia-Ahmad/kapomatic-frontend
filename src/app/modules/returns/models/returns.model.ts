@@ -66,3 +66,18 @@ export interface ApiDataResponse<T> {
   success: boolean;
   data: T;
 }
+
+export interface CreateReturnItemPayload {
+  productId: string;
+  quantity: number;
+  returnReason?: string;
+}
+
+export interface CreateReturnPayload {
+  returnType: ReturnType;
+  invoiceId: string;
+  returnDate?: string;
+  refundDate?: string;
+  note?: string;
+  items: CreateReturnItemPayload[];
+}

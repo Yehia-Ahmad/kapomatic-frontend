@@ -726,14 +726,30 @@
       "action": "إجراء"
     },
     "actions": {
-      "downloadInvoice": "تنزيل الفاتورة"
+      "downloadInvoice": "تنزيل الفاتورة",
+      "createReturn": "إرجاع أصناف"
+    },
+    "returnDialog": {
+      "title": "إنشاء مرتجع نقدي",
+      "subtitle": "حدد الكميات المرتجعة. ستتم إعادة المخزون دون حذف الفاتورة.",
+      "returnDate": "تاريخ المرتجع",
+      "note": "ملاحظة",
+      "notePlaceholder": "أضف ملاحظة اختيارية للمرتجع",
+      "items": "الأصناف المرتجعة",
+      "available": "المتاح",
+      "reason": "سبب المرتجع",
+      "returnAll": "إرجاع الكل",
+      "clear": "مسح",
+      "selectionRequired": "اختر كمية لصنف واحد على الأقل."
     },
     "messages": {
       "deleteConfirm": "هل تريد حذف هذه الفاتورة؟",
+      "deleteInventoryWarning": "سيتم حذف سجل الفاتورة فقط. استخدم إرجاع الأصناف لإعادة الكميات إلى المخزون.",
       "deleteFailed": "فشل حذف الفاتورة.",
       "empty": "لا توجد فواتير.",
       "invoiceWindowBlocked": "يرجى السماح بالنوافذ المنبثقة لفتح الفاتورة وحفظها.",
-      "invoiceDownloadFailed": "فشل فتح الفاتورة."
+      "invoiceDownloadFailed": "فشل فتح الفاتورة.",
+      "returnFailed": "فشل إنشاء المرتجع."
     }
   },
   "profitReportPage": {
@@ -886,8 +902,14 @@
     },
     "actions": {
       "addPayment": "إضافة دفعة",
-      "addRefund": "إضافة مرتجع",
-      "printInvoice": "طباعة الفاتورة"
+      "addRefund": "إرجاع أصناف",
+      "printInvoice": "طباعة الفاتورة",
+      "deleteInvoice": "حذف الفاتورة"
+    },
+    "deleteDialog": {
+      "title": "حذف فاتورة آجل",
+      "confirm": "هل تريد حذف فاتورة البيع الآجل هذه؟",
+      "inventoryWarning": "سيتم حذف سجل الفاتورة فقط. استخدم إرجاع الأصناف لإعادة الكميات إلى المخزون."
     },
     "print": {
       "status": "الحالة",
@@ -934,7 +956,8 @@
       "loadFailed": "فشل تحميل تفاصيل العميل.",
       "notFound": "لم يتم العثور على بيانات العميل.",
       "paymentFailed": "فشل تسجيل الدفعة.",
-      "refundFailed": "فشل تسجيل المرتجع."
+      "refundFailed": "فشل تسجيل المرتجع.",
+      "deleteInvoiceFailed": "فشل حذف فاتورة البيع الآجل."
     }
   },
   "returnsPage": {
@@ -957,7 +980,7 @@
       "returnType": "نوع المرتجع",
       "type": "النوع",
       "invoiceNumber": "رقم الفاتورة",
-      "invoiceId": "رقم الفاتورة",
+      "invoiceId": "معرّف الفاتورة",
       "customerName": "اسم العميل",
       "customerPhone": "هاتف العميل",
       "productName": "اسم المنتج",

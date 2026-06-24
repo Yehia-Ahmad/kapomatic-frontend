@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   ApiDataResponse,
+  CreateReturnPayload,
   ReturnLog,
   ReturnsFilters,
   ReturnsListResponse,
@@ -15,6 +16,10 @@ export class ReturnsService {
   private readonly baseUrl = `${environment.api_base_url}returns`;
 
   constructor(private readonly http: HttpClient) {}
+
+  createReturn(payload: CreateReturnPayload): Observable<unknown> {
+    return this.http.post(this.baseUrl, payload);
+  }
 
   getReturns(filters: ReturnsFilters = {}): Observable<ReturnsListResponse> {
     return this.http.get<ReturnsListResponse>(this.baseUrl, {
