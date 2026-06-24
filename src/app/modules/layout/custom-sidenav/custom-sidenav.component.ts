@@ -341,11 +341,12 @@ export class CustomSidenavComponent implements OnInit {
     const isProductsRoute = this._router.url.includes('/selling')
       || this._router.url.includes('/credit-sales')
       || this._router.url.includes('/invoice-history')
+      || this._router.url.includes('/returns')
       || this._router.url.includes('/products/profit-report');
     if (!this.isBrowser) return isProductsRoute;
 
     const currentView = localStorage.getItem(HOME_VIEW_STORAGE_KEY);
-    const isProductsView = currentView === 'products' || currentView === 'selling' || currentView === 'invoice-history' || currentView === 'profit-report';
+    const isProductsView = currentView === 'products' || currentView === 'selling' || currentView === 'invoice-history' || currentView === 'returns' || currentView === 'profit-report';
     return isProductsView || isProductsRoute;
   }
 
@@ -383,6 +384,17 @@ export class CustomSidenavComponent implements OnInit {
         </span>
         `),
         route: '/invoice-history'
+      },
+      {
+        label: 'sidebarTitles.returns',
+        icon: this.sanitize(`
+        <span class="block w-8 h-8">
+          <svg width="100%" height="100%" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 7h10v3l4-4-4-4v3H7a5 5 0 0 0-5 5v2h2v-2a3 3 0 0 1 3-3zm10 10H7v-3l-4 4 4 4v-3h10a5 5 0 0 0 5-5v-2h-2v2a3 3 0 0 1-3 3z" style="fill:#2f2f2f" />
+          </svg>
+        </span>
+        `),
+        route: '/returns'
       },
       {
         label: 'sidebarTitles.profit_report',

@@ -11,6 +11,7 @@
     "selling": "البيع",
     "credit_sales": "البيع الآجل",
     "invoice_history": "سجل الفواتير",
+    "returns": "المرتجعات",
     "profit_report": "تقرير الأرباح",
     "ecommerce_settings": "إعدادات المتجر",
     "website_images": "صور الموقع",
@@ -925,6 +926,82 @@
       "notFound": "لم يتم العثور على بيانات العميل.",
       "paymentFailed": "فشل تسجيل الدفعة.",
       "refundFailed": "فشل تسجيل المرتجع."
+    }
+  },
+  "returnsPage": {
+    "title": "سجل المرتجعات",
+    "subtitle": "راجع مرتجعات المبيعات النقدية والآجلة وقم بتصديرها.",
+    "summary": {
+      "label": "ملخص المرتجعات",
+      "cash": "إجمالي المرتجعات النقدية",
+      "credit": "إجمالي مرتجعات البيع الآجل",
+      "amount": "إجمالي المبلغ المرتجع",
+      "items": "إجمالي الأصناف المرتجعة"
+    },
+    "types": {
+      "all": "الكل",
+      "cash": "نقدي",
+      "credit": "آجل"
+    },
+    "fields": {
+      "returnDate": "تاريخ المرتجع",
+      "returnType": "نوع المرتجع",
+      "type": "النوع",
+      "invoiceNumber": "رقم الفاتورة",
+      "invoiceId": "معرّف الفاتورة",
+      "customerName": "اسم العميل",
+      "customerPhone": "هاتف العميل",
+      "productName": "اسم المنتج",
+      "productCode": "كود المنتج",
+      "itemsCount": "عدد الأصناف",
+      "quantity": "الكمية",
+      "price": "السعر",
+      "total": "الإجمالي",
+      "returnReason": "سبب الإرجاع",
+      "dateFrom": "التاريخ من",
+      "dateTo": "التاريخ إلى",
+      "note": "ملاحظة",
+      "subtotalReturnedAmount": "إجمالي المرتجع قبل الخصم",
+      "discountAmount": "قيمة الخصم",
+      "shippingFees": "رسوم الشحن",
+      "finalReturnedAmount": "صافي المبلغ المرتجع",
+      "actions": "الإجراءات"
+    },
+    "actions": {
+      "search": "بحث",
+      "reset": "إعادة ضبط",
+      "export": "تصدير إلى Excel",
+      "exporting": "جارٍ التصدير…",
+      "viewDetails": "عرض التفاصيل",
+      "tryAgain": "إعادة المحاولة",
+      "close": "إغلاق"
+    },
+    "dialog": {
+      "title": "تفاصيل المرتجع",
+      "invoice": "الفاتورة",
+      "returnedItems": "الأصناف المرتجعة",
+      "closeAria": "إغلاق تفاصيل المرتجع"
+    },
+    "messages": {
+      "loading": "جارٍ تحميل المرتجعات…",
+      "loadingDetails": "جارٍ تحميل التفاصيل…",
+      "empty": "لا توجد مرتجعات",
+      "noItems": "لا توجد أصناف مرتجعة",
+      "noNote": "لا توجد ملاحظة.",
+      "loadFailed": "تعذر تحميل المرتجعات. حاول مرة أخرى.",
+      "detailsLoadFailed": "تعذر تحميل تفاصيل المرتجع.",
+      "exportSuccess": "تم تصدير المرتجعات بنجاح.",
+      "exportFailed": "تعذر تصدير المرتجعات.",
+      "invalidDateRange": "لا يمكن أن يكون تاريخ البداية بعد تاريخ النهاية."
+    },
+    "pagination": {
+      "label": "ترقيم صفحات المرتجعات",
+      "itemsPerPage": "عدد العناصر في الصفحة:",
+      "next": "الصفحة التالية",
+      "previous": "الصفحة السابقة",
+      "first": "الصفحة الأولى",
+      "last": "الصفحة الأخيرة",
+      "range": "{{start}} – {{end}} من {{total}}"
     }
   },
   "logout": {

@@ -11,6 +11,7 @@
         "selling": "Selling",
         "credit_sales": "Credit Sales",
         "invoice_history": "Invoice History",
+        "returns": "Returns",
         "profit_report": "Profit Report",
         "ecommerce_settings": "E-commerce Settings",
         "website_images": "Website Images",
@@ -922,6 +923,82 @@
             "notFound": "Customer details were not found.",
             "paymentFailed": "Failed to record payment.",
             "refundFailed": "Failed to record refund."
+        }
+    },
+    "returnsPage": {
+        "title": "Returns Log",
+        "subtitle": "Review and export cash and credit returns.",
+        "summary": {
+            "label": "Returns summary",
+            "cash": "Total Cash Returns",
+            "credit": "Total Credit Returns",
+            "amount": "Total Returned Amount",
+            "items": "Total Returned Items"
+        },
+        "types": {
+            "all": "All",
+            "cash": "Cash",
+            "credit": "Credit"
+        },
+        "fields": {
+            "returnDate": "Return Date",
+            "returnType": "Return Type",
+            "type": "Type",
+            "invoiceNumber": "Invoice Number",
+            "invoiceId": "Invoice ID",
+            "customerName": "Customer Name",
+            "customerPhone": "Customer Phone",
+            "productName": "Product Name",
+            "productCode": "Product Code",
+            "itemsCount": "Items Count",
+            "quantity": "Quantity",
+            "price": "Price",
+            "total": "Total",
+            "returnReason": "Return Reason",
+            "dateFrom": "Date From",
+            "dateTo": "Date To",
+            "note": "Note",
+            "subtotalReturnedAmount": "Subtotal Returned Amount",
+            "discountAmount": "Discount Amount",
+            "shippingFees": "Shipping Fees",
+            "finalReturnedAmount": "Final Returned Amount",
+            "actions": "Actions"
+        },
+        "actions": {
+            "search": "Search",
+            "reset": "Reset",
+            "export": "Export Excel",
+            "exporting": "Exporting…",
+            "viewDetails": "View Details",
+            "tryAgain": "Try Again",
+            "close": "Close"
+        },
+        "dialog": {
+            "title": "Return Details",
+            "invoice": "Invoice",
+            "returnedItems": "Returned Items",
+            "closeAria": "Close return details"
+        },
+        "messages": {
+            "loading": "Loading returns…",
+            "loadingDetails": "Loading details…",
+            "empty": "No returns found",
+            "noItems": "No returned items",
+            "noNote": "No note provided.",
+            "loadFailed": "Failed to load returns. Please try again.",
+            "detailsLoadFailed": "Failed to load return details.",
+            "exportSuccess": "Returns exported successfully.",
+            "exportFailed": "Failed to export returns.",
+            "invalidDateRange": "Date From cannot be later than Date To."
+        },
+        "pagination": {
+            "label": "Returns pagination",
+            "itemsPerPage": "Items per page:",
+            "next": "Next page",
+            "previous": "Previous page",
+            "first": "First page",
+            "last": "Last page",
+            "range": "{{start}} – {{end}} of {{total}}"
         }
     },
     "logout": {

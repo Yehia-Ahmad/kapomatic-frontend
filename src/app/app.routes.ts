@@ -40,6 +40,11 @@ export const routes: Routes = [
         loadComponent: () => import('./modules/products/components/invoice-history/invoice-history.component').then(m => m.InvoiceHistoryComponent)
     },
     {
+        path: 'returns',
+        // canActivate: [authGuard],
+        loadComponent: () => import('./modules/returns/components/returns/returns.component').then(m => m.ReturnsComponent)
+    },
+    {
         path: 'categories/:id',
         // canActivate: [authGuard],
         loadComponent: () => import('./modules/category/components/category-details/category-details.component').then(m => m.CategoryDetailsComponent)
