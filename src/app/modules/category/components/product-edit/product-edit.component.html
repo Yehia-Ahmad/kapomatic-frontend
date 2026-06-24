@@ -124,6 +124,21 @@
                                 }" />
                     </div>
 
+                    <label class="text-lg capitalize font-medium font-roboto text-orange" for="discountPercentage">
+                        {{ 'category.editProduct.discountPercentage' | translate }}
+                    </label>
+                    <div class="field-wrapper w-full px-4 py-1 rounded-md" [ngClass]="{
+                              'border border-orange bg-light_bg text-orange': !(isDarkMode$ | async),
+                              'border border-gray bg-gray_dark': (isDarkMode$ | async)
+                            }">
+                            <input id="discountPercentage" type="number" min="0" max="100" step="0.01"
+                                class="w-full rounded-md p-2 bg-transparent border border-none focus:outline-none"
+                                [(ngModel)]="product.discountPercentage" [ngModelOptions]="{standalone: true}" [ngClass]="{
+                                    'text-orange': !(isDarkMode$ | async),
+                                    'text-light_orange ': (isDarkMode$ | async)
+                                }" />
+                    </div>
+
                     <label class="text-lg capitalize font-medium font-roboto text-orange" for="soldItemCount">
                         {{ 'category.editProduct.soldItemCount' | translate }}
                     </label>

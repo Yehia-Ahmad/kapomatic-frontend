@@ -44,4 +44,6 @@ export interface WebsiteImageProductOption {
   categoryId: string;
   categoryName: string;
   retailPrice: number;
+  discountPercentage: number;
+  priceAfterDiscount: number | null;
 }

@@ -9,6 +9,8 @@ export interface Product {
   code?: string;
   image?: string;
   inventoryCount?: number;
+  discountPercentage?: number;
+  priceAfterDiscount?: number;
   [key: string]: unknown;
 }
 

@@ -169,6 +169,7 @@
       "wholesalePrice": "سعر الوحدة بالجملة",
       "purchasePrice": "سعر الشراء",
       "retailPrice": "سعر الوحدة بالتجزئة",
+      "discountPercentage": "نسبة الخصم",
       "soldItemCount": "عدد المبيعات",
       "description":"وصف المنتج",
       "category": "فئة المنتج",
@@ -411,6 +412,7 @@
       "code": "الكود",
       "category": "الفئة",
       "retailPrice": "سعر التجزئة",
+      "priceAfterDiscount": "السعر بعد الخصم",
       "empty": "لا توجد منتجات مطابقة لقواعد استهداف هذه الصورة."
     },
     "messages": {

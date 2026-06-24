@@ -98,8 +98,10 @@ export class ProductEditComponent {
       wholesalePrice: this.product.wholesalePrice,
       purchasePrice: this.product.purchasePrice,
       retailPrice: this.product.retailPrice,
+      discountPercentage: this.normalizePercentage(this.product.discountPercentage),
       soldItemCount: this.product.soldItemCount,
       image: this.product.image,
+      editProduct: newInventoryCount === 0,
       specifications: this.normalizeProductDetails(this.productDetails),
     };
     this._cateoryService.updateProduct(this.productId, payload).subscribe({
@@ -182,6 +184,10 @@ export class ProductEditComponent {
   private toNumber(value: unknown): number {
     const parsedValue = Number(value);
     return Number.isFinite(parsedValue) ? parsedValue : 0;
+  }
+
+  private normalizePercentage(value: unknown): number {
+    return Math.min(100, Math.max(0, this.toNumber(value)));
   }
 
   private buildProductDetails(product: any): { title: string; value: string }[] {

@@ -280,7 +280,11 @@ export class EcommerceSettingsService {
     return products.map((product) => ({
       id: String(product?._id || product?.id || product?.productId || ''),
       name: String(product?.name || product?.productName || ''),
-      code: product?.code ? String(product.code) : undefined
+      code: product?.code ? String(product.code) : undefined,
+      discountPercentage: Number(product?.discountPercentage ?? 0),
+      priceAfterDiscount: product?.priceAfterDiscount === null || product?.priceAfterDiscount === undefined
+        ? null
+        : Number(product.priceAfterDiscount)
     }));
   }
 

@@ -41,6 +41,8 @@ type ProductSearchResult = {
   categoryName: string;
   wholesalePrice: number | null;
   retailPrice: number | null;
+  discountPercentage: number | null;
+  priceAfterDiscount: number | null;
 };
 
 type CustomerSearchResult = {
@@ -918,7 +920,9 @@ export class SellingComponent implements OnInit, OnDestroy {
       displayLabel,
       categoryName,
       wholesalePrice: this.toNumber(candidate.wholesalePrice),
-      retailPrice: this.toNumber(candidate.retailPrice)
+      retailPrice: this.toNumber(candidate.retailPrice),
+      discountPercentage: this.toNumber(candidate.discountPercentage),
+      priceAfterDiscount: this.toNumber(candidate.priceAfterDiscount)
     };
   }
 

@@ -2,6 +2,8 @@ export interface EcommerceProductOption {
   id: string;
   name: string;
   code?: string;
+  discountPercentage?: number;
+  priceAfterDiscount?: number | null;
 }
 
 export interface EcommerceCategorySpecification {

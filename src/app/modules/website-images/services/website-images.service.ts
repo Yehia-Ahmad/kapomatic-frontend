@@ -116,7 +116,11 @@ export class WebsiteImagesService {
       image: String(product?.image || product?.imageBase64 || product?.imageUrl || ''),
       categoryId: String(category?._id || category?.id || product?.categoryId || ''),
       categoryName: String(category?.name || product?.categoryName || ''),
-      retailPrice: Number(product?.retailPrice ?? product?.price ?? 0)
+      retailPrice: Number(product?.retailPrice ?? product?.price ?? 0),
+      discountPercentage: Number(product?.discountPercentage ?? 0),
+      priceAfterDiscount: product?.priceAfterDiscount === null || product?.priceAfterDiscount === undefined
+        ? null
+        : Number(product.priceAfterDiscount)
     };
   }
 

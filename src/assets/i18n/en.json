@@ -166,6 +166,7 @@
             "wholesalePrice": "Wholesale Price",
             "purchasePrice": "Purchase Price",
             "retailPrice": "Retail Price",
+            "discountPercentage": "Discount Percentage",
             "soldItemCount": "Sold Item Count",
             "description": "Product Description",
             "category": "Category",
@@ -408,6 +409,7 @@
             "code": "Code",
             "category": "Category",
             "retailPrice": "Retail Price",
+            "priceAfterDiscount": "Price After Discount",
             "empty": "No products match this image's targeting rules."
         },
         "messages": {
