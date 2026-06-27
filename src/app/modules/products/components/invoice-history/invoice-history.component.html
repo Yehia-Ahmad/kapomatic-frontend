@@ -117,34 +117,33 @@
       @if (loadError) {
         <p class="text-sm font-roboto text-red">{{ loadError }}</p>
       } @else {
-        <p-table
-          [value]="sellings"
-          [loading]="isLoading"
-          [scrollable]="true"
-          scrollHeight="450px"
-          [tableStyle]="{ 'min-width': '1820px' }"
-          styleClass="invoice-history-table"
-        >
-          <ng-template pTemplate="header">
-            <tr [ngClass]="{
-              'bg-[#515151]': (isDarkMode$ | async),
-              'bg-[#e7e7e7]': !(isDarkMode$ | async)
-            }">
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.index' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.invoiceNumber' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.customer' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.customerPhone' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.date' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.items' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.itemCount' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.totalQuantity' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.discountAmount' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.discountPercentage' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.shippingFees' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.totalPrice' | translate }}</th>
-              <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.action' | translate }}</th>
-            </tr>
-          </ng-template>
+        <div class="invoice-history-table-scroll" (scroll)="onTableViewportScroll($event)">
+          <p-table
+            [value]="sellings"
+            [loading]="isLoading"
+            [tableStyle]="{ 'min-width': '1820px' }"
+            styleClass="invoice-history-table"
+          >
+            <ng-template pTemplate="header">
+              <tr [ngClass]="{
+                'bg-[#515151]': (isDarkMode$ | async),
+                'bg-[#e7e7e7]': !(isDarkMode$ | async)
+              }">
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.index' | translate }}</th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.invoiceNumber' | translate }}</th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.customer' | translate }}</th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.customerPhone' | translate }}</th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.date' | translate }}</th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.items' | translate }}</th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.itemCount' | translate }}</th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.totalQuantity' | translate }}</th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.discountAmount' | translate }}</th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.discountPercentage' | translate }}</th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.shippingFees' | translate }}</th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.totalPrice' | translate }}</th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">{{ 'invoiceHistoryPage.tableHeaders.action' | translate }}</th>
+              </tr>
+            </ng-template>
 
           <ng-template pTemplate="body" let-selling let-rowIndex="rowIndex">
             <tr class="invoice-history-row">
@@ -254,7 +253,20 @@
               </td>
             </tr>
           </ng-template>
-        </p-table>
+          </p-table>
+        </div>
+
+        @if (isLoadingMore) {
+          <div class="invoice-history-load-more" [ngClass]="{
+            'text-brown': (isDarkMode$ | async),
+            'text-gray_dark': !(isDarkMode$ | async)
+          }">
+            {{ 'actions.loading' | translate }}
+          </div>
+        }
+        @if (loadMoreError) {
+          <p class="mt-4 text-center text-sm font-roboto text-red">{{ loadMoreError }}</p>
+        }
       }
     </div>
   </div>

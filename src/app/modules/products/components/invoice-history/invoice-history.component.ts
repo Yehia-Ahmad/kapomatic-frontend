@@ -38,6 +38,24 @@ type CashReturnItem = {
   returnReason: string;
 };
 
+type SellingsPagination = {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+};
+
+const DEFAULT_SELLINGS_PAGINATION: SellingsPagination = {
+  page: 1,
+  limit: 10,
+  totalItems: 0,
+  totalPages: 1,
+  hasNextPage: false,
+  hasPrevPage: false
+};
+
 @Component({
   selector: 'app-invoice-history',
   standalone: true,
@@ -62,8 +80,11 @@ export class InvoiceHistoryComponent implements OnInit {
   isDarkMode$;
   private isBrowser: boolean;
   isLoading = false;
+  isLoadingMore = false;
   loadError = '';
+  loadMoreError = '';
   sellings: InvoiceHistoryRow[] = [];
+  pagination: SellingsPagination = { ...DEFAULT_SELLINGS_PAGINATION };
   isCategoriesLoading = false;
   isProductsLoading = false;
   categoryOptions: SelectOption[] = [];
@@ -114,7 +135,7 @@ export class InvoiceHistoryComponent implements OnInit {
   }
 
   applyFilters(): void {
-    this.loadSellings();
+    this.loadSellings(1, false);
   }
 
   resetFilters(): void {
@@ -124,7 +145,7 @@ export class InvoiceHistoryComponent implements OnInit {
     this.filterCustomerName = '';
     this.filterCustomerPhone = '';
     this.filterSellingDate = null;
-    this.loadSellings();
+    this.loadSellings(1, false);
   }
 
   onCategoryFilterChange(categoryId: string): void {
@@ -139,31 +160,70 @@ export class InvoiceHistoryComponent implements OnInit {
     this.loadProductsByCategory(this.filterCategoryId);
   }
 
-  private loadSellings(): void {
-    this.isLoading = true;
-    this.loadError = '';
+  onTableViewportScroll(event: Event): void {
+    const target = event.target as HTMLElement | null;
+    if (!target || this.isLoading || this.isLoadingMore || !this.pagination.hasNextPage) {
+      return;
+    }
 
-    this._productsService.getSellings(this.buildFilterParams()).subscribe({
+    const scrollThreshold = 80;
+    const distanceFromBottom = target.scrollHeight - target.scrollTop - target.clientHeight;
+    if (distanceFromBottom <= scrollThreshold) {
+      this.loadNextSellingsPage();
+    }
+  }
+
+  private loadNextSellingsPage(): void {
+    if (!this.pagination.hasNextPage || this.isLoadingMore || this.isLoading) {
+      return;
+    }
+
+    this.loadSellings(this.pagination.page + 1, true);
+  }
+
+  private loadSellings(page = 1, append = false): void {
+    if (append) {
+      this.isLoadingMore = true;
+    } else {
+      this.isLoading = true;
+      this.pagination = { ...DEFAULT_SELLINGS_PAGINATION, limit: this.pagination.limit };
+    }
+    this.loadError = '';
+    this.loadMoreError = '';
+
+    this._productsService.getSellings(this.buildFilterParams(page)).subscribe({
       next: (response: any) => {
-        this.sellings = this.extractSellings(response);
+        const nextSellings = this.extractSellings(response);
+        this.sellings = append ? this.mergeSellings(this.sellings, nextSellings) : nextSellings;
+        this.pagination = this.extractPagination(response, page);
         this.isLoading = false;
+        this.isLoadingMore = false;
         this._cdr.detectChanges();
       },
       error: (err: any) => {
-        this.sellings = [];
+        const message = err?.error?.message || 'Failed to load sellings.';
+        if (!append) {
+          this.sellings = [];
+          this.pagination = { ...DEFAULT_SELLINGS_PAGINATION, limit: this.pagination.limit };
+          this.loadError = message;
+        } else {
+          this.loadMoreError = message;
+        }
         this.isLoading = false;
-        this.loadError = err?.error?.message || 'Failed to load sellings.';
+        this.isLoadingMore = false;
         this._cdr.detectChanges();
       }
     });
   }
 
-  private buildFilterParams(): {
+  private buildFilterParams(page: number): {
     categoryId?: string;
     productId?: string;
     customerName?: string;
     customerPhone?: string;
     sellingDate?: string;
+    page: number;
+    limit: number;
   } {
     const categoryId = this.filterCategoryId.trim();
     const productId = this.filterProductId.trim();
@@ -176,7 +236,9 @@ export class InvoiceHistoryComponent implements OnInit {
       ...(productId ? { productId } : {}),
       ...(customerName ? { customerName } : {}),
       ...(customerPhone ? { customerPhone } : {}),
-      ...(sellingDate ? { sellingDate } : {})
+      ...(sellingDate ? { sellingDate } : {}),
+      page,
+      limit: this.pagination.limit
     };
   }
 
@@ -254,6 +316,36 @@ export class InvoiceHistoryComponent implements OnInit {
     return list
       .map((item) => this.mapSelling(item))
       .filter((item): item is InvoiceHistoryRow => item !== null);
+  }
+
+  private extractPagination(response: any, requestedPage: number): SellingsPagination {
+    const source = response?.pagination ?? response?.data?.pagination ?? {};
+    const page = this.toPositiveInteger(source.page, requestedPage);
+    const limit = this.toPositiveInteger(source.limit, this.pagination.limit);
+    const totalItems = this.toPositiveInteger(source.totalItems, this.sellings.length);
+    const totalPages = this.toPositiveInteger(source.totalPages, page);
+
+    return {
+      page,
+      limit,
+      totalItems,
+      totalPages,
+      hasNextPage: Boolean(source.hasNextPage ?? page < totalPages),
+      hasPrevPage: Boolean(source.hasPrevPage ?? page > 1)
+    };
+  }
+
+  private mergeSellings(current: InvoiceHistoryRow[], next: InvoiceHistoryRow[]): InvoiceHistoryRow[] {
+    const seenIds = new Set(current.map((item) => item.id));
+    const uniqueNext = next.filter((item) => {
+      if (seenIds.has(item.id)) {
+        return false;
+      }
+      seenIds.add(item.id);
+      return true;
+    });
+
+    return [...current, ...uniqueNext];
   }
 
   private extractCollection(response: any): any[] {
@@ -464,7 +556,7 @@ export class InvoiceHistoryComponent implements OnInit {
         this.returnDialogVisible = false;
         this.selectedSellingToReturn = null;
         this.cashReturnItems = [];
-        this.loadSellings();
+        this.loadSellings(1, false);
       },
       error: (error: any) => {
         this.returningSellingId = '';
@@ -608,6 +700,11 @@ export class InvoiceHistoryComponent implements OnInit {
   private toNumber(value: any): number | null {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  private toPositiveInteger(value: any, fallback: number): number {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : fallback;
   }
 
   private translateKey(key: string): string {

@@ -7,6 +7,20 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.invoice-history-table-scroll {
+  max-height: 450px;
+  overflow: auto;
+  width: 100%;
+}
+
+.invoice-history-load-more {
+  padding: 1rem 0 0;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .invoice-items-column {
   min-width: 25rem;
 }

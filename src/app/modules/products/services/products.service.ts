@@ -63,6 +63,8 @@ export class ProductsService {
     customerName?: string;
     customerPhone?: string;
     sellingDate?: string;
+    page?: number;
+    limit?: number;
   }) {
     return this._http.get(`${this._baseUrl}sellings`, { params });
   }
