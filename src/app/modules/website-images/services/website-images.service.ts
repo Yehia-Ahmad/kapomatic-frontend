@@ -101,6 +101,7 @@ export class WebsiteImagesService {
         ? null
         : Number(item.maxPrice),
       specificationFilters: this.normalizeSpecificationFilters(item?.specificationFilters || []),
+      viewOnly: Boolean(item?.viewOnly ?? false),
       isActive: Boolean(item?.isActive ?? true),
       createdAt: item?.createdAt ? String(item.createdAt) : null
     };

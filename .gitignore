@@ -3,4 +3,7 @@ node_modules/
 dist/
 release/
 build/
+desktop/dist/
+desktop/electron/
+desktop/node_modules/
 .codex

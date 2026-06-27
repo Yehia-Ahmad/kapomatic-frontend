@@ -9,18 +9,20 @@ export interface WebsiteImage {
   productIds: string[];
   maxPrice: number | null;
   specificationFilters: WebsiteImageSpecificationFilter[];
+  viewOnly: boolean;
   isActive: boolean;
   createdAt: string | null;
 }
 
 export interface WebsiteImagePayload {
-  title: string;
+  title?: string;
   imageBase64?: string;
-  targetType: WebsiteImageTargetType;
+  targetType?: WebsiteImageTargetType;
   categoryIds?: string[];
   productIds?: string[];
   maxPrice?: number;
   specificationFilters?: WebsiteImageSpecificationFilter[];
+  viewOnly?: boolean;
   isActive: boolean;
 }
 

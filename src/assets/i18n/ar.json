@@ -346,7 +346,8 @@
       "product": "منتج",
       "both": "الفئة والمنتج",
       "price": "السعر",
-      "specification": "المواصفة"
+      "specification": "المواصفة",
+      "viewOnly": "عرض فقط"
     },
     "status": {
       "active": "نشط",
@@ -378,6 +379,7 @@
       "specificationFilters": "فلاتر المواصفات",
       "specificationName": "اسم المواصفة",
       "specificationValues": "القيم",
+      "viewOnly": "عرض فقط",
       "active": "نشط",
       "optional": "اختياري",
       "selectCategories": "اختر الفئات",

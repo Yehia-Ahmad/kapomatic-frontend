@@ -27,6 +27,7 @@ type WebsiteImageForm = FormGroup<{
   productIds: FormControl<string[]>;
   maxPrice: FormControl<number | null>;
   specificationFilters: FormArray<SpecificationFilterForm>;
+  viewOnly: FormControl<boolean>;
   isActive: FormControl<boolean>;
 }>;
 
@@ -98,20 +99,24 @@ export class WebsiteImagesComponent implements OnInit {
     return this.form.controls.targetType.value;
   }
 
+  get isViewOnly(): boolean {
+    return this.form.controls.viewOnly.value;
+  }
+
   get showsCategories(): boolean {
-    return ['category', 'product', 'both', 'price', 'specification'].includes(this.targetType);
+    return !this.isViewOnly && ['category', 'product', 'both', 'price', 'specification'].includes(this.targetType);
   }
 
   get showsProducts(): boolean {
-    return this.targetType === 'product' || this.targetType === 'both';
+    return !this.isViewOnly && (this.targetType === 'product' || this.targetType === 'both');
   }
 
   get showsMaxPrice(): boolean {
-    return this.targetType === 'price';
+    return !this.isViewOnly && this.targetType === 'price';
   }
 
   get showsSpecification(): boolean {
-    return this.targetType === 'specification';
+    return !this.isViewOnly && this.targetType === 'specification';
   }
 
   get specificationFilters(): FormArray<SpecificationFilterForm> {
@@ -183,6 +188,7 @@ export class WebsiteImagesComponent implements OnInit {
           categoryIds: details.categoryIds,
           productIds: details.productIds,
           maxPrice: details.maxPrice,
+          viewOnly: details.viewOnly,
           isActive: details.isActive
         });
         this.setSpecificationFilters(details.specificationFilters);
@@ -234,6 +240,22 @@ export class WebsiteImagesComponent implements OnInit {
     if (this.showsSpecification) {
       this.clearSpecificationFilters();
       this.loadSpecificationsForSelectedCategories();
+    }
+
+    this.updateConditionalValidators();
+    this.cdr.detectChanges();
+  }
+
+  onViewOnlyChanged(): void {
+    if (this.isViewOnly) {
+      this.form.controls.categoryIds.setValue([]);
+      this.form.controls.productIds.setValue([]);
+      this.form.controls.maxPrice.setValue(null);
+      this.products = [];
+      this.clearSpecificationFilters();
+      this.availableSpecifications = [];
+      this.productLoadSequence++;
+      this.specificationLoadSequence++;
     }
 
     this.updateConditionalValidators();
@@ -473,22 +495,28 @@ export class WebsiteImagesComponent implements OnInit {
       productIds: this.fb.nonNullable.control<string[]>([]),
       maxPrice: this.fb.control<number | null>(null),
       specificationFilters: this.fb.array<SpecificationFilterForm>([]),
+      viewOnly: this.fb.nonNullable.control(false),
       isActive: this.fb.nonNullable.control(true)
     });
   }
 
   private updateConditionalValidators(): void {
+    const titleControl = this.form.controls.title;
     const categoryControl = this.form.controls.categoryIds;
     const productControl = this.form.controls.productIds;
     const maxPriceControl = this.form.controls.maxPrice;
     const specificationFiltersControl = this.form.controls.specificationFilters;
 
+    titleControl.clearValidators();
     categoryControl.clearValidators();
     productControl.clearValidators();
     maxPriceControl.clearValidators();
     specificationFiltersControl.clearValidators();
 
-    if (['category', 'product', 'both', 'specification'].includes(this.targetType)) {
+    titleControl.addValidators(this.isViewOnly
+      ? Validators.maxLength(150)
+      : [Validators.required, Validators.maxLength(150)]);
+    if (!this.isViewOnly && ['category', 'product', 'both', 'specification'].includes(this.targetType)) {
       categoryControl.addValidators(Validators.required);
     }
     if (this.showsProducts) {
@@ -506,6 +534,7 @@ export class WebsiteImagesComponent implements OnInit {
       this.form.controls.imageBase64.clearValidators();
     }
 
+    titleControl.updateValueAndValidity({ emitEvent: false });
     categoryControl.updateValueAndValidity({ emitEvent: false });
     productControl.updateValueAndValidity({ emitEvent: false });
     maxPriceControl.updateValueAndValidity({ emitEvent: false });
@@ -515,13 +544,17 @@ export class WebsiteImagesComponent implements OnInit {
 
   private buildPayload(): WebsiteImagePayload {
     const value = this.form.getRawValue();
+    const title = value.title.trim();
     const payload: WebsiteImagePayload = {
-      title: value.title.trim(),
-      targetType: value.targetType,
+      viewOnly: value.viewOnly,
       isActive: value.isActive
     };
 
+    if (title) payload.title = title;
     if (value.imageBase64) payload.imageBase64 = value.imageBase64;
+    if (value.viewOnly) return payload;
+
+    payload.targetType = value.targetType;
     if (this.showsCategories) payload.categoryIds = value.categoryIds;
     if (this.showsProducts) payload.productIds = value.productIds;
     if (this.showsMaxPrice && value.maxPrice !== null) payload.maxPrice = Number(value.maxPrice);

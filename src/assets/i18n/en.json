@@ -343,7 +343,8 @@
             "product": "Product",
             "both": "Both",
             "price": "Price",
-            "specification": "Specification"
+            "specification": "Specification",
+            "viewOnly": "View Only"
         },
         "status": {
             "active": "Active",
@@ -375,6 +376,7 @@
             "specificationFilters": "Specification Filters",
             "specificationName": "Specification Name",
             "specificationValues": "Values",
+            "viewOnly": "View only",
             "active": "Active",
             "optional": "Optional",
             "selectCategories": "Select categories",

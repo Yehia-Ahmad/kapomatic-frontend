@@ -9,10 +9,12 @@
     "start": "ng serve",
     "build": "ng build",
     "build:desktop": "ng build --base-href ./",
+    "prepare:desktop": "rm -rf desktop/dist desktop/electron desktop/node_modules && cp -R dist desktop/dist && cp -R electron desktop/electron",
     "electron:start": "npm run build:desktop && electron .",
     "electron:build:dir": "npm run build:desktop && electron-builder --dir",
-    "electron:build:win:dir": "npm run build:desktop && electron-builder --win --dir",
-    "electron:build:win": "npm run build:desktop && electron-builder --win nsis",
+    "electron:build:win:dir": "npm run build:desktop && npm run prepare:desktop && DEBUG=electron-builder electron-builder --win --dir",
+    "electron:build:win:zip": "npm run build:desktop && npm run prepare:desktop && DEBUG=electron-builder electron-builder --win zip",
+    "electron:build:win": "npm run build:desktop && npm run prepare:desktop && DEBUG=electron-builder electron-builder --win nsis",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:okland-warranty-system": "node dist/okland-warranty-system/server/server.mjs",
@@ -34,7 +36,13 @@
   "build": {
     "appId": "com.kapomatic.inventory",
     "productName": "Kapomatic Inventory System",
+    "npmRebuild": false,
+    "nodeGypRebuild": false,
+    "extraMetadata": {
+      "dependencies": {}
+    },
     "directories": {
+      "app": "desktop",
       "output": "release"
     },
     "files": [
@@ -43,7 +51,7 @@
       "package.json"
     ],
     "asar": true,
-    "icon": "src/assets/img/Kapo.jpeg",
+    "icon": "build/icon.ico",
     "win": {
       "signAndEditExecutable": false,
       "target": [
@@ -54,7 +62,7 @@
           ]
         }
       ],
-      "icon": "src/assets/img/Kapo.jpeg",
+      "icon": "build/icon.ico",
       "artifactName": "${productName}-Setup-${version}.${ext}"
     },
     "nsis": {

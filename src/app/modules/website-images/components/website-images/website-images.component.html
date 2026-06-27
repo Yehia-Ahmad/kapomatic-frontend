@@ -48,7 +48,7 @@
               }
             </td>
             <td class="font-semibold">{{ image.title }}</td>
-            <td>{{ ('websiteImages.targetTypes.' + image.targetType) | translate }}</td>
+            <td>{{ (image.viewOnly ? 'websiteImages.targetTypes.viewOnly' : 'websiteImages.targetTypes.' + image.targetType) | translate }}</td>
             <td>
               <span class="rounded-full px-3 py-1 text-xs font-bold" [ngClass]="image.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'">
                 {{ (image.isActive ? 'websiteImages.status.active' : 'websiteImages.status.inactive') | translate }}
@@ -137,16 +137,23 @@
           }
         </div>
 
-        <label class="grid gap-1">
-          <span class="text-sm font-bold">{{ 'websiteImages.form.targetType' | translate }}</span>
-          <select formControlName="targetType" class="min-h-11 rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-inherit" (change)="onTargetTypeChanged()">
-            <option value="category">{{ 'websiteImages.targetTypes.category' | translate }}</option>
-            <option value="product">{{ 'websiteImages.targetTypes.product' | translate }}</option>
-            <option value="both">{{ 'websiteImages.targetTypes.both' | translate }}</option>
-            <option value="price">{{ 'websiteImages.targetTypes.price' | translate }}</option>
-            <option value="specification">{{ 'websiteImages.targetTypes.specification' | translate }}</option>
-          </select>
+        <label class="inline-flex items-center gap-3 font-bold">
+          <input type="checkbox" formControlName="viewOnly" class="h-5 w-5 accent-orange" (change)="onViewOnlyChanged()" />
+          <span>{{ 'websiteImages.form.viewOnly' | translate }}</span>
         </label>
+
+        @if (!isViewOnly) {
+          <label class="grid gap-1">
+            <span class="text-sm font-bold">{{ 'websiteImages.form.targetType' | translate }}</span>
+            <select formControlName="targetType" class="min-h-11 rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-inherit" (change)="onTargetTypeChanged()">
+              <option value="category">{{ 'websiteImages.targetTypes.category' | translate }}</option>
+              <option value="product">{{ 'websiteImages.targetTypes.product' | translate }}</option>
+              <option value="both">{{ 'websiteImages.targetTypes.both' | translate }}</option>
+              <option value="price">{{ 'websiteImages.targetTypes.price' | translate }}</option>
+              <option value="specification">{{ 'websiteImages.targetTypes.specification' | translate }}</option>
+            </select>
+          </label>
+        }
 
         @if (showsCategories) {
           <label class="grid gap-1">
