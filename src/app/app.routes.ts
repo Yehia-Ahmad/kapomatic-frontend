@@ -75,6 +75,10 @@ export const routes: Routes = [
         loadComponent: () => import('./modules/website-images/components/website-images/website-images.component').then(m => m.WebsiteImagesComponent)
     },
     {
+        path: 'website-orders',
+        loadComponent: () => import('./modules/website-orders/components/website-orders/website-orders.component').then(m => m.WebsiteOrdersComponent)
+    },
+    {
         path: '**',
         // canActivate: [authGuard],
         component: HomeComponent

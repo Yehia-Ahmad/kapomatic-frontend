@@ -50,6 +50,10 @@ export class HomeComponent implements OnInit {
     this._router.navigate(['/ecommerce-settings']);
   }
 
+  openWebsiteOrders(): void {
+    this._router.navigate(['/website-orders']);
+  }
+
   openSelling(): void {
     this.setCurrentView('products');
     this._router.navigate(['/selling']);

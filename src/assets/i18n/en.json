@@ -303,6 +303,10 @@
                 "title": "E-commerce Settings",
                 "description": "Control website category visibility, products, and filters."
             },
+            "websiteOrders": {
+                "title": "Website Orders",
+                "description": "Review, confirm, and refund website orders."
+            },
             "selling": {
                 "title": "Selling",
                 "description": "Open the selling page."
@@ -324,6 +328,68 @@
         "actions": {
             "back": "Back",
             "resetView": "Reset View"
+        }
+    },
+    "websiteOrders": {
+        "title": "Website Orders",
+        "subtitle": "Review website checkout orders and move pending orders into selling invoices.",
+        "tabs": {
+            "label": "Website order status filters",
+            "all": "All Orders",
+            "pending": "Pending",
+            "accepted": "Accepted",
+            "refunded": "Refunded"
+        },
+        "columns": {
+            "order": "Order",
+            "status": "Status",
+            "customer": "Customer",
+            "phone": "Phone",
+            "location": "Location",
+            "date": "Date",
+            "quantity": "Qty",
+            "total": "Total",
+            "invoice": "Invoice",
+            "actions": "Actions"
+        },
+        "status": {
+            "pending": "Pending",
+            "accepted": "Accepted",
+            "refunded": "Refunded"
+        },
+        "actions": {
+            "refresh": "Refresh",
+            "confirm": "Confirm",
+            "refund": "Refund",
+            "showItems": "Show Items",
+            "hideItems": "Hide Items"
+        },
+        "itemLabels": {
+            "quantity": "Qty",
+            "unitPrice": "Unit",
+            "total": "Total"
+        },
+        "pagination": {
+            "range": "{{start}}-{{end}} of {{total}}",
+            "previous": "Previous",
+            "next": "Next"
+        },
+        "messages": {
+            "empty": "No website orders found.",
+            "noItems": "No order items found.",
+            "loadFailed": "Failed to load website orders.",
+            "confirmFailed": "Failed to confirm website order.",
+            "refundFailed": "Failed to refund website order."
+        },
+        "confirmDialog": {
+            "title": "Confirm Website Order",
+            "message": "This will create a linked selling invoice for the selected website order.",
+            "confirmInventory": "Auto-restock shortages if inventory is insufficient."
+        },
+        "refundDialog": {
+            "title": "Refund Website Order",
+            "message": "Mark this website order as refunded.",
+            "notePlaceholder": "Add a refund note"
         }
     },
     "websiteImages": {
@@ -511,10 +577,12 @@
             },
             "social": {
                 "title": "Social Media Links",
-                "subtitle": "Add each social platform and its public profile link.",
+                "subtitle": "Add each social platform and its public profile link. Use a phone number for WhatsApp.",
                 "add": "Add Social Link",
                 "name": "Platform Name",
                 "link": "Profile Link",
+                "whatsappPhone": "WhatsApp Phone",
+                "validWhatsappPhone": "Enter a valid WhatsApp phone number or WhatsApp URL.",
                 "empty": "No social media links have been added."
             }
         },

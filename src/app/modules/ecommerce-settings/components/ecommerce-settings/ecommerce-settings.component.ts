@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import {
+  AbstractControl,
   FormArray,
   FormBuilder,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  ValidationErrors,
   Validators
 } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -464,6 +466,16 @@ export class EcommerceSettingsComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  isWhatsAppSocialMediaLink(socialMediaLink: SocialMediaLinkForm): boolean {
+    return this.isWhatsAppPlatform(socialMediaLink.controls.name.value);
+  }
+
+  getSocialMediaLinkPlaceholder(socialMediaLink: SocialMediaLinkForm): string {
+    return this.isWhatsAppSocialMediaLink(socialMediaLink)
+      ? '+20 100 000 0000'
+      : 'https://facebook.com/example';
+  }
+
   loadHomePageCategories(): void {
     this.isLoadingHomePageCategories = true;
 
@@ -636,13 +648,13 @@ export class EcommerceSettingsComponent implements OnInit {
   private createSocialMediaLinkForm(
     socialMediaLink?: EcommerceSocialMediaLink
   ): SocialMediaLinkForm {
-    return this.fb.group({
-      name: this.fb.nonNullable.control(socialMediaLink?.name || '', Validators.required),
-      link: this.fb.nonNullable.control(socialMediaLink?.link || '', [
-        Validators.required,
-        Validators.pattern(/^https?:\/\/\S+$/i)
-      ])
-    });
+    return this.fb.group(
+      {
+        name: this.fb.nonNullable.control(socialMediaLink?.name || '', Validators.required),
+        link: this.fb.nonNullable.control(socialMediaLink?.link || '', Validators.required)
+      },
+      { validators: this.validateSocialMediaLink.bind(this) }
+    );
   }
 
   private createShippingGovernmentGroup(item?: Partial<GovernmentShippingFee>): ShippingGovernmentForm {
@@ -720,9 +732,61 @@ export class EcommerceSettingsComponent implements OnInit {
       })),
       socialMediaLinks: value.socialMediaLinks.map((socialMediaLink) => ({
         name: socialMediaLink.name.trim(),
-        link: socialMediaLink.link.trim()
+        link: this.formatSocialMediaLinkValue(socialMediaLink.name, socialMediaLink.link)
       }))
     };
+  }
+
+  private validateSocialMediaLink(control: AbstractControl): ValidationErrors | null {
+    const name = String(control.get('name')?.value || '').trim();
+    const link = String(control.get('link')?.value || '').trim();
+
+    if (!link) return null;
+
+    if (this.isWhatsAppPlatform(name)) {
+      return this.isValidWhatsAppValue(link) ? null : { invalidWhatsappPhone: true };
+    }
+
+    return /^https?:\/\/\S+$/i.test(link) ? null : { invalidSocialUrl: true };
+  }
+
+  private isWhatsAppPlatform(name: string): boolean {
+    return name.trim().toLowerCase().replace(/[\s_-]+/g, '') === 'whatsapp';
+  }
+
+  private isValidWhatsAppValue(value: string): boolean {
+    return /^https?:\/\/\S+$/i.test(value) || Boolean(this.normalizeWhatsAppPhone(value));
+  }
+
+  private formatSocialMediaLinkValue(name: string, value: string): string {
+    const trimmedValue = value.trim();
+    const normalizedPhone = this.normalizeWhatsAppPhone(trimmedValue);
+
+    if (this.isWhatsAppPlatform(name) && normalizedPhone && !/^https?:\/\//i.test(trimmedValue)) {
+      return `https://wa.me/${normalizedPhone}`;
+    }
+
+    return trimmedValue;
+  }
+
+  private normalizeWhatsAppPhone(value: string): string {
+    const trimmedValue = value.trim();
+    if (/^https?:\/\//i.test(trimmedValue)) return '';
+
+    const hasInternationalPrefix = /^\s*(\+|00)/.test(value);
+    const digits = trimmedValue.replace(/\D/g, '');
+
+    if (digits.length < 8 || digits.length > 15) return '';
+
+    if (hasInternationalPrefix) {
+      return digits.replace(/^00/, '');
+    }
+
+    if (/^01\d{9}$/.test(digits)) {
+      return `20${digits.slice(1)}`;
+    }
+
+    return digits;
   }
 
   private hasDuplicateGovernments(): boolean {

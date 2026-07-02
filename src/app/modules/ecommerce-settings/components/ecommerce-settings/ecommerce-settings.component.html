@@ -520,9 +520,15 @@
                 }
               </label>
               <label class="grid gap-1">
-                <span class="text-xs font-bold">{{ 'ecommerceSettings.websiteGeneral.social.link' | translate }}</span>
-                <input type="url" formControlName="link" class="min-h-10 rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-inherit" placeholder="https://facebook.com/example" />
-                @if (socialMediaLink.controls.link.touched && socialMediaLink.controls.link.invalid) {
+                <span class="text-xs font-bold">
+                  {{ (isWhatsAppSocialMediaLink(socialMediaLink) ? 'ecommerceSettings.websiteGeneral.social.whatsappPhone' : 'ecommerceSettings.websiteGeneral.social.link') | translate }}
+                </span>
+                <input type="text" formControlName="link" class="min-h-10 rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-inherit" [placeholder]="getSocialMediaLinkPlaceholder(socialMediaLink)" />
+                @if (socialMediaLink.controls.link.touched && socialMediaLink.controls.link.hasError('required')) {
+                  <small class="text-red">{{ 'ecommerceSettings.websiteGeneral.required' | translate }}</small>
+                } @else if (socialMediaLink.touched && socialMediaLink.hasError('invalidWhatsappPhone')) {
+                  <small class="text-red">{{ 'ecommerceSettings.websiteGeneral.social.validWhatsappPhone' | translate }}</small>
+                } @else if (socialMediaLink.touched && socialMediaLink.hasError('invalidSocialUrl')) {
                   <small class="text-red">{{ 'ecommerceSettings.websiteGeneral.validUrl' | translate }}</small>
                 }
               </label>
