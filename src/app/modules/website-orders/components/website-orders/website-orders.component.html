@@ -41,13 +41,14 @@
           <p-table
             [value]="orders"
             [loading]="isLoading"
-            [tableStyle]="{ 'min-width': '1280px' }"
+            [tableStyle]="{ 'min-width': '1360px' }"
             styleClass="website-orders-table"
           >
             <ng-template pTemplate="header">
               <tr>
                 <th>{{ 'websiteOrders.columns.order' | translate }}</th>
                 <th>{{ 'websiteOrders.columns.status' | translate }}</th>
+                <th>{{ 'websiteOrders.columns.paymentMethod' | translate }}</th>
                 <th>{{ 'websiteOrders.columns.customer' | translate }}</th>
                 <th>{{ 'websiteOrders.columns.phone' | translate }}</th>
                 <th>{{ 'websiteOrders.columns.location' | translate }}</th>
@@ -68,6 +69,7 @@
                 </button>
               </td>
               <td><span [class]="statusClass(order.status)">{{ statusLabel(order.status) }}</span></td>
+              <td>{{ paymentMethodLabel(order.paymentMethod) }}</td>
               <td>{{ order.customerName || '-' }}</td>
               <td>{{ order.customerPhone || '-' }}</td>
               <td>{{ order.government || order.shippingLocation || '-' }}</td>
@@ -83,13 +85,16 @@
                   <button type="button" class="refund-action" (click)="openRefundDialog(order)" [disabled]="!canRefund(order) || isConfirming || isRefunding">
                     {{ 'websiteOrders.actions.refund' | translate }}
                   </button>
+                  <button type="button" class="secondary-action" (click)="openTransferDialog(order)" [disabled]="!hasTransferDetails(order)">
+                    {{ 'websiteOrders.actions.viewTransfer' | translate }}
+                  </button>
                 </div>
               </td>
             </tr>
 
             @if (isExpanded(order)) {
               <tr class="items-row">
-                <td colspan="10">
+                <td colspan="11">
                   <div class="items-grid">
                     @for (item of order.items; track item.id) {
                       <div class="item-card">
@@ -114,7 +119,7 @@
 
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td colspan="10" class="empty-state">{{ 'websiteOrders.messages.empty' | translate }}</td>
+              <td colspan="11" class="empty-state">{{ 'websiteOrders.messages.empty' | translate }}</td>
             </tr>
           </ng-template>
           </p-table>
@@ -158,6 +163,26 @@
       <div class="dialog-actions">
         <p-button type="button" [label]="'actions.cancelButton' | translate" (onClick)="closeRefundDialog()" [disabled]="isRefunding" styleClass="!border-none !bg-[#b9b9b9] !text-gray_dark" />
         <p-button type="button" [label]="isRefunding ? ('actions.loading' | translate) : ('websiteOrders.actions.refund' | translate)" (onClick)="refundOrder()" [disabled]="isRefunding" styleClass="!border-none !bg-red !text-white" />
+      </div>
+    </div>
+  </p-dialog>
+
+  <p-dialog [(visible)]="transferDialogVisible" [modal]="true" [style]="{ width: 'min(42rem, 94vw)' }" styleClass="!border-0" (onHide)="closeTransferDialog()">
+    <div class="dialog-content">
+      <h2>{{ 'websiteOrders.transferDialog.title' | translate }}</h2>
+      <div class="grid gap-4">
+        <div>
+          <span class="block text-sm text-[#d1d5db]">{{ 'websiteOrders.transferDialog.phone' | translate }}</span>
+          <strong class="text-white">{{ selectedTransferOrder?.transferPhone || '-' }}</strong>
+        </div>
+        @if (selectedTransferOrder?.transferImage) {
+          <img class="max-h-[70vh] max-w-full rounded-lg object-contain" [src]="selectedTransferOrder?.transferImage" [alt]="'websiteOrders.transferDialog.imageAlt' | translate" />
+        } @else {
+          <p>{{ 'websiteOrders.transferDialog.noImage' | translate }}</p>
+        }
+      </div>
+      <div class="dialog-actions">
+        <p-button type="button" [label]="'websiteOrders.transferDialog.close' | translate" (onClick)="closeTransferDialog()" styleClass="!border-none !bg-[#b9b9b9] !text-gray_dark" />
       </div>
     </div>
   </p-dialog>

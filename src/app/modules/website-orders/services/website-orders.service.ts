@@ -104,6 +104,9 @@ export class WebsiteOrdersService {
       shippingFees: this.numberOrNull(order?.shippingFees),
       totalPrice: this.numberOrNull(order?.totalPrice ?? order?.total),
       refundNote: String(order?.refundNote || order?.note || ''),
+      paymentMethod: String(order?.paymentMethod || ''),
+      transferPhone: String(order?.transferPhone || order?.payment?.transferPhone || ''),
+      transferImage: String(order?.transferImage || order?.payment?.transferImage || ''),
       items
     };
   }

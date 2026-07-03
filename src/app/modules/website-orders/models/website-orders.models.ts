@@ -31,6 +31,9 @@ export interface WebsiteOrder {
   shippingFees: number | null;
   totalPrice: number | null;
   refundNote: string;
+  paymentMethod: string;
+  transferPhone: string;
+  transferImage: string;
   items: WebsiteOrderItem[];
 }
 

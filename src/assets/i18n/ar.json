@@ -346,6 +346,7 @@
     "columns": {
       "order": "الطلب",
       "status": "الحالة",
+      "paymentMethod": "طريقة الدفع",
       "customer": "العميل",
       "phone": "الهاتف",
       "location": "الموقع",
@@ -360,10 +361,17 @@
       "accepted": "مقبول",
       "refunded": "مسترجع"
     },
+    "paymentMethods": {
+      "cash": "كاش",
+      "wallet": "محفظة إلكترونية",
+      "e_wallet": "محفظة إلكترونية",
+      "instapay": "إنستا باي"
+    },
     "actions": {
       "refresh": "تحديث",
       "confirm": "تأكيد",
       "refund": "استرجاع",
+      "viewTransfer": "عرض التحويل",
       "showItems": "عرض المنتجات",
       "hideItems": "إخفاء المنتجات"
     },
@@ -393,6 +401,13 @@
       "title": "استرجاع طلب الموقع",
       "message": "تغيير حالة طلب الموقع إلى مسترجع.",
       "notePlaceholder": "أضف ملاحظة للاسترجاع"
+    },
+    "transferDialog": {
+      "title": "تفاصيل التحويل",
+      "phone": "هاتف التحويل",
+      "imageAlt": "صورة التحويل",
+      "noImage": "لا توجد صورة تحويل.",
+      "close": "إغلاق"
     }
   },
   "websiteImages": {

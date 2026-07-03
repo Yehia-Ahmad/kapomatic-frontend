@@ -343,6 +343,7 @@
         "columns": {
             "order": "Order",
             "status": "Status",
+            "paymentMethod": "Payment Method",
             "customer": "Customer",
             "phone": "Phone",
             "location": "Location",
@@ -357,10 +358,17 @@
             "accepted": "Accepted",
             "refunded": "Refunded"
         },
+        "paymentMethods": {
+            "cash": "Cash",
+            "wallet": "E-Wallet",
+            "e_wallet": "E-Wallet",
+            "instapay": "InstaPay"
+        },
         "actions": {
             "refresh": "Refresh",
             "confirm": "Confirm",
             "refund": "Refund",
+            "viewTransfer": "View Transfer",
             "showItems": "Show Items",
             "hideItems": "Hide Items"
         },
@@ -390,6 +398,13 @@
             "title": "Refund Website Order",
             "message": "Mark this website order as refunded.",
             "notePlaceholder": "Add a refund note"
+        },
+        "transferDialog": {
+            "title": "Transfer Details",
+            "phone": "Transfer Phone",
+            "imageAlt": "Transfer image",
+            "noImage": "No transfer image found.",
+            "close": "Close"
         }
     },
     "websiteImages": {

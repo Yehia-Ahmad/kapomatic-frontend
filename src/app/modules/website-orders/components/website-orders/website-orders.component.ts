@@ -55,7 +55,9 @@ export class WebsiteOrdersComponent implements OnInit {
   actionError = '';
   confirmDialogVisible = false;
   refundDialogVisible = false;
+  transferDialogVisible = false;
   selectedOrder: WebsiteOrder | null = null;
+  selectedTransferOrder: WebsiteOrder | null = null;
   confirmInsufficientInventory = true;
   refundNote = '';
   readonly scopes: WebsiteOrderScope[] = ['all', 'pending', 'accepted', 'refunded'];
@@ -167,6 +169,21 @@ export class WebsiteOrdersComponent implements OnInit {
     return !['refunded', 'cancelled', 'canceled'].includes(String(order.status).toLowerCase());
   }
 
+  hasTransferDetails(order: WebsiteOrder): boolean {
+    return Boolean(order.transferPhone || order.transferImage);
+  }
+
+  openTransferDialog(order: WebsiteOrder): void {
+    if (!this.hasTransferDetails(order)) return;
+    this.selectedTransferOrder = order;
+    this.transferDialogVisible = true;
+  }
+
+  closeTransferDialog(): void {
+    this.transferDialogVisible = false;
+    this.selectedTransferOrder = null;
+  }
+
   openConfirmDialog(order: WebsiteOrder): void {
     if (!this.canConfirm(order)) return;
     this.selectedOrder = order;
@@ -248,6 +265,15 @@ export class WebsiteOrdersComponent implements OnInit {
     return translated === key ? status || '-' : translated;
   }
 
+  paymentMethodLabel(paymentMethod: string): string {
+    const normalized = String(paymentMethod || '').toLowerCase();
+    if (!normalized) return '-';
+
+    const key = `websiteOrders.paymentMethods.${normalized}`;
+    const translated = this.translate.instant(key);
+    return translated === key ? paymentMethod : translated;
+  }
+
   pageRangeLabel(): string {
     const total = this.pagination.totalItems;
     if (!total) {
@@ -263,7 +289,9 @@ export class WebsiteOrdersComponent implements OnInit {
     this.isRefunding = false;
     this.confirmDialogVisible = false;
     this.refundDialogVisible = false;
+    this.transferDialogVisible = false;
     this.selectedOrder = null;
+    this.selectedTransferOrder = null;
     this.refundNote = '';
     this.expandedOrderIds.clear();
     this.loadOrders(1, false);
