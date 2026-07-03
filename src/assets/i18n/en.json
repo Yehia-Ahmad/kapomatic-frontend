@@ -581,6 +581,16 @@
                 "placeholder": "#F4D80A",
                 "invalid": "Enter a valid six-digit hexadecimal color."
             },
+            "walletPhone": {
+                "label": "Wallet Phone",
+                "placeholder": "+201234567890",
+                "invalid": "Enter a valid wallet phone number."
+            },
+            "instapayLink": {
+                "label": "InstaPay Link",
+                "placeholder": "https://ipn.eg/S/example",
+                "invalid": "Enter a valid InstaPay URL beginning with http:// or https://."
+            },
             "locations": {
                 "title": "Store Locations",
                 "subtitle": "Add the name, address, and map link for each store.",

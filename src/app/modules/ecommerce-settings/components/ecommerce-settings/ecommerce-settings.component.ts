@@ -67,6 +67,8 @@ type WebsiteGeneralSettingsForm = FormGroup<{
   mainColor: FormControl<string>;
   freeShippingMinimumAmount: FormControl<number>;
   currency: FormControl<string>;
+  walletPhone: FormControl<string>;
+  instapayLink: FormControl<string>;
   storeLocations: FormArray<StoreLocationForm>;
   socialMediaLinks: FormArray<SocialMediaLinkForm>;
 }>;
@@ -618,6 +620,12 @@ export class EcommerceSettingsComponent implements OnInit {
         Validators.required,
         Validators.pattern(/^[A-Za-z]{3}$/)
       ]),
+      walletPhone: this.fb.nonNullable.control(settings?.walletPhone || '', [
+        Validators.pattern(/^\+?[0-9\s-]{7,20}$/)
+      ]),
+      instapayLink: this.fb.nonNullable.control(settings?.instapayLink || '', [
+        Validators.pattern(/^https?:\/\/\S+$/i)
+      ]),
       storeLocations: this.fb.array(
         (settings?.storeLocations || []).map((location) =>
           this.createStoreLocationForm(location)
@@ -725,6 +733,9 @@ export class EcommerceSettingsComponent implements OnInit {
       mainColor: value.mainColor.trim().toUpperCase(),
       freeShippingMinimumAmount: Number(value.freeShippingMinimumAmount),
       currency: value.currency.trim().toUpperCase(),
+      currencyCode: value.currency.trim().toUpperCase(),
+      walletPhone: value.walletPhone.trim(),
+      instapayLink: value.instapayLink.trim(),
       storeLocations: value.storeLocations.map((location) => ({
         name: location.name.trim(),
         detailedLocation: location.detailedLocation.trim(),

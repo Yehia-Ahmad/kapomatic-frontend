@@ -36,7 +36,7 @@
   "build": {
     "appId": "com.kapomatic.inventory",
     "productName": "Kapomatic Inventory System",
-    "npmRebuild": false,
+    "beforeBuild": "electron/before-build.js",
     "nodeGypRebuild": false,
     "extraMetadata": {
       "dependencies": {}

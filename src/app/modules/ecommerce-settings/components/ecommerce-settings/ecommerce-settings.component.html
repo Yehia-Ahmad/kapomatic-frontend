@@ -442,6 +442,48 @@
               </small>
             }
           </label>
+
+          <label class="grid content-start gap-1">
+            <span class="text-xs font-bold">
+              {{ 'ecommerceSettings.websiteGeneral.walletPhone.label' | translate }}
+            </span>
+            <input
+              type="tel"
+              autocomplete="tel"
+              formControlName="walletPhone"
+              class="min-h-10 w-full rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-inherit"
+              [placeholder]="'ecommerceSettings.websiteGeneral.walletPhone.placeholder' | translate"
+            />
+            @if (
+              websiteGeneralSettingsForm.controls.walletPhone.touched &&
+              websiteGeneralSettingsForm.controls.walletPhone.invalid
+            ) {
+              <small class="text-red">
+                {{ 'ecommerceSettings.websiteGeneral.walletPhone.invalid' | translate }}
+              </small>
+            }
+          </label>
+
+          <label class="grid content-start gap-1">
+            <span class="text-xs font-bold">
+              {{ 'ecommerceSettings.websiteGeneral.instapayLink.label' | translate }}
+            </span>
+            <input
+              type="url"
+              autocomplete="url"
+              formControlName="instapayLink"
+              class="min-h-10 w-full rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-inherit"
+              [placeholder]="'ecommerceSettings.websiteGeneral.instapayLink.placeholder' | translate"
+            />
+            @if (
+              websiteGeneralSettingsForm.controls.instapayLink.touched &&
+              websiteGeneralSettingsForm.controls.instapayLink.invalid
+            ) {
+              <small class="text-red">
+                {{ 'ecommerceSettings.websiteGeneral.instapayLink.invalid' | translate }}
+              </small>
+            }
+          </label>
         </section>
 
         <section class="grid gap-4 rounded-lg border p-4" formArrayName="storeLocations" [ngClass]="(isDarkMode$ | async) ? 'border-gray' : 'border-gray-200'">

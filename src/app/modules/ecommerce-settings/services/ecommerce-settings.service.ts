@@ -360,7 +360,9 @@ export class EcommerceSettingsService {
       freeShippingMinimumAmount: Number(
         settings?.freeShippingMinimumAmount ?? fallback.freeShippingMinimumAmount ?? 0
       ),
-      currency: String(settings?.currency ?? fallback.currency ?? 'EGP').trim().toUpperCase(),
+      currency: String(settings?.currencyCode ?? settings?.currency ?? fallback.currencyCode ?? fallback.currency ?? 'EGP').trim().toUpperCase(),
+      walletPhone: String(settings?.walletPhone ?? fallback.walletPhone ?? '').trim(),
+      instapayLink: String(settings?.instapayLink ?? fallback.instapayLink ?? '').trim(),
       storeLocations: this.normalizeStoreLocations(
         settings?.storeLocations ?? fallback.storeLocations ?? []
       ),

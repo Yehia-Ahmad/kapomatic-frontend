@@ -584,6 +584,16 @@
         "placeholder": "#F4D80A",
         "invalid": "أدخل لونًا سداسيًا صحيحًا مكونًا من ست خانات."
       },
+      "walletPhone": {
+        "label": "رقم المحفظة",
+        "placeholder": "+201234567890",
+        "invalid": "أدخل رقم محفظة صحيحًا."
+      },
+      "instapayLink": {
+        "label": "رابط إنستا باي",
+        "placeholder": "https://ipn.eg/S/example",
+        "invalid": "أدخل رابط إنستا باي صحيحًا يبدأ بـ http:// أو https://."
+      },
       "locations": {
         "title": "مواقع الفروع",
         "subtitle": "أضف اسم وعنوان ورابط خريطة كل فرع.",

@@ -104,11 +104,15 @@ export interface EcommerceGeneralSettings {
   mainColor: string;
   freeShippingMinimumAmount: number;
   currency: string;
+  walletPhone: string;
+  instapayLink: string;
   storeLocations: EcommerceStoreLocation[];
   socialMediaLinks: EcommerceSocialMediaLink[];
 }
 
-export type UpdateEcommerceGeneralSettingsPayload = Partial<EcommerceGeneralSettings>;
+export type UpdateEcommerceGeneralSettingsPayload = Partial<EcommerceGeneralSettings> & {
+  currencyCode?: string;
+};
 
 export interface UpdateEcommerceGeneralSettingsResponse extends EcommerceGeneralSettings {
   success: boolean;
