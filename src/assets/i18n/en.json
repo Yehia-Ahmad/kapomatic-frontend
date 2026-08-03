@@ -10,6 +10,7 @@
         "customers": "Customers",
         "selling": "Selling",
         "credit_sales": "Credit Sales",
+        "custom_sales": "Custom Sales",
         "invoice_history": "Invoice History",
         "returns": "Returns",
         "profit_report": "Profit Report",
@@ -1143,6 +1144,121 @@
             "first": "First page",
             "last": "Last page",
             "range": "{{start}} – {{end}} of {{total}}"
+        }
+    },
+    "customSales": {
+        "list": {
+            "title": "Custom Sales",
+            "subtitle": "Track custom invoices, production costs, delivery, payments, and profit."
+        },
+        "form": {
+            "createTitle": "Create Custom Sale",
+            "editTitle": "Edit Custom Sale",
+            "subtitle": "Build an invoice from manual materials, optional inventory products, labor, payments, and delivery details.",
+            "customerInformation": "Customer Information",
+            "customerSelector": "Customer selector",
+            "invoiceInformation": "Invoice Information",
+            "materials": "Materials",
+            "additionalComponents": "Additional Components",
+            "summary": "Summary"
+        },
+        "detail": {
+            "title": "Custom Sale Details",
+            "subtitle": "Review invoice details, costs, payments, delivery, and notes.",
+            "invoice": "Custom Sales Invoice"
+        },
+        "fields": {
+            "invoiceNumber": "Invoice Number",
+            "customerName": "Customer Name",
+            "customerPhone": "Customer Phone",
+            "finalProductName": "Final Product Name",
+            "sellingDate": "Selling Date",
+            "deliveryDate": "Delivery Date",
+            "totalPrice": "Total Price",
+            "paidAmount": "Paid Amount",
+            "remainingAmount": "Remaining Amount",
+            "status": "Status",
+            "actions": "Actions",
+            "description": "Description",
+            "quantity": "Quantity",
+            "notes": "Notes",
+            "productSelector": "Product selector",
+            "product": "Product",
+            "materialName": "Material Name",
+            "componentName": "Component Name",
+            "unit": "Unit",
+            "unitPrice": "Unit Price",
+            "manualCost": "Manual Cost",
+            "totalCost": "Total Cost",
+            "amount": "Amount",
+            "laborCost": "Labor Cost",
+            "discountAmount": "Discount Amount",
+            "initialPaidAmount": "Initial Paid Amount",
+            "profitAmount": "Profit Amount"
+        },
+        "summary": {
+            "materialsCost": "Materials Cost",
+            "additionalComponentsCost": "Additional Components Cost",
+            "subtotal": "Subtotal",
+            "totalPrice": "Total Price",
+            "remainingAmount": "Remaining Amount",
+            "profitAmount": "Profit Amount"
+        },
+        "statuses": {
+            "all": "All",
+            "pending": "Pending",
+            "partially_paid": "Partially Paid",
+            "paid": "Paid",
+            "delivered": "Delivered",
+            "cancelled": "Cancelled"
+        },
+        "actions": {
+            "create": "Create Custom Sale",
+            "backToList": "Back to list",
+            "filter": "Filter",
+            "clear": "Clear",
+            "retry": "Retry",
+            "view": "View",
+            "edit": "Edit",
+            "print": "Print",
+            "addPayment": "Add Payment",
+            "markDelivered": "Mark Delivered",
+            "cancel": "Cancel",
+            "delete": "Delete",
+            "previous": "Previous",
+            "next": "Next",
+            "close": "Close",
+            "confirm": "Confirm",
+            "save": "Save",
+            "saving": "Saving...",
+            "addRow": "Add Row",
+            "removeRow": "Remove",
+            "searching": "Searching..."
+        },
+        "placeholders": {
+            "search": "Search by customer, phone, invoice, or final product",
+            "customerSearch": "Search customers",
+            "productSearch": "Search products"
+        },
+        "validation": {
+            "required": "This field is required.",
+            "quantity": "Quantity must be greater than 0.",
+            "discount": "Discount cannot exceed subtotal.",
+            "paid": "Paid amount cannot exceed total price."
+        },
+        "empty": {
+            "title": "No Custom Sales found",
+            "subtitle": "Create the first Custom Sale invoice to start tracking custom production work."
+        },
+        "payment": {
+            "title": "Add Payment",
+            "paymentDate": "Payment Date",
+            "note": "Note",
+            "history": "Payment History"
+        },
+        "confirm": {
+            "title": "Confirm action",
+            "message": "Are you sure you want to continue?"
         }
     },
     "logout": {

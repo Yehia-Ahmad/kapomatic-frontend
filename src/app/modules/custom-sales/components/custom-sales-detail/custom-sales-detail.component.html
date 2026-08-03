@@ -1,0 +1,201 @@
+<app-side-nav>
+  <div
+    class="w-full max-w-[1200px] mx-auto flex flex-col gap-6 printable-detail"
+    [attr.dir]="direction"
+  >
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between no-print">
+      <div>
+        <h1 class="custom-title">{{ 'customSales.detail.title' | translate }}</h1>
+        <p class="custom-subtitle">{{ 'customSales.detail.subtitle' | translate }}</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" class="custom-secondary-button" (click)="back()">
+          {{ 'customSales.actions.backToList' | translate }}
+        </button>
+        <button type="button" class="custom-secondary-button" (click)="edit()">
+          {{ 'customSales.actions.edit' | translate }}
+        </button>
+        <button type="button" class="custom-primary-button" (click)="print()">
+          {{ 'customSales.actions.print' | translate }}
+        </button>
+      </div>
+    </div>
+
+    @if (isLoading) {
+      <div class="custom-shell p-6"><div class="custom-skeleton h-40 w-full"></div></div>
+    } @else if (errorMessage) {
+      <div class="custom-shell p-6">
+        <p class="text-red">{{ errorMessage }}</p>
+        <button type="button" class="custom-secondary-button mt-4" (click)="loadSale()">
+          {{ 'customSales.actions.retry' | translate }}
+        </button>
+      </div>
+    } @else if (sale) {
+      <section class="custom-shell p-6">
+        <div class="detail-header">
+          <div>
+            <h2>Kapomatic Inventory System</h2>
+            <p>{{ 'customSales.detail.invoice' | translate }}</p>
+          </div>
+          <span class="status-pill" [ngClass]="statusClass(sale.status)">
+            {{ statusLabel(sale.status) }}
+          </span>
+        </div>
+
+        <div class="detail-grid">
+          <div>
+            <span>{{ 'customSales.fields.invoiceNumber' | translate }}</span
+            ><strong>{{ sale.invoiceNumber || '-' }}</strong>
+          </div>
+          <div>
+            <span>{{ 'customSales.fields.customerName' | translate }}</span
+            ><strong>{{ sale.customerName || '-' }}</strong>
+          </div>
+          <div>
+            <span>{{ 'customSales.fields.customerPhone' | translate }}</span
+            ><strong>{{ sale.customerPhone || '-' }}</strong>
+          </div>
+          <div>
+            <span>{{ 'customSales.fields.sellingDate' | translate }}</span
+            ><strong>{{ date(sale.sellingDate) }}</strong>
+          </div>
+          <div>
+            <span>{{ 'customSales.fields.deliveryDate' | translate }}</span
+            ><strong>{{ date(sale.deliveryDate) }}</strong>
+          </div>
+          <div>
+            <span>{{ 'customSales.fields.finalProductName' | translate }}</span
+            ><strong>{{ sale.finalProductName || '-' }}</strong>
+          </div>
+          <div>
+            <span>{{ 'customSales.fields.quantity' | translate }}</span
+            ><strong>{{ sale.quantity || '-' }}</strong>
+          </div>
+          <div>
+            <span>{{ 'customSales.fields.profitAmount' | translate }}</span
+            ><strong>{{ amount(sale.profitAmount) | number: '1.2-2' }}</strong>
+          </div>
+        </div>
+
+        <p class="detail-description">{{ sale.description || '-' }}</p>
+
+        <h3>{{ 'customSales.form.materials' | translate }}</h3>
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>{{ 'customSales.fields.materialName' | translate }}</th>
+              <th>{{ 'customSales.fields.product' | translate }}</th>
+              <th>{{ 'customSales.fields.quantity' | translate }}</th>
+              <th>{{ 'customSales.fields.unit' | translate }}</th>
+              <th>{{ 'customSales.fields.unitPrice' | translate }}</th>
+              <th>{{ 'customSales.fields.manualCost' | translate }}</th>
+              <th>{{ 'customSales.fields.totalCost' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of sale.materials || []; track $index) {
+              <tr>
+                <td>{{ row.name }}</td>
+                <td>{{ row.productName || row.product?.name || row.productId || '-' }}</td>
+                <td>{{ row.quantity }}</td>
+                <td>{{ row.unit || '-' }}</td>
+                <td>{{ amount(row.unitPrice) | number: '1.2-2' }}</td>
+                <td>{{ amount(row.manualCost) | number: '1.2-2' }}</td>
+                <td>
+                  {{
+                    amount(row.totalCost || row.quantity * (row.unitPrice + amount(row.manualCost)))
+                      | number: '1.2-2'
+                  }}
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7">-</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <h3>{{ 'customSales.form.additionalComponents' | translate }}</h3>
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>{{ 'customSales.fields.componentName' | translate }}</th>
+              <th>{{ 'customSales.fields.quantity' | translate }}</th>
+              <th>{{ 'customSales.fields.unit' | translate }}</th>
+              <th>{{ 'customSales.fields.unitPrice' | translate }}</th>
+              <th>{{ 'customSales.fields.totalCost' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of sale.additionalComponents || []; track $index) {
+              <tr>
+                <td>{{ row.name }}</td>
+                <td>{{ row.quantity }}</td>
+                <td>{{ row.unit || '-' }}</td>
+                <td>{{ amount(row.unitPrice) | number: '1.2-2' }}</td>
+                <td>
+                  {{ amount(row.totalCost || row.quantity * row.unitPrice) | number: '1.2-2' }}
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">-</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <h3>{{ 'customSales.payment.history' | translate }}</h3>
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>{{ 'customSales.payment.paymentDate' | translate }}</th>
+              <th>{{ 'customSales.fields.amount' | translate }}</th>
+              <th>{{ 'customSales.payment.note' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of sale.payments || []; track $index) {
+              <tr>
+                <td>{{ date(row.paymentDate) }}</td>
+                <td>{{ amount(row.amount) | number: '1.2-2' }}</td>
+                <td>{{ row.note || '-' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3">-</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <div class="detail-totals">
+          <div>
+            <span>{{ 'customSales.fields.laborCost' | translate }}</span
+            ><strong>{{ amount(sale.laborCost) | number: '1.2-2' }}</strong>
+          </div>
+          <div>
+            <span>{{ 'customSales.fields.discountAmount' | translate }}</span
+            ><strong>{{ amount(sale.discountAmount) | number: '1.2-2' }}</strong>
+          </div>
+          <div>
+            <span>{{ 'customSales.fields.totalPrice' | translate }}</span
+            ><strong>{{ amount(sale.totalPrice) | number: '1.2-2' }}</strong>
+          </div>
+          <div>
+            <span>{{ 'customSales.fields.paidAmount' | translate }}</span
+            ><strong>{{ amount(sale.paidAmount) | number: '1.2-2' }}</strong>
+          </div>
+          <div>
+            <span>{{ 'customSales.fields.remainingAmount' | translate }}</span
+            ><strong>{{ amount(sale.remainingAmount) | number: '1.2-2' }}</strong>
+          </div>
+        </div>
+        <p class="detail-description">
+          <strong>{{ 'customSales.fields.notes' | translate }}:</strong> {{ sale.notes || '-' }}
+        </p>
+      </section>
+    }
+  </div>
+</app-side-nav>

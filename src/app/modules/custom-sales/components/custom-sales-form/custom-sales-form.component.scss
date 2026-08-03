@@ -1,0 +1,225 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.custom-title {
+  color: #f4d80a;
+  font-family: 'Azonix', sans-serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+}
+
+.custom-subtitle,
+.custom-help {
+  color: #bdbdc2;
+  font-family: 'Roboto', sans-serif;
+}
+
+.custom-shell {
+  border: 1px solid #4a4a4f;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #3b3b3f 0%, #2f2f33 100%);
+  font-family: 'Roboto', sans-serif;
+}
+
+.custom-panel,
+.custom-line-card {
+  border: 1px solid rgba(243, 222, 198, 0.11);
+  border-radius: 14px;
+  background: rgba(29, 29, 32, 0.74);
+  padding: 1.1rem;
+}
+
+.custom-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.custom-panel-title {
+  color: #f3dec6;
+  font-size: 1.18rem;
+  font-weight: 800;
+}
+
+.custom-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.field-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.custom-label {
+  color: #f3dec6;
+  font-weight: 700;
+}
+
+.custom-input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.68rem 0.9rem;
+  border: 1px solid #66666c;
+  border-radius: 9px;
+  background: rgba(10, 10, 12, 0.18);
+  color: #f3dec6;
+  outline: none;
+}
+
+.custom-input:focus {
+  border-color: #f4d80a;
+}
+
+.custom-textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.custom-error {
+  color: #ff6b6b;
+  font-size: 0.82rem;
+}
+
+.custom-line-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .custom-line-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.custom-manual-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .custom-manual-row {
+    grid-template-columns: minmax(0, 1fr) 12rem auto;
+    align-items: end;
+  }
+}
+
+.custom-primary-button,
+.custom-secondary-button,
+.custom-add-button,
+.custom-remove-button {
+  min-height: 2.6rem;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.custom-primary-button,
+.custom-add-button {
+  background: #f4d80a;
+  color: #202126;
+}
+
+.custom-secondary-button,
+.custom-remove-button {
+  border-color: rgba(243, 222, 198, 0.22);
+  color: #f3dec6;
+  background: transparent;
+}
+
+.custom-primary-button[disabled] {
+  opacity: 0.62;
+  cursor: not-allowed;
+}
+
+.custom-autocomplete {
+  position: relative;
+}
+
+.custom-autocomplete-panel {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  max-height: 15rem;
+  overflow: auto;
+  z-index: 40;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  border: 1px solid #66666c;
+  border-radius: 9px;
+  background: #343439;
+}
+
+.custom-autocomplete-panel li {
+  padding: 0.6rem 0.7rem;
+  border-radius: 6px;
+  color: #f3dec6;
+  cursor: pointer;
+}
+
+.custom-autocomplete-panel li:hover {
+  background: #4b4b52;
+}
+
+.custom-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.85rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.custom-summary-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: #c8c8cc;
+}
+
+.custom-summary-list strong {
+  color: #f3dec6;
+}
+
+.custom-skeleton {
+  border-radius: 10px;
+  background: linear-gradient(90deg, #3d3d42 25%, #505057 37%, #3d3d42 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+:host ::ng-deep .custom-control.p-inputnumber,
+:host ::ng-deep .custom-control.p-datepicker {
+  width: 100%;
+}
+
+:host ::ng-deep .custom-control.p-inputnumber input,
+:host ::ng-deep .custom-control.p-datepicker input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.68rem 0.9rem;
+  border: 1px solid #66666c;
+  border-radius: 9px;
+  background: rgba(10, 10, 12, 0.18);
+  color: #f3dec6;
+  box-shadow: none;
+}
+

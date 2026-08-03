@@ -340,6 +340,7 @@ export class CustomSidenavComponent implements OnInit {
 
     const isProductsRoute = this._router.url.includes('/selling')
       || this._router.url.includes('/credit-sales')
+      || this._router.url.includes('/custom-sales')
       || this._router.url.includes('/invoice-history')
       || this._router.url.includes('/returns')
       || this._router.url.includes('/products/profit-report');
@@ -373,6 +374,17 @@ export class CustomSidenavComponent implements OnInit {
         </span>
         `),
         route: '/credit-sales'
+      },
+      {
+        label: 'sidebarTitles.custom_sales',
+        icon: this.sanitize(`
+        <span class="block w-8 h-8">
+            <svg width="100%" height="100%" viewBox="0 0 640 640" xmlns="http://www.w3.org/2000/svg">
+              <path d="M128 96C92.7 96 64 124.7 64 160L64 480C64 515.3 92.7 544 128 544L512 544C547.3 544 576 515.3 576 480L576 160C576 124.7 547.3 96 512 96L128 96zM176 184C176 170.7 186.7 160 200 160L440 160C453.3 160 464 170.7 464 184C464 197.3 453.3 208 440 208L200 208C186.7 208 176 197.3 176 184zM176 288C176 274.7 186.7 264 200 264L440 264C453.3 264 464 274.7 464 288C464 301.3 453.3 312 440 312L200 312C186.7 312 176 301.3 176 288zM200 368L320 368C333.3 368 344 378.7 344 392C344 405.3 333.3 416 320 416L200 416C186.7 416 176 405.3 176 392C176 378.7 186.7 368 200 368z" style="fill:#2f2f2f;fill-rule:nonzero;" />
+            </svg>
+        </span>
+        `),
+        route: '/custom-sales'
       },
       {
         label: 'sidebarTitles.invoice_history',

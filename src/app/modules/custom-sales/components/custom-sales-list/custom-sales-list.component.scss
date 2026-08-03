@@ -1,0 +1,253 @@
+.custom-title {
+  color: #ff9933;
+  font-family: 'Azonix', sans-serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+}
+
+.custom-subtitle {
+  color: #bdbdc2;
+  font-family: 'Roboto', sans-serif;
+}
+
+.custom-shell {
+  border: 1px solid #4a4a4f;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #3b3b3f 0%, #2f2f33 100%);
+  font-family: 'Roboto', sans-serif;
+}
+
+.custom-input {
+  min-height: 2.75rem;
+  padding: 0.68rem 0.9rem;
+  border: 1px solid #66666c;
+  border-radius: 9px;
+  background: rgba(10, 10, 12, 0.18);
+  color: #f3dec6;
+  outline: none;
+}
+
+.custom-primary-button,
+.custom-secondary-button {
+  min-height: 2.6rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.custom-primary-button {
+  background: #f4d80a;
+  color: #202126;
+}
+
+.custom-secondary-button {
+  border-color: rgba(243, 222, 198, 0.22);
+  color: #f3dec6;
+  background: transparent;
+}
+
+.custom-primary-button[disabled],
+.custom-secondary-button[disabled] {
+  opacity: 0.62;
+  cursor: not-allowed;
+}
+
+.custom-skeleton {
+  border-radius: 10px;
+  background: linear-gradient(90deg, #3d3d42 25%, #505057 37%, #3d3d42 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+.invoice-history-shell {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.invoice-history-table-scroll {
+  max-height: 450px;
+  overflow: auto;
+  width: 100%;
+}
+
+.invoice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-width: 24rem;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.8rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.status-pill--pending {
+  background: rgba(255, 153, 51, 0.16);
+  border-color: rgba(255, 153, 51, 0.36);
+  color: #ffb86b;
+}
+
+.status-pill--partially-paid {
+  background: rgba(244, 216, 10, 0.16);
+  border-color: rgba(244, 216, 10, 0.38);
+  color: #f4d80a;
+}
+
+.status-pill--paid {
+  background: rgba(34, 197, 94, 0.16);
+  border-color: rgba(34, 197, 94, 0.34);
+  color: #4ade80;
+}
+
+.status-pill--delivered {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(59, 130, 246, 0.36);
+  color: #93c5fd;
+}
+
+.status-pill--cancelled {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.36);
+  color: #fca5a5;
+}
+
+.status-pill--default {
+  background: rgba(148, 163, 184, 0.16);
+  border-color: rgba(148, 163, 184, 0.3);
+  color: #cbd5e1;
+}
+
+.invoice-history-table th {
+  cursor: pointer;
+}
+
+.custom-empty {
+  display: flex;
+  min-height: 20rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: #f3dec6;
+  text-align: center;
+}
+
+.custom-empty h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.custom-empty p {
+  color: #bdbdc2;
+}
+
+.custom-pagination,
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  padding-top: 1rem;
+}
+
+.custom-pagination span {
+  color: #f3dec6;
+  font-weight: 800;
+}
+
+.dialog-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dialog-stack label {
+  color: #f3dec6;
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+
+.dialog-message {
+  color: #f3dec6;
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.6;
+}
+
+:host ::ng-deep .custom-control.p-inputnumber,
+:host ::ng-deep .custom-control.p-datepicker,
+:host ::ng-deep .custom-control.p-select {
+  width: 100%;
+}
+
+:host ::ng-deep .custom-control.p-inputnumber input,
+:host ::ng-deep .custom-control.p-select {
+  min-height: 2.75rem;
+  border: 1px solid #66666c;
+  border-radius: 9px;
+  background: rgba(10, 10, 12, 0.18);
+  color: #f3dec6;
+  box-shadow: none;
+}
+
+:host ::ng-deep .custom-control.p-datepicker input {
+  min-height: 2.75rem;
+  border: 1px solid #66666c;
+  border-top-right-radius: 9px;
+  border-bottom-right-radius: 9px;
+  background: rgba(10, 10, 12, 0.18);
+  color: #f3dec6;
+  box-shadow: none;
+}
+
+:host ::ng-deep .custom-control.p-select .p-select-label {
+  color: #f3dec6;
+}
+
+:host ::ng-deep .custom-control.p-select .p-select-dropdown,
+:host ::ng-deep .custom-control.p-datepicker .p-datepicker-dropdown {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  border-color: #66666c;
+}
+
+:host ::ng-deep .custom-control.p-datepicker .p-datepicker-input {
+  border-inline-end: 0;
+}
+
+:host ::ng-deep .invoice-history-table .p-datatable-table {
+  border-collapse: collapse;
+}
+
+:host ::ng-deep .invoice-history-table .p-datatable-thead > tr > th {
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #ff9933;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .invoice-history-table .p-datatable-tbody > tr > td {
+  vertical-align: top;
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+:host ::ng-deep .invoice-history-table .p-datatable-loading-overlay {
+  background: rgba(47, 47, 47, 0.55);
+}

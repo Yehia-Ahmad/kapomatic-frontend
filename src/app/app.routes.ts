@@ -35,6 +35,26 @@ export const routes: Routes = [
         loadComponent: () => import('./modules/products/components/credit-sales/credit-sales.component').then(m => m.CreditSalesComponent)
     },
     {
+        path: 'custom-sales',
+        // canActivate: [authGuard],
+        loadComponent: () => import('./modules/custom-sales/components/custom-sales-list/custom-sales-list.component').then(m => m.CustomSalesListComponent)
+    },
+    {
+        path: 'custom-sales/create',
+        // canActivate: [authGuard],
+        loadComponent: () => import('./modules/custom-sales/components/custom-sales-form/custom-sales-form.component').then(m => m.CustomSalesFormComponent)
+    },
+    {
+        path: 'custom-sales/:id',
+        // canActivate: [authGuard],
+        loadComponent: () => import('./modules/custom-sales/components/custom-sales-detail/custom-sales-detail.component').then(m => m.CustomSalesDetailComponent)
+    },
+    {
+        path: 'custom-sales/:id/edit',
+        // canActivate: [authGuard],
+        loadComponent: () => import('./modules/custom-sales/components/custom-sales-form/custom-sales-form.component').then(m => m.CustomSalesFormComponent)
+    },
+    {
         path: 'invoice-history',
         // canActivate: [authGuard],
         loadComponent: () => import('./modules/products/components/invoice-history/invoice-history.component').then(m => m.InvoiceHistoryComponent)

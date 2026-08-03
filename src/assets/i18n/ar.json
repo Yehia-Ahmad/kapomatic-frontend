@@ -10,6 +10,7 @@
     "customers": "العملاء",
     "selling": "البيع",
     "credit_sales": "البيع الآجل",
+    "custom_sales": "المبيعات المخصصة",
     "invoice_history": "سجل الفواتير",
     "returns": "المرتجعات",
     "profit_report": "تقرير الأرباح",
@@ -1146,6 +1147,121 @@
       "first": "الصفحة الأولى",
       "last": "الصفحة الأخيرة",
       "range": "{{start}} – {{end}} من {{total}}"
+    }
+  },
+  "customSales": {
+    "list": {
+      "title": "المبيعات المخصصة",
+      "subtitle": "متابعة الفواتير المخصصة وتكاليف التصنيع والتسليم والمدفوعات والربح."
+    },
+    "form": {
+      "createTitle": "إنشاء بيع مخصص",
+      "editTitle": "تعديل بيع مخصص",
+      "subtitle": "أنشئ فاتورة من مواد يدوية أو منتجات مخزون اختيارية والعمالة والمدفوعات وبيانات التسليم.",
+      "customerInformation": "بيانات العميل",
+      "customerSelector": "اختيار العميل",
+      "invoiceInformation": "بيانات الفاتورة",
+      "materials": "المواد",
+      "additionalComponents": "المكونات الإضافية",
+      "summary": "الملخص"
+    },
+    "detail": {
+      "title": "تفاصيل البيع المخصص",
+      "subtitle": "مراجعة بيانات الفاتورة والتكاليف والمدفوعات والتسليم والملاحظات.",
+      "invoice": "فاتورة مبيعات مخصصة"
+    },
+    "fields": {
+      "invoiceNumber": "رقم الفاتورة",
+      "customerName": "اسم العميل",
+      "customerPhone": "هاتف العميل",
+      "finalProductName": "اسم المنتج النهائي",
+      "sellingDate": "تاريخ البيع",
+      "deliveryDate": "تاريخ التسليم",
+      "totalPrice": "السعر الإجمالي",
+      "paidAmount": "المبلغ المدفوع",
+      "remainingAmount": "المبلغ المتبقي",
+      "status": "الحالة",
+      "actions": "الإجراءات",
+      "description": "الوصف",
+      "quantity": "الكمية",
+      "notes": "ملاحظات",
+      "productSelector": "اختيار المنتج",
+      "product": "المنتج",
+      "materialName": "اسم المادة",
+      "componentName": "اسم المكون",
+      "unit": "الوحدة",
+      "unitPrice": "سعر الوحدة",
+      "manualCost": "تكلفة المصنعية",
+      "totalCost": "إجمالي التكلفة",
+      "amount": "المبلغ",
+      "laborCost": "تكلفة العمالة",
+      "discountAmount": "مبلغ الخصم",
+      "initialPaidAmount": "المبلغ المدفوع أولاً",
+      "profitAmount": "مبلغ الربح"
+    },
+    "summary": {
+      "materialsCost": "تكلفة المواد",
+      "additionalComponentsCost": "تكلفة المكونات الإضافية",
+      "subtotal": "الإجمالي قبل الخصم",
+      "totalPrice": "السعر الإجمالي",
+      "remainingAmount": "المبلغ المتبقي",
+      "profitAmount": "مبلغ الربح"
+    },
+    "statuses": {
+      "all": "الكل",
+      "pending": "قيد الانتظار",
+      "partially_paid": "مدفوع جزئياً",
+      "paid": "مدفوع",
+      "delivered": "تم التسليم",
+      "cancelled": "ملغي"
+    },
+    "actions": {
+      "create": "إنشاء بيع مخصص",
+      "backToList": "العودة للقائمة",
+      "filter": "تصفية",
+      "clear": "مسح",
+      "retry": "إعادة المحاولة",
+      "view": "عرض",
+      "edit": "تعديل",
+      "print": "طباعة",
+      "addPayment": "إضافة دفعة",
+      "markDelivered": "تحديد كمسلم",
+      "cancel": "إلغاء",
+      "delete": "حذف",
+      "previous": "السابق",
+      "next": "التالي",
+      "close": "إغلاق",
+      "confirm": "تأكيد",
+      "save": "حفظ",
+      "saving": "جارٍ الحفظ...",
+      "addRow": "إضافة صف",
+      "removeRow": "إزالة",
+      "searching": "جارٍ البحث..."
+    },
+    "placeholders": {
+      "search": "بحث بالعميل أو الهاتف أو الفاتورة أو المنتج النهائي",
+      "customerSearch": "بحث عن العملاء",
+      "productSearch": "بحث عن المنتجات"
+    },
+    "validation": {
+      "required": "هذا الحقل مطلوب.",
+      "quantity": "يجب أن تكون الكمية أكبر من صفر.",
+      "discount": "لا يمكن أن يتجاوز الخصم الإجمالي قبل الخصم.",
+      "paid": "لا يمكن أن يتجاوز المبلغ المدفوع السعر الإجمالي."
+    },
+    "empty": {
+      "title": "لا توجد مبيعات مخصصة",
+      "subtitle": "أنشئ أول فاتورة بيع مخصص لبدء متابعة أعمال التصنيع المخصصة."
+    },
+    "payment": {
+      "title": "إضافة دفعة",
+      "paymentDate": "تاريخ الدفع",
+      "note": "ملاحظة",
+      "history": "سجل المدفوعات"
+    },
+    "confirm": {
+      "title": "تأكيد العملية",
+      "message": "هل أنت متأكد أنك تريد المتابعة؟"
     }
   },
   "logout": {

@@ -1,0 +1,465 @@
+<app-side-nav>
+  <div class="w-full max-w-[1380px] mx-auto flex flex-col gap-6" [attr.dir]="direction">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h1 class="custom-title">
+          {{
+            mode === 'edit'
+              ? ('customSales.form.editTitle' | translate)
+              : ('customSales.form.createTitle' | translate)
+          }}
+        </h1>
+        <p class="custom-subtitle">{{ 'customSales.form.subtitle' | translate }}</p>
+      </div>
+      <button type="button" class="custom-secondary-button" (click)="backToList()">
+        {{ 'customSales.actions.backToList' | translate }}
+      </button>
+    </div>
+
+    @if (isLoading) {
+      <div class="custom-shell p-6">
+        <div class="custom-skeleton h-8 w-1/3"></div>
+        <div class="custom-skeleton h-36 w-full mt-5"></div>
+      </div>
+    } @else if (loadError) {
+      <div class="custom-shell p-6">
+        <p class="text-red font-roboto">{{ loadError }}</p>
+      </div>
+    } @else {
+      <form [formGroup]="form" class="custom-shell p-5 md:p-7" (ngSubmit)="submit()">
+        <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-5">
+          <div class="flex flex-col gap-5">
+            <section class="custom-panel">
+              <h2 class="custom-panel-title">
+                {{ 'customSales.form.customerInformation' | translate }}
+              </h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2 field-stack">
+                  <label class="custom-label">{{
+                    'customSales.form.customerSelector' | translate
+                  }}</label>
+                  <div class="custom-autocomplete">
+                    <input
+                      class="custom-input"
+                      [value]="customerSearch"
+                      (input)="searchCustomers($event)"
+                      [placeholder]="'customSales.placeholders.customerSearch' | translate"
+                    />
+                    @if (isSearchingCustomers) {
+                      <span class="custom-help">{{
+                        'customSales.actions.searching' | translate
+                      }}</span>
+                    }
+                    @if (showCustomerOptions) {
+                      <ul class="custom-autocomplete-panel">
+                        @for (option of customerOptions; track option.id) {
+                          <li (mousedown)="selectCustomer(option)">{{ option.displayLabel }}</li>
+                        }
+                      </ul>
+                    }
+                  </div>
+                </div>
+                <div class="field-stack">
+                  <label class="custom-label">{{
+                    'customSales.fields.customerName' | translate
+                  }}</label>
+                  <input pInputText formControlName="customerName" class="custom-input" />
+                  @if (fieldInvalid('customerName')) {
+                    <p class="custom-error">{{ 'customSales.validation.required' | translate }}</p>
+                  }
+                </div>
+                <div class="field-stack">
+                  <label class="custom-label">{{
+                    'customSales.fields.customerPhone' | translate
+                  }}</label>
+                  <input pInputText formControlName="customerPhone" class="custom-input" />
+                </div>
+              </div>
+            </section>
+
+            <section class="custom-panel">
+              <h2 class="custom-panel-title">
+                {{ 'customSales.form.invoiceInformation' | translate }}
+              </h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="field-stack">
+                  <label class="custom-label">{{
+                    'customSales.fields.sellingDate' | translate
+                  }}</label>
+                  <p-datepicker
+                    formControlName="sellingDate"
+                    [showIcon]="true"
+                    styleClass="custom-control"
+                    inputStyleClass="custom-input"
+                  />
+                  @if (fieldInvalid('sellingDate')) {
+                    <p class="custom-error">{{ 'customSales.validation.required' | translate }}</p>
+                  }
+                </div>
+                <div class="field-stack">
+                  <label class="custom-label">{{
+                    'customSales.fields.deliveryDate' | translate
+                  }}</label>
+                  <p-datepicker
+                    formControlName="deliveryDate"
+                    [showIcon]="true"
+                    styleClass="custom-control"
+                    inputStyleClass="custom-input"
+                  />
+                </div>
+                <div class="field-stack">
+                  <label class="custom-label">{{
+                    'customSales.fields.finalProductName' | translate
+                  }}</label>
+                  <input pInputText formControlName="finalProductName" class="custom-input" />
+                  @if (fieldInvalid('finalProductName')) {
+                    <p class="custom-error">{{ 'customSales.validation.required' | translate }}</p>
+                  }
+                </div>
+                <div class="field-stack">
+                  <label class="custom-label">{{
+                    'customSales.fields.quantity' | translate
+                  }}</label>
+                  <p-inputNumber
+                    formControlName="quantity"
+                    [min]="1"
+                    [useGrouping]="false"
+                    styleClass="custom-control"
+                    inputStyleClass="custom-input"
+                  />
+                  @if (fieldInvalid('quantity')) {
+                    <p class="custom-error">{{ 'customSales.validation.quantity' | translate }}</p>
+                  }
+                </div>
+                <div class="field-stack md:col-span-2">
+                  <label class="custom-label">{{
+                    'customSales.fields.description' | translate
+                  }}</label>
+                  <textarea
+                    pTextarea
+                    formControlName="description"
+                    class="custom-input custom-textarea"
+                  ></textarea>
+                </div>
+                <div class="field-stack md:col-span-2">
+                  <label class="custom-label">{{ 'customSales.fields.notes' | translate }}</label>
+                  <textarea
+                    pTextarea
+                    formControlName="notes"
+                    class="custom-input custom-textarea"
+                  ></textarea>
+                </div>
+              </div>
+            </section>
+
+            <section class="custom-panel" formArrayName="materials">
+              <div class="custom-section-header">
+                <h2 class="custom-panel-title">{{ 'customSales.form.materials' | translate }}</h2>
+                <button type="button" class="custom-add-button" (click)="addMaterial()">
+                  {{ 'customSales.actions.addRow' | translate }}
+                </button>
+              </div>
+              @for (group of controls(materials); track $index; let i = $index) {
+                <div class="custom-line-card" [formGroupName]="i">
+                  <div class="custom-line-grid">
+                    <div class="field-stack lg:col-span-2">
+                      <label class="custom-label">{{
+                        'customSales.fields.productSelector' | translate
+                      }}</label>
+                      <div class="custom-autocomplete">
+                        <input
+                          class="custom-input"
+                          [value]="materialStates[i].query"
+                          (input)="searchProducts('materials', i, $event)"
+                          [placeholder]="'customSales.placeholders.productSearch' | translate"
+                        />
+                        @if (materialStates[i].isSearching) {
+                          <span class="custom-help">{{
+                            'customSales.actions.searching' | translate
+                          }}</span>
+                        }
+                        @if (materialStates[i].showOptions) {
+                          <ul class="custom-autocomplete-panel">
+                            @for (option of materialStates[i].options; track option.id) {
+                              <li (mousedown)="selectProduct('materials', i, option)">
+                                {{ option.displayLabel }}
+                              </li>
+                            }
+                          </ul>
+                        }
+                      </div>
+                    </div>
+                    <div class="field-stack lg:col-span-2">
+                      <label class="custom-label">{{
+                        'customSales.fields.materialName' | translate
+                      }}</label>
+                      <input pInputText formControlName="name" class="custom-input" />
+                      @if (lineInvalid(group, 'name')) {
+                        <p class="custom-error">
+                          {{ 'customSales.validation.required' | translate }}
+                        </p>
+                      }
+                    </div>
+                    <div class="field-stack">
+                      <label class="custom-label">{{
+                        'customSales.fields.quantity' | translate
+                      }}</label>
+                      <p-inputNumber
+                        formControlName="quantity"
+                        [min]="0"
+                        [useGrouping]="false"
+                        styleClass="custom-control"
+                        inputStyleClass="custom-input"
+                      />
+                    </div>
+                    <div class="field-stack">
+                      <label class="custom-label">{{
+                        'customSales.fields.unit' | translate
+                      }}</label>
+                      <input pInputText formControlName="unit" class="custom-input" />
+                    </div>
+                    <div class="field-stack">
+                      <label class="custom-label">{{
+                        'customSales.fields.unitPrice' | translate
+                      }}</label>
+                      <p-inputNumber
+                        formControlName="unitPrice"
+                        [min]="0"
+                        [useGrouping]="false"
+                        styleClass="custom-control"
+                        inputStyleClass="custom-input"
+                      />
+                    </div>
+                    <div class="field-stack">
+                      <label class="custom-label">{{
+                        'customSales.fields.manualCost' | translate
+                      }}</label>
+                      <p-inputNumber
+                        formControlName="manualCost"
+                        [min]="0"
+                        [useGrouping]="false"
+                        styleClass="custom-control"
+                        inputStyleClass="custom-input"
+                      />
+                    </div>
+                    <div class="field-stack">
+                      <label class="custom-label">{{
+                        'customSales.fields.totalCost' | translate
+                      }}</label>
+                      <p-inputNumber
+                        formControlName="totalCost"
+                        [useGrouping]="false"
+                        styleClass="custom-control"
+                        inputStyleClass="custom-input"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    class="custom-remove-button"
+                    (click)="removeLine(materials, materialStates, i)"
+                  >
+                    {{ 'customSales.actions.removeRow' | translate }}
+                  </button>
+                </div>
+              }
+            </section>
+
+            <section class="custom-panel" formArrayName="additionalComponents">
+              <div class="custom-section-header">
+                <h2 class="custom-panel-title">
+                  {{ 'customSales.form.additionalComponents' | translate }}
+                </h2>
+                <button type="button" class="custom-add-button" (click)="addComponent()">
+                  {{ 'customSales.actions.addRow' | translate }}
+                </button>
+              </div>
+              @for (group of controls(additionalComponents); track $index; let i = $index) {
+                <div class="custom-line-card" [formGroupName]="i">
+                  <div class="custom-line-grid">
+                    <div class="field-stack lg:col-span-2">
+                      <label class="custom-label">{{
+                        'customSales.fields.productSelector' | translate
+                      }}</label>
+                      <div class="custom-autocomplete">
+                        <input
+                          class="custom-input"
+                          [value]="componentStates[i].query"
+                          (input)="searchProducts('components', i, $event)"
+                          [placeholder]="'customSales.placeholders.productSearch' | translate"
+                        />
+                        @if (componentStates[i].showOptions) {
+                          <ul class="custom-autocomplete-panel">
+                            @for (option of componentStates[i].options; track option.id) {
+                              <li (mousedown)="selectProduct('components', i, option)">
+                                {{ option.displayLabel }}
+                              </li>
+                            }
+                          </ul>
+                        }
+                      </div>
+                    </div>
+                    <div class="field-stack lg:col-span-2">
+                      <label class="custom-label">{{
+                        'customSales.fields.componentName' | translate
+                      }}</label>
+                      <input pInputText formControlName="name" class="custom-input" />
+                      @if (lineInvalid(group, 'name')) {
+                        <p class="custom-error">
+                          {{ 'customSales.validation.required' | translate }}
+                        </p>
+                      }
+                    </div>
+                    <div class="field-stack">
+                      <label class="custom-label">{{
+                        'customSales.fields.quantity' | translate
+                      }}</label>
+                      <p-inputNumber
+                        formControlName="quantity"
+                        [min]="0"
+                        [useGrouping]="false"
+                        styleClass="custom-control"
+                        inputStyleClass="custom-input"
+                      />
+                    </div>
+                    <div class="field-stack">
+                      <label class="custom-label">{{
+                        'customSales.fields.unit' | translate
+                      }}</label>
+                      <input pInputText formControlName="unit" class="custom-input" />
+                    </div>
+                    <div class="field-stack">
+                      <label class="custom-label">{{
+                        'customSales.fields.unitPrice' | translate
+                      }}</label>
+                      <p-inputNumber
+                        formControlName="unitPrice"
+                        [min]="0"
+                        [useGrouping]="false"
+                        styleClass="custom-control"
+                        inputStyleClass="custom-input"
+                      />
+                    </div>
+                    <div class="field-stack">
+                      <label class="custom-label">{{
+                        'customSales.fields.totalCost' | translate
+                      }}</label>
+                      <p-inputNumber
+                        formControlName="totalCost"
+                        [useGrouping]="false"
+                        styleClass="custom-control"
+                        inputStyleClass="custom-input"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    class="custom-remove-button"
+                    (click)="removeLine(additionalComponents, componentStates, i)"
+                  >
+                    {{ 'customSales.actions.removeRow' | translate }}
+                  </button>
+                </div>
+              }
+            </section>
+          </div>
+
+          <aside class="custom-summary">
+            <section class="custom-panel sticky top-4">
+              <h2 class="custom-panel-title">{{ 'customSales.form.summary' | translate }}</h2>
+              <div class="field-stack">
+                <label class="custom-label">{{ 'customSales.fields.laborCost' | translate }}</label>
+                <p-inputNumber
+                  formControlName="laborCost"
+                  [min]="0"
+                  [useGrouping]="false"
+                  styleClass="custom-control"
+                  inputStyleClass="custom-input"
+                />
+              </div>
+              <div class="field-stack">
+                <label class="custom-label">{{
+                  'customSales.fields.discountAmount' | translate
+                }}</label>
+                <p-inputNumber
+                  formControlName="discountAmount"
+                  [min]="0"
+                  [useGrouping]="false"
+                  styleClass="custom-control"
+                  inputStyleClass="custom-input"
+                />
+                @if (discountTooHigh) {
+                  <p class="custom-error">{{ 'customSales.validation.discount' | translate }}</p>
+                }
+              </div>
+              <div class="field-stack">
+                <label class="custom-label">{{
+                  'customSales.fields.initialPaidAmount' | translate
+                }}</label>
+                <p-inputNumber
+                  formControlName="initialPaidAmount"
+                  [min]="0"
+                  [useGrouping]="false"
+                  styleClass="custom-control"
+                  inputStyleClass="custom-input"
+                />
+                @if (paidTooHigh) {
+                  <p class="custom-error">{{ 'customSales.validation.paid' | translate }}</p>
+                }
+              </div>
+              <div class="custom-summary-list">
+                <div>
+                  <span>{{ 'customSales.summary.materialsCost' | translate }}</span
+                  ><strong>{{ summary.materialsCost | number: '1.2-2' }}</strong>
+                </div>
+                <div>
+                  <span>{{ 'customSales.summary.additionalComponentsCost' | translate }}</span
+                  ><strong>{{ summary.additionalComponentsCost | number: '1.2-2' }}</strong>
+                </div>
+                <div>
+                  <span>{{ 'customSales.fields.laborCost' | translate }}</span
+                  ><strong>{{ summary.laborCost | number: '1.2-2' }}</strong>
+                </div>
+                <div>
+                  <span>{{ 'customSales.summary.subtotal' | translate }}</span
+                  ><strong>{{ summary.subtotal | number: '1.2-2' }}</strong>
+                </div>
+                <div>
+                  <span>{{ 'customSales.fields.discountAmount' | translate }}</span
+                  ><strong>{{ summary.discount | number: '1.2-2' }}</strong>
+                </div>
+                <div>
+                  <span>{{ 'customSales.summary.totalPrice' | translate }}</span
+                  ><strong>{{ summary.totalPrice | number: '1.2-2' }}</strong>
+                </div>
+                <div>
+                  <span>{{ 'customSales.fields.paidAmount' | translate }}</span
+                  ><strong>{{ summary.paidAmount | number: '1.2-2' }}</strong>
+                </div>
+                <div>
+                  <span>{{ 'customSales.summary.remainingAmount' | translate }}</span
+                  ><strong>{{ summary.remainingAmount | number: '1.2-2' }}</strong>
+                </div>
+                <div>
+                  <span>{{ 'customSales.summary.profitAmount' | translate }}</span
+                  ><strong>{{ summary.profitAmount | number: '1.2-2' }}</strong>
+                </div>
+              </div>
+              <button
+                type="submit"
+                class="custom-primary-button w-full justify-center"
+                [disabled]="isSaving"
+              >
+                {{
+                  isSaving
+                    ? ('customSales.actions.saving' | translate)
+                    : ('customSales.actions.save' | translate)
+                }}
+              </button>
+            </section>
+          </aside>
+        </div>
+      </form>
+    }
+  </div>
+</app-side-nav>

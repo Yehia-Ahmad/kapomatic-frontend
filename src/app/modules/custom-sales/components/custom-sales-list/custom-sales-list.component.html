@@ -1,0 +1,336 @@
+<app-side-nav>
+  <div class="w-full max-w-[1500px] mx-auto flex flex-col gap-6" [attr.dir]="direction">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <h1 class="custom-title">{{ 'customSales.list.title' | translate }}</h1>
+        <p class="custom-subtitle">{{ 'customSales.list.subtitle' | translate }}</p>
+      </div>
+      <button type="button" class="custom-primary-button" (click)="createSale()">
+        {{ 'customSales.actions.create' | translate }}
+      </button>
+    </div>
+
+    <section class="custom-shell p-5">
+      <div class="flex items-center justify-start gap-4 flex-wrap">
+        <input
+          pInputText
+          class="custom-input flex-1 basis-1/5"
+          [(ngModel)]="search"
+          [placeholder]="'customSales.placeholders.search' | translate"
+          (keyup.enter)="applyFilters()"
+        />
+        <p-select
+          class="custom-control flex-1 basis-1/5"
+          [(ngModel)]="status"
+          [options]="statusOptions"
+          optionLabel="label"
+          optionValue="value"
+        />
+        <p-datepicker
+          class="flex-1 basis-1/5"
+          [(ngModel)]="sellingDate"
+          [showIcon]="true"
+          styleClass="custom-control"
+          inputStyleClass="custom-input"
+          [placeholder]="'customSales.fields.sellingDate' | translate"
+        />
+        <p-datepicker
+          class="flex-1 basis-1/5"
+          [(ngModel)]="deliveryDate"
+          [showIcon]="true"
+          styleClass="custom-control"
+          inputStyleClass="custom-input"
+          [placeholder]="'customSales.fields.deliveryDate' | translate"
+        />
+      </div>
+      <div class="flex items-center justify-end gap-4 mt-4 flex-wrap">
+        <button type="button" class="custom-secondary-button" (click)="clearFilters()">
+          {{ 'customSales.actions.clear' | translate }}
+        </button>
+        <button type="button" class="custom-primary-button" (click)="applyFilters()">
+          {{ 'customSales.actions.filter' | translate }}
+        </button>
+      </div>
+    </section>
+
+    <section
+      class="w-full rounded-xl p-6 sm:p-8 invoice-history-shell"
+      [ngClass]="{
+        'bg-gray_dark': (isDarkMode$ | async),
+        'bg-light_card_bg': !(isDarkMode$ | async),
+      }"
+    >
+      @if (isLoading) {
+        <div class="p-5 flex flex-col gap-3">
+          @for (_ of [1, 2, 3, 4, 5]; track $index) {
+            <div class="custom-skeleton h-12 w-full"></div>
+          }
+        </div>
+      } @else if (errorMessage) {
+        <div class="p-6 flex flex-col gap-4">
+          <p class="text-red font-roboto">{{ errorMessage }}</p>
+          <button type="button" class="custom-secondary-button w-fit" (click)="loadSales()">
+            {{ 'customSales.actions.retry' | translate }}
+          </button>
+        </div>
+      } @else if (!sales.length) {
+        <div class="custom-empty">
+          <h2>{{ 'customSales.empty.title' | translate }}</h2>
+          <p>{{ 'customSales.empty.subtitle' | translate }}</p>
+          <button type="button" class="custom-primary-button" (click)="createSale()">
+            {{ 'customSales.actions.create' | translate }}
+          </button>
+        </div>
+      } @else {
+        <div class="invoice-history-table-scroll">
+          <p-table
+            [value]="sales"
+            [loading]="isLoading"
+            [tableStyle]="{ 'min-width': '1360px' }"
+            styleClass="invoice-history-table"
+          >
+            <ng-template pTemplate="header">
+              <tr
+                [ngClass]="{
+                  'bg-[#515151]': (isDarkMode$ | async),
+                  'bg-[#e7e7e7]': !(isDarkMode$ | async),
+                }"
+              >
+                <th
+                  class="px-3 py-3 text-start font-roboto text-xs uppercase"
+                  (click)="sort('invoiceNumber')"
+                >
+                  {{ 'customSales.fields.invoiceNumber' | translate }}
+                </th>
+                <th
+                  class="px-3 py-3 text-start font-roboto text-xs uppercase"
+                  (click)="sort('customerName')"
+                >
+                  {{ 'customSales.fields.customerName' | translate }}
+                </th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">
+                  {{ 'customSales.fields.customerPhone' | translate }}
+                </th>
+                <th
+                  class="px-3 py-3 text-start font-roboto text-xs uppercase"
+                  (click)="sort('finalProductName')"
+                >
+                  {{ 'customSales.fields.finalProductName' | translate }}
+                </th>
+                <th
+                  class="px-3 py-3 text-start font-roboto text-xs uppercase"
+                  (click)="sort('sellingDate')"
+                >
+                  {{ 'customSales.fields.sellingDate' | translate }}
+                </th>
+                <th
+                  class="px-3 py-3 text-start font-roboto text-xs uppercase"
+                  (click)="sort('deliveryDate')"
+                >
+                  {{ 'customSales.fields.deliveryDate' | translate }}
+                </th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">
+                  {{ 'customSales.fields.totalPrice' | translate }}
+                </th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">
+                  {{ 'customSales.fields.paidAmount' | translate }}
+                </th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">
+                  {{ 'customSales.fields.remainingAmount' | translate }}
+                </th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">
+                  {{ 'customSales.fields.status' | translate }}
+                </th>
+                <th class="px-3 py-3 text-start font-roboto text-xs uppercase">
+                  {{ 'customSales.fields.actions' | translate }}
+                </th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-sale>
+              <tr class="invoice-history-row" [ngClass]="{
+                'bg-[#515151]': (isDarkMode$ | async),
+                'bg-[#e7e7e7]': !(isDarkMode$ | async),
+              }">
+                <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">
+                  {{ sale.invoiceNumber || '-' }}
+                </td>
+                <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">
+                  {{ sale.customerName || '-' }}
+                </td>
+                <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">
+                  {{ sale.customerPhone || '-' }}
+                </td>
+                <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">
+                  {{ sale.finalProductName || '-' }}
+                </td>
+                <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">
+                  {{ formatDisplayDate(sale.sellingDate) }}
+                </td>
+                <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">
+                  {{ formatDisplayDate(sale.deliveryDate) }}
+                </td>
+                <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">
+                  {{ amount(sale.totalPrice) | number: '1.2-2' }}
+                </td>
+                <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">
+                  {{ amount(sale.paidAmount) | number: '1.2-2' }}
+                </td>
+                <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">
+                  {{ amount(sale.remainingAmount) | number: '1.2-2' }}
+                </td>
+                <td class="px-3 py-3 font-roboto whitespace-nowrap invoice-history-cell">
+                  <span class="status-pill" [ngClass]="statusClass(sale.status)">
+                    {{ statusLabel(sale.status) }}
+                  </span>
+                </td>
+                <td class="px-3 py-3 font-roboto invoice-history-cell">
+                  <div class="invoice-actions">
+                    <button
+                      type="button"
+                      class="inline-flex items-center justify-center rounded-md bg-[#6f5842] px-3 py-2 text-sm font-semibold text-[#fff4e6] transition-opacity duration-200 hover:opacity-85"
+                      (click)="viewSale(sale)"
+                    >
+                      {{ 'customSales.actions.view' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      class="inline-flex items-center justify-center rounded-md bg-[#6f5842] px-3 py-2 text-sm font-semibold text-[#fff4e6] transition-opacity duration-200 hover:opacity-85"
+                      (click)="editSale(sale)"
+                    >
+                      {{ 'customSales.actions.edit' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      class="inline-flex items-center justify-center rounded-md bg-[#6f5842] px-3 py-2 text-sm font-semibold text-[#fff4e6] transition-opacity duration-200 hover:opacity-85"
+                      (click)="printSale(sale)"
+                    >
+                      {{ 'customSales.actions.print' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      class="inline-flex items-center justify-center rounded-md bg-orange px-3 py-2 text-sm font-semibold text-gray_dark transition-opacity duration-200 hover:opacity-85"
+                      (click)="openPayment(sale)"
+                    >
+                      {{ 'customSales.actions.addPayment' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      class="inline-flex items-center justify-center rounded-md bg-[#6f5842] px-3 py-2 text-sm font-semibold text-[#fff4e6] transition-opacity duration-200 hover:opacity-85"
+                      (click)="openConfirm('deliver', sale)"
+                    >
+                      {{ 'customSales.actions.markDelivered' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      class="inline-flex items-center justify-center rounded-md bg-[#6f5842] px-3 py-2 text-sm font-semibold text-[#fff4e6] transition-opacity duration-200 hover:opacity-85"
+                      (click)="openConfirm('cancel', sale)"
+                    >
+                      {{ 'customSales.actions.cancel' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      class="inline-flex items-center justify-center rounded-md bg-red px-3 py-2 text-sm font-semibold text-white transition-opacity duration-200 hover:opacity-85"
+                      (click)="openConfirm('delete', sale)"
+                    >
+                      {{ 'customSales.actions.delete' | translate }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+        <div class="custom-pagination">
+          <button
+            type="button"
+            class="custom-secondary-button"
+            (click)="previousPage()"
+            [disabled]="page === 1"
+          >
+            {{ 'customSales.actions.previous' | translate }}
+          </button>
+          <span
+            >{{ page }} / {{ totalRecords ? (totalRecords / limit | number: '1.0-0') : 1 }}</span
+          >
+          <button
+            type="button"
+            class="custom-secondary-button"
+            (click)="nextPage()"
+            [disabled]="page * limit >= totalRecords"
+          >
+            {{ 'customSales.actions.next' | translate }}
+          </button>
+        </div>
+      }
+    </section>
+  </div>
+
+  <p-dialog
+    [(visible)]="paymentVisible"
+    [modal]="true"
+    [header]="'customSales.payment.title' | translate"
+    [style]="{ width: 'min(92vw, 420px)' }"
+    styleClass="custom-sales-dialog"
+    [dismissableMask]="true"
+  >
+    <div class="dialog-stack" [attr.dir]="direction">
+      <label>{{ 'customSales.fields.amount' | translate }}</label>
+      <p-inputNumber
+        [(ngModel)]="paymentAmount"
+        [min]="0"
+        [useGrouping]="false"
+        styleClass="custom-control"
+        inputStyleClass="custom-input"
+      />
+      <label>{{ 'customSales.payment.paymentDate' | translate }}</label>
+      <p-datepicker
+        [(ngModel)]="paymentDate"
+        [showIcon]="true"
+        styleClass="custom-control"
+        inputStyleClass="custom-input"
+      />
+      <label>{{ 'customSales.payment.note' | translate }}</label>
+      <input pInputText [(ngModel)]="paymentNote" class="custom-input" />
+      <div class="dialog-actions">
+        <button type="button" class="custom-secondary-button" (click)="paymentVisible = false">
+          {{ 'customSales.actions.close' | translate }}
+        </button>
+        <button
+          type="button"
+          class="custom-primary-button"
+          (click)="savePayment()"
+          [disabled]="isActionSaving"
+        >
+          {{ 'customSales.actions.save' | translate }}
+        </button>
+      </div>
+    </div>
+  </p-dialog>
+
+  <p-dialog
+    [(visible)]="confirmVisible"
+    [modal]="true"
+    [header]="'customSales.confirm.title' | translate"
+    [style]="{ width: 'min(92vw, 420px)' }"
+    styleClass="custom-sales-dialog"
+    [dismissableMask]="true"
+  >
+    <p class="dialog-message" [attr.dir]="direction">
+      {{ 'customSales.confirm.message' | translate }}
+    </p>
+    <div class="dialog-actions">
+      <button type="button" class="custom-secondary-button" (click)="confirmVisible = false">
+        {{ 'customSales.actions.close' | translate }}
+      </button>
+      <button
+        type="button"
+        class="custom-primary-button"
+        (click)="runConfirmedAction()"
+        [disabled]="isActionSaving"
+      >
+        {{ 'customSales.actions.confirm' | translate }}
+      </button>
+    </div>
+  </p-dialog>
+</app-side-nav>

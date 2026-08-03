@@ -86,3 +86,68 @@ body {
     opacity: 0;
     transition: opacity 0.5s ease;
 }
+
+.custom-sales-dialog.p-dialog {
+    border: 1px solid #4f4f55;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #3b3b3f;
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
+}
+
+.custom-sales-dialog .p-dialog-header {
+    padding: 1.35rem 1.4rem 0.85rem;
+    border: 0;
+    background: #3b3b3f;
+    color: #ff9933;
+}
+
+.custom-sales-dialog .p-dialog-title {
+    color: #ff9933;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.18rem;
+    font-weight: 900;
+}
+
+.custom-sales-dialog .p-dialog-header-icon {
+    color: #8fa0b5;
+}
+
+.custom-sales-dialog .p-dialog-header-icon:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f3dec6;
+}
+
+.custom-sales-dialog .p-dialog-content {
+    padding: 0.4rem 1.4rem 1.4rem;
+    background: #3b3b3f;
+    color: #f3dec6;
+}
+
+.custom-sales-dialog .custom-input,
+.custom-sales-dialog .p-inputtext {
+    width: 100%;
+    min-height: 2.75rem;
+    border: 1px solid #75757c;
+    border-radius: 9px;
+    background: rgba(20, 20, 23, 0.22);
+    color: #f3dec6;
+    box-shadow: none;
+}
+
+.custom-sales-dialog .custom-input:focus,
+.custom-sales-dialog .p-inputtext:enabled:focus {
+    border-color: #ff9933;
+    box-shadow: 0 0 0 1px rgba(255, 153, 51, 0.2);
+}
+
+.custom-sales-dialog .p-inputnumber,
+.custom-sales-dialog .p-datepicker {
+    width: 100%;
+}
+
+.custom-sales-dialog .p-datepicker-dropdown {
+    border-color: #75757c;
+    background: #f3f6fb;
+    color: #2f2f2f;
+}
